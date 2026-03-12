@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pub Quiz Daily</title>
+  <meta name="description" content="One question. Every day. How's your general knowledge?" />
+  <meta property="og:title" content="Pub Quiz Daily" />
+  <meta property="og:description" content="One question. Every day. Play now." />
+  <meta property="og:type" content="website" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf9f7;
+      --ink: #1a1a1a;
+      --ink-light: #6b6b6b;
+      --ink-faint: #c8c8c8;
+      --border: #e0ddd8;
+      --correct: #4a7c59;
+      --correct-bg: #edf4ef;
+      --wrong: #c0622e;
+      --wrong-bg: #fdf0eb;
+      --accent: #1a1a1a;
+      --font-serif: 'Libre Baskerville', Georgia, serif;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { font-size: 16px; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+    }
+
+    .streak-badge .fire {
+      font-size: 1rem;
+    }
+
+    .streak-count {
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
+      max-width: 480px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* ── Date pill ── */
+    .date-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 28px;
+    }
+
+    /* ── Question ── */
+    .question-text {
+      font-family: var(--font-serif);
+      font-size: clamp(1.25rem, 4vw, 1.625rem);
+      line-height: 1.45;
+      text-align: center;
+      margin-bottom: 36px;
+      max-width: 400px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 36px;
+    }
+
+    /* ── Options ── */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .option-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 14px 18px;
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 400;
+      color: var(--ink);
+      transition: border-color 0.12s, background 0.12s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .option-btn:hover:not(:disabled) {
+      border-color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .option-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-letter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+      color: var(--ink-light);
+    }
+
+    /* Correct state */
+    .option-btn.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct);
+    }
+    .option-btn.correct .option-letter {
+      background: var(--correct);
+      border-color: var(--correct);
+      color: white;
+    }
+    .option-btn.correct .option-text {
+      color: var(--correct);
+      font-weight: 500;
+    }
+
+    /* Wrong state */
+    .option-btn.wrong {
+      background: var(--wrong-bg);
+      border-color: var(--wrong);
+    }
+    .option-btn.wrong .option-letter {
+      background: var(--wrong);
+      border-color: var(--wrong);
+      color: white;
+    }
+    .option-btn.wrong .option-text {
+      color: var(--wrong);
+    }
+
+    /* Muted (other options after answering) */
+    .option-btn.muted {
+      opacity: 0.4;
+    }
+
+    /* ── Result panel ── */
+    .result-panel {
+      margin-top: 32px;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .result-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-message {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.125rem;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      letter-spacing: 0.01em;
+    }
+
+    .share-btn:hover { opacity: 0.85; }
+
+    /* ── Countdown ── */
+    .next-label {
+      margin-top: 24px;
+      font-size: 0.8125rem;
+      color: var(--ink-faint);
+      letter-spacing: 0.01em;
+    }
+
+    .countdown {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      margin-top: 4px;
+    }
+
+    /* ── Loading & Error states ── */
+    .loading, .error-state {
+      text-align: center;
+      padding: 48px 0;
+    }
+
+    .loading-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+      animation: dot-pulse 1.2s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .error-title {
+      font-family: var(--font-serif);
+      font-size: 1.125rem;
+      margin-bottom: 8px;
+    }
+
+    .error-sub {
+      font-size: 0.875rem;
+      color: var(--ink-light);
+    }
+
+    /* Already played state */
+    .already-played {
+      text-align: center;
+    }
+
+    .already-played .result-message {
+      margin-bottom: 8px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 16px 24px;
+      font-size: 0.75rem;
+      color: var(--ink-faint);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Confetti burst (CSS only, correct answer) ── */
+    .confetti-burst {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .confetti-burst span {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 1px;
+      opacity: 0;
+    }
+
+    @media (max-width: 400px) {
+      .question-text { font-size: 1.125rem; }
+    }
+
+    /* Streak animation */
+    @keyframes streak-pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+    .streak-pop { animation: streak-pop 0.4s ease; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/">Pub Quiz Daily</a>
+    <div class="streak-badge">
+      <span class="fire">🔥</span>
+      <span class="streak-count" id="streakDisplay">0</span>
+      <span>day streak</span>
+    </div>
+  </header>
+
+  <main id="app">
+    <!-- Loading -->
+    <div class="loading" id="loadingState">
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+
+    <!-- Game (hidden until loaded) -->
+    <div id="gameState" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+      <p class="date-label" id="dateLabel"></p>
+      <h1 class="question-text" id="questionText"></h1>
+      <div class="divider"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="result-panel" id="resultPanel">
+        <p class="result-message" id="resultMessage"></p>
+        <div class="result-actions">
+          <button class="share-btn" id="shareBtn" onclick="shareResult()">
+            Share result
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </button>
+        </div>
+        <p class="next-label">Next question in</p>
+        <p class="countdown" id="countdown"></p>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorState" style="display:none" class="error-state">
+      <p class="error-title">No question today</p>
+      <p class="error-sub">Check back soon — something went wrong loading today's quiz.</p>
+    </div>
+  </main>
+
+  <footer>
+    One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily
+  </footer>
+
+  <!-- Confetti container -->
+  <div class="confetti-burst" id="confetti" aria-hidden="true"></div>
+
+  <script>
+    // ── Constants ──────────────────────────────────────────────────────
+    const STORAGE_KEY = 'pqd_state';
+    const CORRECT_MSGS = [
+      "Nailed it. 🎉",
+      "Spot on!",
+      "Get in! Top marks.",
+      "Right first time — brilliant.",
+      "Knew it, didn't you?",
+      "Textbook answer. Lovely.",
+    ];
+    const WRONG_MSGS = [
+      "Unlucky — so close.",
+      "Ooh, not quite.",
+      "The correct answer is revealed above.",
+      "Even the best pub quizzers get one wrong.",
+      "Better luck tomorrow!",
+    ];
+
+    // ── State ──────────────────────────────────────────────────────────
+    let todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    let gameData = null;
+    let playerState = loadState();
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch { return {}; }
+    }
+
+    function saveState(s) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    }
+
+    // ── Boot ───────────────────────────────────────────────────────────
+    updateStreakDisplay();
+    fetchQuestion();
+
+    async function fetchQuestion() {
+      try {
+        const res = await fetch(`/.netlify/functions/question?date=${todayISO}`);
+        if (!res.ok) throw new Error('no question');
+        gameData = await res.json();
+        renderGame();
+      } catch (err) {
+        console.error(err);
+        show('errorState');
+        hide('loadingState');
+      }
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────
+    function renderGame() {
+      hide('loadingState');
+
+      const { question, options, date } = gameData;
+
+      document.getElementById('dateLabel').textContent = formatDate(date || todayISO);
+      document.getElementById('questionText').textContent = question;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      const letters = ['A', 'B', 'C', 'D'];
+      options.forEach((text, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.dataset.letter = letters[i];
+        btn.innerHTML = `
+          <span class="option-letter">${letters[i]}</span>
+          <span class="option-text">${text}</span>
+        `;
+        btn.addEventListener('click', () => handleAnswer(letters[i]));
+        container.appendChild(btn);
+      });
+
+      show('gameState');
+      document.getElementById('gameState').style.display = 'flex';
+
+      // If already played today, restore result
+      if (playerState.date === todayISO && playerState.answered) {
+        restoreAnswered();
+      } else {
+        startCountdown();
+      }
+    }
+
+    function handleAnswer(chosen) {
+      const correct = gameData.correct; // e.g. "B"
+      const isCorrect = chosen === correct;
+
+      // Disable all buttons
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const letter = btn.dataset.letter;
+        if (letter === correct) {
+          btn.classList.add('correct');
+        } else if (letter === chosen && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('muted');
+        }
+      });
+
+      // Update streak
+      const yesterday = getYesterdayISO();
+      let streak = playerState.streak || 0;
+      if (playerState.date === yesterday) {
+        streak += 1;
+      } else if (playerState.date !== todayISO) {
+        streak = 1;
+      }
+
+      // Save
+      playerState = {
+        date: todayISO,
+        answered: true,
+        chosen,
+        correct,
+        isCorrect,
+        streak,
+      };
+      saveState(playerState);
+      updateStreakDisplay();
+
+      // Show result
+      const panel = document.getElementById('resultPanel');
+      const msg = document.getElementById('resultMessage');
+
+      if (isCorrect) {
+        msg.textContent = pick(CORRECT_MSGS);
+        triggerConfetti();
+        // Animate streak badge
+        document.querySelector('.streak-badge').classList.add('streak-pop');
+        setTimeout(() => document.querySelector('.streak-badge').classList.remove('streak-pop'), 500);
+      } else {
+        msg.textContent = pick(WRONG_MSGS);
+      }
+
+      requestAnimationFrame(() => {
+        panel.classList.add('visible');
+      });
+
+      startCountdown();
+    }
+
+    function restoreAnswered() {
+      if (!playerState.answered) return;
+      const { chosen, correct, isCorrect } = playerState;
+
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const letter = btn.dataset.letter;
+        if (letter === correct) {
+          btn.classList.add('correct');
+        } else if (letter === chosen && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('muted');
+        }
+      });
+
+      const panel = document.getElementById('resultPanel');
+      const msg = document.getElementById('resultMessage');
+      msg.textContent = isCorrect
+        ? "You already got this one — and got it right! Come back tomorrow."
+        : "You already played today. Come back tomorrow!";
+      panel.classList.add('visible');
+      startCountdown();
+    }
+
+    // ── Countdown ──────────────────────────────────────────────────────
+    let countdownInterval = null;
+
+    function startCountdown() {
+      const el = document.getElementById('countdown');
+      function tick() {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const diff = midnight - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        el.textContent = `${h}:${m}:${s}`;
+      }
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    // ── Share ──────────────────────────────────────────────────────────
+    function shareResult() {
+      const { isCorrect, streak } = playerState;
+      const result = isCorrect ? '✅' : '❌';
+      const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
+      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${result}${streakStr}\n\n"${gameData.question}"\n\nCan you get it right? → ${location.origin}`;
+
+      if (navigator.share) {
+        navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('shareBtn');
+          btn.textContent = 'Copied!';
+          setTimeout(() => {
+            btn.innerHTML = 'Share result <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+          }, 2000);
+        });
+      }
+    }
+
+    // ── Confetti ───────────────────────────────────────────────────────
+    const CONFETTI_COLORS = ['#4a7c59', '#c0622e', '#1a1a1a', '#8b6c42', '#2c6e8a'];
+
+    function triggerConfetti() {
+      const container = document.getElementById('confetti');
+      container.innerHTML = '';
+      const count = 28;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('span');
+        const angle = (360 / count) * i;
+        const distance = 60 + Math.random() * 60;
+        const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+        const size = 5 + Math.random() * 5;
+        el.style.cssText = `
+          background: ${color};
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: ${Math.random() > 0.5 ? '50%' : '1px'};
+          animation: confetti-${i} 0.7s ease-out forwards;
+        `;
+        const rad = (angle * Math.PI) / 180;
+        const x = Math.cos(rad) * distance;
+        const y = Math.sin(rad) * distance;
+        const style = document.createElement('style');
+        style.textContent = `@keyframes confetti-${i} {
+          0%   { opacity: 1; transform: translate(0,0) rotate(0deg); }
+          100% { opacity: 0; transform: translate(${x}px,${y}px) rotate(${360 * (Math.random() > 0.5 ? 1 : -1)}deg); }
+        }`;
+        document.head.appendChild(style);
+        container.appendChild(el);
+      }
+    }
+
+    // ── Helpers ────────────────────────────────────────────────────────
+    function formatDate(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function getYesterdayISO() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+    function show(id) { document.getElementById(id).style.display = ''; }
+    function hide(id) { document.getElementById(id).style.display = 'none'; }
+
+    function updateStreakDisplay() {
+      const streak = playerState.streak || 0;
+      document.getElementById('streakDisplay').textContent = streak;
+    }
+  </script>
+</body>
+</html>
