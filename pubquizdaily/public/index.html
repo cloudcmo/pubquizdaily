@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -245,8 +246,14 @@
     }
 
     .stats-text {
+      display: inline-block;
       font-size: 0.8125rem;
-      color: var(--ink-faint);
+      font-weight: 500;
+      color: var(--ink-light);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
       letter-spacing: 0.01em;
       margin-bottom: 20px;
       min-height: 0;
@@ -266,21 +273,28 @@
     .share-btn {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
-      padding: 11px 22px;
-      background: var(--ink);
+      gap: 10px;
+      padding: 15px 32px;
+      background: #2d6a4f;
       color: white;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-family: var(--font-sans);
-      font-size: 0.875rem;
-      font-weight: 500;
+      font-size: 1rem;
+      font-weight: 600;
       cursor: pointer;
-      transition: opacity 0.15s;
+      transition: background 0.15s, transform 0.1s;
       letter-spacing: 0.01em;
+      animation: share-nudge 2.5s ease 1.2s 2;
     }
 
-    .share-btn:hover { opacity: 0.85; }
+    @keyframes share-nudge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    .share-btn:hover { background: #1e4d38; transform: translateY(-1px); }
+    .share-btn:active { transform: scale(0.98); }
 
     /* ── Countdown ── */
     .next-label {
