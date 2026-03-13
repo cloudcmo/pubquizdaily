@@ -226,7 +226,22 @@
       font-style: italic;
       font-size: 1.125rem;
       color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .explainer-text {
+      font-size: 0.875rem;
+      color: var(--ink-light);
+      line-height: 1.6;
       margin-bottom: 20px;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+      min-height: 0;
+    }
+
+    .explainer-text:empty {
+      display: none;
     }
 
     .result-actions {
@@ -385,6 +400,7 @@
       <div class="options" id="optionsContainer"></div>
       <div class="result-panel" id="resultPanel">
         <p class="result-message" id="resultMessage"></p>
+        <p class="explainer-text" id="explainerText"></p>
         <div class="result-actions">
           <button class="share-btn" id="shareBtn" onclick="shareResult()">
             Share result
@@ -550,6 +566,10 @@
         msg.textContent = pick(WRONG_MSGS);
       }
 
+      // Show explainer if present
+      const explainerEl = document.getElementById('explainerText');
+      explainerEl.textContent = gameData.explainer || '';
+
       requestAnimationFrame(() => {
         panel.classList.add('visible');
       });
@@ -579,6 +599,10 @@
       msg.textContent = isCorrect
         ? "You already got this one — and got it right! Come back tomorrow."
         : "You already played today. Come back tomorrow!";
+
+      const explainerEl = document.getElementById('explainerText');
+      explainerEl.textContent = gameData.explainer || '';
+
       panel.classList.add('visible');
       startCountdown();
     }

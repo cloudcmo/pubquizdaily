@@ -24,8 +24,8 @@ exports.handler = async function(event) {
 
   try {
     // Fetch the sheet data via Google Sheets API v4
-    // Range: Sheet1!A:G — columns A (date) through G (correct answer)
-    const range = encodeURIComponent('Sheet1!A:G');
+    // Range: Sheet1!A:H — columns A (date) through H (explainer)
+    const range = encodeURIComponent('Sheet1!A:H');
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
 
     const res = await fetch(url);
@@ -54,7 +54,7 @@ exports.handler = async function(event) {
       };
     }
 
-    const [date, question, optA, optB, optC, optD, correct] = matchingRow;
+    const [date, question, optA, optB, optC, optD, correct, explainer] = matchingRow;
 
     // Validate
     if (!question || !optA || !optB || !optC || !optD || !correct) {
@@ -73,6 +73,7 @@ exports.handler = async function(event) {
         question: question.trim(),
         options: [optA.trim(), optB.trim(), optC.trim(), optD.trim()],
         correct: correct.trim().toUpperCase(), // "A", "B", "C", or "D"
+        explainer: explainer ? explainer.trim() : null,
       }),
     };
 
