@@ -244,6 +244,18 @@
       display: none;
     }
 
+    .stats-text {
+      font-size: 0.8125rem;
+      color: var(--ink-faint);
+      letter-spacing: 0.01em;
+      margin-bottom: 20px;
+      min-height: 0;
+    }
+
+    .stats-text:empty {
+      display: none;
+    }
+
     .result-actions {
       display: flex;
       gap: 10px;
@@ -401,6 +413,7 @@
       <div class="result-panel" id="resultPanel">
         <p class="result-message" id="resultMessage"></p>
         <p class="explainer-text" id="explainerText"></p>
+        <p class="stats-text" id="statsText"></p>
         <div class="result-actions">
           <button class="share-btn" id="shareBtn" onclick="shareResult()">
             Share result
@@ -570,6 +583,9 @@
       const explainerEl = document.getElementById('explainerText');
       explainerEl.textContent = gameData.explainer || '';
 
+      // Record answer and show stat
+      recordAndShowStat(isCorrect);
+
       requestAnimationFrame(() => {
         panel.classList.add('visible');
       });
@@ -603,8 +619,57 @@
       const explainerEl = document.getElementById('explainerText');
       explainerEl.textContent = gameData.explainer || '';
 
+      // Fetch stat for returning players (don't re-record)
+      fetchAndShowStat(playerState.isCorrect);
+
       panel.classList.add('visible');
       startCountdown();
+    }
+
+    // ── Stats ──────────────────────────────────────────────────────────
+    async function recordAndShowStat(isCorrect) {
+      try {
+        const res = await fetch('/.netlify/functions/record-answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: todayISO, correct: isCorrect }),
+        });
+        if (!res.ok) return;
+        const { total, correctCount } = await res.json();
+        showStat(total, correctCount, isCorrect);
+      } catch (e) {
+        // Silently fail — stats are a nice-to-have
+      }
+    }
+
+    async function fetchAndShowStat(isCorrect) {
+      try {
+        const res = await fetch(`/.netlify/functions/record-answer?date=${todayISO}`);
+        if (!res.ok) return;
+        const { total, correctCount } = await res.json();
+        showStat(total, correctCount, isCorrect);
+      } catch (e) {
+        // Silently fail
+      }
+    }
+
+    function showStat(total, correctCount, isCorrect) {
+      if (!total || total < 2) return; // Don't show until at least 2 plays
+      const pct = Math.round((correctCount / total) * 100);
+      const el = document.getElementById('statsText');
+      if (isCorrect) {
+        el.textContent = pct >= 70
+          ? `Most players got this — ${pct}% answered correctly today`
+          : pct >= 40
+          ? `${pct}% of players got this right today`
+          : `You're sharper than most — only ${pct}% got this right today`;
+      } else {
+        el.textContent = pct >= 70
+          ? `Tricky one — ${100 - pct}% also got this wrong today`
+          : pct >= 40
+          ? `${pct}% of players got this right today`
+          : `Tough question — only ${pct}% of players got this right`;
+      }
     }
 
     // ── Countdown ──────────────────────────────────────────────────────
