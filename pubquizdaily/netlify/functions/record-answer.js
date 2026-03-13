@@ -1,8 +1,5 @@
 // netlify/functions/record-answer.js
-// Records a player's answer and returns today's stats
-// Uses Netlify Blobs for persistent storage (no database needed)
-
-const { getStore } = require('@netlify/blobs');
+// Records answers and returns stats using Netlify Blobs REST API
 
 exports.handler = async function(event) {
   const headers = {
@@ -10,49 +7,64 @@ exports.handler = async function(event) {
     'Content-Type': 'application/json',
   };
 
-  const store = getStore('quiz-stats');
+  const SITE_ID = process.env.NETLIFY_SITE_ID;
+  const TOKEN   = process.env.NETLIFY_API_TOKEN;
 
-  // GET — just fetch today's stats (for returning players)
+  if (!SITE_ID || !TOKEN) {
+    console.error('Missing NETLIFY_SITE_ID or NETLIFY_API_TOKEN');
+    return { statusCode: 200, headers, body: JSON.stringify({ total: 0, correctCount: 0 }) };
+  }
+
+  const date = (event.httpMethod === 'GET'
+    ? event.queryStringParameters?.date
+    : JSON.parse(event.body || '{}').date) || todayISO();
+
+  const blobUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-stats/${date}`;
+  const authHeader = { 'Authorization': `Bearer ${TOKEN}` };
+
+  // GET — fetch current stats
   if (event.httpMethod === 'GET') {
-    const date = event.queryStringParameters?.date || todayISO();
     try {
-      const raw = await store.get(date);
-      if (!raw) return { statusCode: 200, headers, body: JSON.stringify({ total: 0, correctCount: 0 }) };
-      return { statusCode: 200, headers, body: raw };
+      const res = await fetch(blobUrl, { headers: authHeader });
+      if (res.status === 404) return { statusCode: 200, headers, body: JSON.stringify({ total: 0, correctCount: 0 }) };
+      const data = await res.json();
+      return { statusCode: 200, headers, body: JSON.stringify(data) };
     } catch (e) {
+      console.error('GET error:', e);
       return { statusCode: 200, headers, body: JSON.stringify({ total: 0, correctCount: 0 }) };
     }
   }
 
   // POST — record a new answer
   if (event.httpMethod === 'POST') {
-    let body;
+    let correct = false;
     try {
-      body = JSON.parse(event.body || '{}');
-    } catch {
-      return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
-    }
-
-    const { date, correct } = body;
-    if (!date) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing date' }) };
+      correct = JSON.parse(event.body || '{}').correct || false;
+    } catch {}
 
     try {
-      // Read current counts
+      // Read current
       let stats = { total: 0, correctCount: 0 };
-      const raw = await store.get(date);
-      if (raw) stats = JSON.parse(raw);
+      const getRes = await fetch(blobUrl, { headers: authHeader });
+      if (getRes.ok) {
+        stats = await getRes.json();
+      }
 
       // Increment
       stats.total += 1;
       if (correct) stats.correctCount += 1;
 
-      // Save back
-      await store.set(date, JSON.stringify(stats));
+      // Write back
+      await fetch(blobUrl, {
+        method: 'PUT',
+        headers: { ...authHeader, 'Content-Type': 'application/json' },
+        body: JSON.stringify(stats),
+      });
 
       return { statusCode: 200, headers, body: JSON.stringify(stats) };
     } catch (e) {
-      console.error('Blob error:', e);
-      return { statusCode: 500, headers, body: JSON.stringify({ error: 'Storage error' }) };
+      console.error('POST error:', e);
+      return { statusCode: 200, headers, body: JSON.stringify({ total: 0, correctCount: 0 }) };
     }
   }
 
