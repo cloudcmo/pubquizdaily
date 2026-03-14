@@ -643,10 +643,15 @@
         const res = await fetch(`/.netlify/functions/question?date=${todayISO}`);
         if (!res.ok) throw new Error('no question');
         gameData = await res.json();
+        hide('errorState');
         renderGame();
       } catch (err) {
         console.error(err);
-        show('errorState');
+        // Only show error if game hasn't already rendered
+        if (document.getElementById('gameState').style.display === 'none' ||
+            document.getElementById('gameState').style.display === '') {
+          show('errorState');
+        }
         hide('loadingState');
       }
     }
@@ -762,8 +767,11 @@
     }
 
     function restoreAnswered() {
-      if (!playerState.answered) return;
-      const { chosen, correct, isCorrect } = playerState;
+      // In archive mode, use gameData for correct answer since playerState may be from a different date
+      const chosen = isArchiveMode ? loadArchivePlayed()[todayISO] : playerState.chosen;
+      const correct = gameData.correct;
+      const isCorrect = isArchiveMode ? (loadArchivePlayed()[todayISO] === 'correct') : playerState.isCorrect;
+      if (!isArchiveMode && !playerState.answered) return;
 
       const buttons = document.querySelectorAll('.option-btn');
       buttons.forEach(btn => {
