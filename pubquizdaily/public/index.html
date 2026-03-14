@@ -1,14 +1,25 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pub Quiz Daily</title>
-  <meta name="description" content="One question. Every day. How's your general knowledge?" />
-  <meta property="og:title" content="Pub Quiz Daily" />
-  <meta property="og:description" content="One question. Every day. Play now." />
+  <title>Pub Quiz Daily — Free daily pub quiz</title>
+  <meta name="description" content="One free pub quiz question every day. Test your general knowledge, build a streak and share your score. A new question drops every day." />
+  <meta name="keywords" content="pub quiz, daily quiz, free quiz, general knowledge, trivia" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Pub Quiz Daily — Free daily pub quiz" />
+  <meta property="og:description" content="One question. Every day. How's your general knowledge? Play free at pubquizdaily.com" />
   <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pubquizdaily.com" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Pub Quiz Daily — Free daily pub quiz" />
+  <meta name="twitter:description" content="One question. Every day. Play free at pubquizdaily.com" />
+  <link rel="canonical" href="https://pubquizdaily.com" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta property="og:image" content="https://pubquizdaily.com/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -73,6 +84,15 @@
       font-size: 1rem;
     }
 
+
+    .archive-link {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    .archive-link:hover { color: var(--ink); }
     .streak-count {
       font-variant-numeric: tabular-nums;
     }
@@ -398,15 +418,31 @@
     }
     .streak-pop { animation: streak-pop 0.4s ease; }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Pub Quiz Daily",
+    "url": "https://pubquizdaily.com",
+    "description": "One free pub quiz question every day. Test your general knowledge, build a streak and share your score.",
+    "potentialAction": {
+      "@type": "PlayAction",
+      "target": "https://pubquizdaily.com"
+    }
+  }
+  </script>
 </head>
 <body>
 
   <header>
     <a class="logo" href="/">Pub Quiz Daily</a>
-    <div class="streak-badge">
-      <span class="fire">🔥</span>
-      <span class="streak-count" id="streakDisplay">0</span>
-      <span>day streak</span>
+    <div style="display:flex;align-items:center;gap:20px;">
+      <a class="archive-link" href="/archive.html">Archive</a>
+      <div class="streak-badge">
+        <span class="fire">🔥</span>
+        <span class="streak-count" id="streakDisplay">0</span>
+        <span>day streak</span>
+      </div>
     </div>
   </header>
 
@@ -434,8 +470,9 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           </button>
         </div>
-        <p class="next-label">Next question in</p>
+        <p class="next-label" id="nextLabel">Next question in</p>
         <p class="countdown" id="countdown"></p>
+        <a class="archive-back" id="archiveBack" href="/archive.html" style="display:none;font-size:0.875rem;color:var(--ink-light);text-decoration:none;margin-top:4px;">← Back to archive</a>
       </div>
     </div>
 
@@ -473,7 +510,10 @@
     ];
 
     // ── State ──────────────────────────────────────────────────────────
-    let todayISO = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const realTodayISO = new Date().toISOString().slice(0, 10);
+    const urlDate = new URLSearchParams(location.search).get('date');
+    const isArchiveMode = urlDate && urlDate !== realTodayISO;
+    let todayISO = urlDate || realTodayISO;
     let gameData = null;
     let playerState = loadState();
 
@@ -487,8 +527,27 @@
       localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
     }
 
+    function loadArchivePlayed() {
+      try { return JSON.parse(localStorage.getItem('pqd_archive_played')) || {}; }
+      catch { return {}; }
+    }
+
+    function saveArchivePlayed(date, result) {
+      const played = loadArchivePlayed();
+      played[date] = result;
+      localStorage.setItem('pqd_archive_played', JSON.stringify(played));
+    }
+
     // ── Boot ───────────────────────────────────────────────────────────
     updateStreakDisplay();
+
+    // In archive mode, hide streak badge and show archive label
+    if (isArchiveMode) {
+      document.querySelector('.streak-badge').style.display = 'none';
+      document.querySelector('.archive-link').textContent = '← Archive';
+      document.querySelector('.archive-link').href = '/archive.html';
+    }
+
     fetchQuestion();
 
     async function fetchQuestion() {
@@ -532,10 +591,13 @@
       show('gameState');
       document.getElementById('gameState').style.display = 'flex';
 
-      // If already played today, restore result
-      if (playerState.date === todayISO && playerState.answered) {
+      // If already played, restore result
+      const archivePlayed = loadArchivePlayed();
+      if (isArchiveMode && archivePlayed[todayISO]) {
         restoreAnswered();
-      } else {
+      } else if (!isArchiveMode && playerState.date === todayISO && playerState.answered) {
+        restoreAnswered();
+      } else if (!isArchiveMode) {
         startCountdown();
       }
     }
@@ -558,26 +620,29 @@
         }
       });
 
-      // Update streak
-      const yesterday = getYesterdayISO();
-      let streak = playerState.streak || 0;
-      if (playerState.date === yesterday) {
-        streak += 1;
-      } else if (playerState.date !== todayISO) {
-        streak = 1;
+      // Update streak (only for today's question, not archive)
+      if (!isArchiveMode) {
+        const yesterday = getYesterdayISO();
+        let streak = playerState.streak || 0;
+        if (playerState.date === yesterday) {
+          streak += 1;
+        } else if (playerState.date !== todayISO) {
+          streak = 1;
+        }
+        playerState = {
+          date: todayISO,
+          answered: true,
+          chosen,
+          correct,
+          isCorrect,
+          streak,
+        };
+        saveState(playerState);
+        updateStreakDisplay();
+      } else {
+        // Archive mode — just save to archive played store
+        saveArchivePlayed(todayISO, isCorrect ? 'correct' : 'wrong');
       }
-
-      // Save
-      playerState = {
-        date: todayISO,
-        answered: true,
-        chosen,
-        correct,
-        isCorrect,
-        streak,
-      };
-      saveState(playerState);
-      updateStreakDisplay();
 
       // Show result
       const panel = document.getElementById('resultPanel');
@@ -690,6 +755,12 @@
     let countdownInterval = null;
 
     function startCountdown() {
+      if (isArchiveMode) {
+        document.getElementById('nextLabel').style.display = 'none';
+        document.getElementById('countdown').style.display = 'none';
+        document.getElementById('archiveBack').style.display = 'inline';
+        return;
+      }
       const el = document.getElementById('countdown');
       function tick() {
         const now = new Date();
