@@ -410,6 +410,73 @@
       .question-text { font-size: 1.125rem; }
     }
 
+
+    /* ── Email signup ── */
+    .email-signup {
+      margin-top: 32px;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      text-align: center;
+    }
+
+    .email-signup.hidden { display: none; }
+
+    .signup-label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      margin-bottom: 10px;
+      letter-spacing: 0.01em;
+    }
+
+    .signup-row {
+      display: flex;
+      gap: 8px;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    .signup-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .signup-input:focus { border-color: var(--ink); }
+
+    .signup-btn {
+      padding: 10px 16px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .signup-btn:hover { opacity: 0.8; }
+    .signup-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .signup-confirm {
+      font-size: 0.8125rem;
+      color: var(--correct);
+      font-weight: 500;
+      display: none;
+    }
+
+    .signup-confirm.visible { display: block; }
     /* Streak animation */
     @keyframes streak-pop {
       0% { transform: scale(1); }
@@ -472,6 +539,14 @@
         </div>
         <p class="next-label" id="nextLabel">Next question in</p>
         <p class="countdown" id="countdown"></p>
+        <div class="email-signup" id="emailSignup">
+          <p class="signup-label">Never miss a question — get the weekly round-up</p>
+          <div class="signup-row">
+            <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" />
+            <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up</button>
+          </div>
+          <p class="signup-confirm" id="signupConfirm">You're in! See you Friday. 🍺</p>
+        </div>
         <a class="archive-back" id="archiveBack" href="/archive.html" style="display:none;font-size:0.875rem;color:var(--ink-light);text-decoration:none;margin-top:4px;">← Back to archive</a>
       </div>
     </div>
@@ -482,6 +557,17 @@
       <p class="error-sub">Check back soon — something went wrong loading today's quiz.</p>
     </div>
   </main>
+
+
+    <!-- Pre-answer subtle signup -->
+    <div class="email-signup" id="preAnswerSignup" style="margin-top:0; border-top: none; padding-top:0;">
+      <p class="signup-label">Get the weekly round-up every Friday</p>
+      <div class="signup-row">
+        <input class="signup-input" type="email" id="preSignupEmail" placeholder="your@email.com" />
+        <button class="signup-btn" onclick="submitPreSignup()">Sign up</button>
+      </div>
+      <p class="signup-confirm" id="preSignupConfirm">You're in! See you Friday. 🍺</p>
+    </div>
 
   <footer>
     One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily
@@ -667,6 +753,7 @@
 
       requestAnimationFrame(() => {
         panel.classList.add('visible');
+        initSignup();
       });
 
       startCountdown();
@@ -702,7 +789,58 @@
       fetchAndShowStat(playerState.isCorrect);
 
       panel.classList.add('visible');
+      initSignup();
       startCountdown();
+    }
+
+
+    // ── Email signup ──────────────────────────────────────────────────
+    const SIGNUP_KEY = 'pqd_subscribed';
+
+    function initSignup() {
+      // Hide if already subscribed or in archive mode
+      if (isArchiveMode || localStorage.getItem(SIGNUP_KEY)) {
+        const el = document.getElementById('emailSignup');
+        if (el) el.classList.add('hidden');
+      }
+    }
+
+    async function submitSignup() {
+      const input = document.getElementById('signupEmail');
+      const btn = document.getElementById('signupBtn');
+      const confirm = document.getElementById('signupConfirm');
+      const email = input.value.trim();
+
+      if (!email || !email.includes('@')) {
+        input.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          confirm.classList.add('visible');
+          document.querySelector('.signup-label').textContent = 'You're on the list!';
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up';
+      }
     }
 
     // ── Stats ──────────────────────────────────────────────────────────
@@ -828,6 +966,52 @@
         container.appendChild(el);
       }
     }
+
+
+    // Pre-answer signup (page bottom)
+    function initPreSignup() {
+      const el = document.getElementById('preAnswerSignup');
+      if (!el) return;
+      if (isArchiveMode || localStorage.getItem(SIGNUP_KEY)) {
+        el.classList.add('hidden');
+      }
+    }
+
+    async function submitPreSignup() {
+      const input = document.getElementById('preSignupEmail');
+      const confirm = document.getElementById('preSignupConfirm');
+      const btn = input.nextElementSibling;
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          confirm.classList.add('visible');
+          document.querySelector('#preAnswerSignup .signup-label').textContent = 'You're on the list!';
+          // Also hide post-answer signup if showing
+          const postEl = document.getElementById('emailSignup');
+          if (postEl) postEl.classList.add('hidden');
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up';
+      }
+    }
+
+    // Init pre-signup on load
+    initPreSignup();
 
     // ── Helpers ────────────────────────────────────────────────────────
     function formatDate(iso) {
