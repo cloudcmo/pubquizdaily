@@ -560,16 +560,6 @@
   </main>
 
 
-    <!-- Pre-answer subtle signup -->
-    <div class="email-signup" id="preAnswerSignup" style="margin-top:0; border-top: none; padding-top:0;">
-      <p class="signup-label">Get the weekly round-up every Friday</p>
-      <div class="signup-row">
-        <input class="signup-input" type="email" id="preSignupEmail" placeholder="your@email.com" />
-        <button class="signup-btn" onclick="submitPreSignup()">Sign up</button>
-      </div>
-      <p class="signup-confirm" id="preSignupConfirm">You're in! See you Friday. 🍺</p>
-    </div>
-
   <footer>
     One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily
   </footer>
@@ -989,48 +979,6 @@
       }
     }
 
-
-    // Pre-answer signup (page bottom)
-    function initPreSignup() {
-      const el = document.getElementById('preAnswerSignup');
-      if (!el) return;
-      if (isArchiveMode || localStorage.getItem(SIGNUP_KEY)) {
-        el.classList.add('hidden');
-      }
-    }
-
-    async function submitPreSignup() {
-      const input = document.getElementById('preSignupEmail');
-      const confirm = document.getElementById('preSignupConfirm');
-      const btn = input.nextElementSibling;
-      const email = input.value.trim();
-      if (!email || !email.includes('@')) { input.focus(); return; }
-      btn.disabled = true;
-      btn.textContent = 'Signing up…';
-      try {
-        const res = await fetch('/.netlify/functions/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        if (res.ok) {
-          localStorage.setItem(SIGNUP_KEY, '1');
-          input.style.display = 'none';
-          btn.style.display = 'none';
-          confirm.classList.add('visible');
-          document.querySelector('#preAnswerSignup .signup-label').textContent = "You're on the list!";
-          // Also hide post-answer signup if showing
-          const postEl = document.getElementById('emailSignup');
-          if (postEl) postEl.classList.add('hidden');
-        } else {
-          btn.disabled = false;
-          btn.textContent = 'Sign up';
-        }
-      } catch {
-        btn.disabled = false;
-        btn.textContent = 'Sign up';
-      }
-    }
 
     // ── Helpers ────────────────────────────────────────────────────────
     function formatDate(iso) {
