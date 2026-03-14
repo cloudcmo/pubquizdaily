@@ -767,11 +767,18 @@
     }
 
     function restoreAnswered() {
-      // In archive mode, use gameData for correct answer since playerState may be from a different date
-      const chosen = isArchiveMode ? loadArchivePlayed()[todayISO] : playerState.chosen;
       const correct = gameData.correct;
-      const isCorrect = isArchiveMode ? (loadArchivePlayed()[todayISO] === 'correct') : playerState.isCorrect;
-      if (!isArchiveMode && !playerState.answered) return;
+      let chosen, isCorrect;
+
+      if (isArchiveMode) {
+        const archiveResult = loadArchivePlayed()[todayISO]; // 'correct' or 'wrong'
+        isCorrect = archiveResult === 'correct';
+        chosen = null; // we don't know which wrong answer they picked, just show correct
+      } else {
+        if (!playerState.answered) return;
+        chosen = playerState.chosen;
+        isCorrect = playerState.isCorrect;
+      }
 
       const buttons = document.querySelectorAll('.option-btn');
       buttons.forEach(btn => {
@@ -779,7 +786,7 @@
         const letter = btn.dataset.letter;
         if (letter === correct) {
           btn.classList.add('correct');
-        } else if (letter === chosen && !isCorrect) {
+        } else if (chosen && letter === chosen && !isCorrect) {
           btn.classList.add('wrong');
         } else {
           btn.classList.add('muted');
@@ -788,15 +795,21 @@
 
       const panel = document.getElementById('resultPanel');
       const msg = document.getElementById('resultMessage');
-      msg.textContent = isCorrect
-        ? "You already got this one — and got it right! Come back tomorrow."
-        : "You already played today. Come back tomorrow!";
+
+      if (isArchiveMode) {
+        msg.textContent = isCorrect
+          ? "You already played this one — and got it right!"
+          : "You already played this one.";
+      } else {
+        msg.textContent = isCorrect
+          ? "You already got this one — and got it right! Come back tomorrow."
+          : "You already played today. Come back tomorrow!";
+      }
 
       const explainerEl = document.getElementById('explainerText');
       explainerEl.textContent = gameData.explainer || '';
 
-      // Fetch stat for returning players (don't re-record)
-      fetchAndShowStat(playerState.isCorrect);
+      fetchAndShowStat(isCorrect);
 
       panel.classList.add('visible');
       initSignup();
