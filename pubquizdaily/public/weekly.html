@@ -330,6 +330,72 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
+
+    /* ── Email signup ── */
+    .email-signup {
+      margin-top: 48px;
+      border-top: 1px solid var(--border);
+      padding-top: 28px;
+      text-align: center;
+    }
+
+    .email-signup.hidden { display: none; }
+
+    .signup-label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      margin-bottom: 10px;
+    }
+
+    .signup-row {
+      display: flex;
+      gap: 8px;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    .signup-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .signup-input:focus { border-color: var(--ink); }
+
+    .signup-btn {
+      padding: 10px 16px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .signup-btn:hover { opacity: 0.8; }
+    .signup-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .signup-confirm {
+      font-size: 0.8125rem;
+      color: var(--correct);
+      font-weight: 500;
+      display: none;
+      margin-top: 8px;
+    }
+
+    .signup-confirm.visible { display: block; }
     footer {
       border-top: 1px solid var(--border);
       text-align: center;
@@ -361,6 +427,15 @@
         <div class="loading-dots"><span></span><span></span><span></span></div>
         Loading this week's questions…
       </div>
+    </div>
+
+    <div class="email-signup" id="emailSignup">
+      <p class="signup-label">Get this in your inbox every Friday</p>
+      <div class="signup-row">
+        <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" />
+        <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up</button>
+      </div>
+      <p class="signup-confirm" id="signupConfirm">You're in! See you next Friday. 🍺</p>
     </div>
   </main>
 
@@ -397,7 +472,7 @@
 
     function formatDateShort(iso) {
       const d = new Date(iso + 'T12:00:00');
-      return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+      return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
     }
 
     function formatWeekRange(dates) {
@@ -552,6 +627,49 @@
     }
 
     loadQuestions();
+
+    // ── Email signup ──────────────────────────────────────────────────
+    const SIGNUP_KEY = 'pqd_subscribed';
+
+    function initSignup() {
+      if (localStorage.getItem(SIGNUP_KEY)) {
+        document.getElementById('emailSignup').classList.add('hidden');
+      }
+    }
+
+    async function submitSignup() {
+      const input = document.getElementById('signupEmail');
+      const btn = document.getElementById('signupBtn');
+      const confirm = document.getElementById('signupConfirm');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          confirm.classList.add('visible');
+          document.querySelector('#emailSignup .signup-label').textContent = "You're on the list!";
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up';
+      }
+    }
+
+    initSignup();
+
   </script>
 </body>
 </html>
