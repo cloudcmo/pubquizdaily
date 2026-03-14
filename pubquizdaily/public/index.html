@@ -541,7 +541,7 @@
         <p class="next-label" id="nextLabel">Next question in</p>
         <p class="countdown" id="countdown"></p>
         <div class="email-signup" id="emailSignup">
-          <p class="signup-label">Never miss a question — get the Friday round-up</p>
+          <p class="signup-label">Never miss a question — get the weekly round-up</p>
           <div class="signup-row">
             <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" />
             <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up</button>
@@ -562,7 +562,7 @@
 
     <!-- Pre-answer subtle signup -->
     <div class="email-signup" id="preAnswerSignup" style="margin-top:0; border-top: none; padding-top:0;">
-      <p class="signup-label">Never miss a question - get the Friday round-up</p>
+      <p class="signup-label">Get the weekly round-up every Friday</p>
       <div class="signup-row">
         <input class="signup-input" type="email" id="preSignupEmail" placeholder="your@email.com" />
         <button class="signup-btn" onclick="submitPreSignup()">Sign up</button>
@@ -833,7 +833,7 @@
           input.style.display = 'none';
           btn.style.display = 'none';
           confirm.classList.add('visible');
-          document.querySelector('.signup-label').textContent = 'You're on the list!';
+          document.querySelector('.signup-label').textContent = "You're on the list!";
         } else {
           btn.disabled = false;
           btn.textContent = 'Sign up';
@@ -998,7 +998,7 @@
           input.style.display = 'none';
           btn.style.display = 'none';
           confirm.classList.add('visible');
-          document.querySelector('#preAnswerSignup .signup-label').textContent = 'You're on the list!';
+          document.querySelector('#preAnswerSignup .signup-label').textContent = "You're on the list!";
           // Also hide post-answer signup if showing
           const postEl = document.getElementById('emailSignup');
           if (postEl) postEl.classList.add('hidden');
