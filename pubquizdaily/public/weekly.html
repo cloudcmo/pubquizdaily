@@ -485,7 +485,7 @@
     async function loadQuestions() {
       const dates = getLast7Dates();
       document.getElementById('weekLabel').textContent =
-        `Weekly Round-up · ${formatWeekRange(dates)}`;
+        `All the questions from · ${formatWeekRange(dates)}`;
 
       const results = await Promise.allSettled(
         dates.map(date =>
