@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -268,8 +269,8 @@
     .tile:hover { border-color: var(--ink); }
 
     .tile.selected {
-      background: var(--ink);
-      border-color: var(--ink);
+      background: #4a4a4a;
+      border-color: #4a4a4a;
       color: white;
     }
 
@@ -670,7 +671,7 @@
           // Game over — reveal all
           setTimeout(() => revealAll(), 600);
         } else {
-          selected.clear();
+          // Keep selection so player can adjust
           updateControls();
           renderGrid();
         }
