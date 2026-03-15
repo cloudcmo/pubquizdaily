@@ -664,7 +664,7 @@
           const counts = {};
           groupIndices.forEach(g => counts[g] = (counts[g]||0) + 1);
           const maxCount = Math.max(...Object.values(counts));
-          if (maxCount === 3) showToast("One away...");
+          if (maxCount === 3) showToast("So close — one wrong!");
         }
 
         if (livesLeft === 0) {
