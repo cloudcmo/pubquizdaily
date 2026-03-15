@@ -1055,6 +1055,18 @@
       const streak = playerState.streak || 0;
       document.getElementById('streakDisplay').textContent = streak;
     }
-  </script>
+  
+    // ── Burger menu ────────────────────────────────────────────────────
+    function toggleMenu() {
+      document.getElementById('burgerBtn').classList.toggle('open');
+      document.getElementById('navMenu').classList.toggle('open');
+    }
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('header')) {
+        document.getElementById('burgerBtn').classList.remove('open');
+        document.getElementById('navMenu').classList.remove('open');
+      }
+    });
+</script>
 </body>
 </html>
