@@ -484,6 +484,53 @@
       100% { transform: scale(1); }
     }
     .streak-pop { animation: streak-pop 0.4s ease; }
+
+    /* ── Burger menu ── */
+    .burger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 200;
+    }
+    .burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 56px;
+      right: 0;
+      left: 0;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 8px 0;
+    }
+    .nav-menu.open { display: block; }
+    .nav-menu a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: var(--cream); }
+    .nav-menu a.active { color: #4a7c59; }
   </style>
   <script type="application/ld+json">
   {
@@ -501,16 +548,24 @@
 </head>
 <body>
 
-  <header>
+  <header style="position:relative;">
     <a class="logo" href="/">Pub Quiz Daily</a>
-    <div style="display:flex;align-items:center;gap:20px;">
-      <a class="archive-link" href="/weekly.html">Weekly quiz</a>
+    <div style="display:flex;align-items:center;gap:16px;">
       <div class="streak-badge">
         <span class="fire">🔥</span>
         <span class="streak-count" id="streakDisplay">0</span>
         <span>day streak</span>
       </div>
+      <button class="burger" id="burgerBtn" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
     </div>
+    <nav class="nav-menu" id="navMenu">
+      <a href="/" class="active">Today's question</a>
+      <a href="/groupie.html">Groupie</a>
+      <a href="/weekly.html">Weekly quiz</a>
+      <a href="/archive.html">Full archive</a>
+    </nav>
   </header>
 
   <main id="app">

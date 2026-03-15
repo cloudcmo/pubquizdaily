@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Groupie — Daily word connections</title>
+  <meta name="description" content="Find four groups of four. A British word connections game, fresh every day." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://pubquizdaily.com/groupie.html" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf9f7;
+      --ink: #1a1a1a;
+      --ink-light: #6b6b6b;
+      --ink-faint: #c8c8c8;
+      --border: #e0ddd8;
+      --correct: #4a7c59;
+      --font-serif: 'Libre Baskerville', Georgia, serif;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+
+      /* Group colours — distinct from NYT */
+      --g0: #a8d5d1;       /* teal */
+      --g0-dark: #2a7a74;
+      --g0-text: #1a4a47;
+      --g1: #b8d4a0;       /* sage green */
+      --g1-dark: #4a7a2e;
+      --g1-text: #2a4a1a;
+      --g2: #f0b8c0;       /* rose */
+      --g2-dark: #b04060;
+      --g2-text: #6a1a30;
+      --g3: #f5c87a;       /* warm orange */
+      --g3-dark: #c07020;
+      --g3-text: #6a3a08;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── Header ── */
+    header {
+      border-bottom: 1px solid var(--border);
+      padding: 0 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 56px;
+      position: relative;
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 1.125rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .logo span {
+      font-weight: 400;
+      font-style: italic;
+      color: var(--ink-light);
+      font-size: 0.9rem;
+    }
+
+    /* Burger */
+    .burger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 200;
+    }
+
+    .burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 56px;
+      right: 0;
+      left: 0;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 8px 0;
+    }
+
+    .nav-menu.open { display: block; }
+
+    .nav-menu a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--ink);
+      text-decoration: none;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: var(--cream); }
+    .nav-menu a.active { color: var(--correct); }
+
+    /* ── Main ── */
+    main {
+      flex: 1;
+      max-width: 560px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 24px 16px 48px;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .date-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 6px;
+    }
+
+    .instruction {
+      font-size: 0.875rem;
+      color: var(--ink-light);
+    }
+
+    /* ── Lives ── */
+    .lives {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 0.8125rem;
+      color: var(--ink-light);
+    }
+
+    .life-dots {
+      display: flex;
+      gap: 5px;
+    }
+
+    .life-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ink);
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .life-dot.lost {
+      background: var(--ink-faint);
+      transform: scale(0.8);
+    }
+
+    /* ── Solved groups (appear at top) ── */
+    .solved-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .solved-group {
+      border-radius: 10px;
+      padding: 14px 16px;
+      text-align: center;
+      animation: pop-in 0.3s ease;
+    }
+
+    @keyframes pop-in {
+      0% { transform: scale(0.95); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .solved-group[data-color="0"] { background: var(--g0); }
+    .solved-group[data-color="1"] { background: var(--g1); }
+    .solved-group[data-color="2"] { background: var(--g2); }
+    .solved-group[data-color="3"] { background: var(--g3); }
+
+    .solved-explainer {
+      font-weight: 600;
+      font-size: 0.8125rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+
+    .solved-group[data-color="0"] .solved-explainer { color: var(--g0-text); }
+    .solved-group[data-color="1"] .solved-explainer { color: var(--g1-text); }
+    .solved-group[data-color="2"] .solved-explainer { color: var(--g2-text); }
+    .solved-group[data-color="3"] .solved-explainer { color: var(--g3-text); }
+
+    .solved-words {
+      font-size: 0.875rem;
+    }
+
+    .solved-group[data-color="0"] .solved-words { color: var(--g0-text); }
+    .solved-group[data-color="1"] .solved-words { color: var(--g1-text); }
+    .solved-group[data-color="2"] .solved-words { color: var(--g2-text); }
+    .solved-group[data-color="3"] .solved-words { color: var(--g3-text); }
+
+    /* ── Grid ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .tile {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: white;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      font-size: clamp(0.6875rem, 2.5vw, 0.9375rem);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: var(--ink);
+      text-align: center;
+      padding: 4px;
+      transition: background 0.1s, border-color 0.1s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+      line-height: 1.2;
+    }
+
+    .tile:hover { border-color: var(--ink); }
+
+    .tile.selected {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: white;
+    }
+
+    .tile.wrong-shake {
+      animation: shake 0.4s ease;
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    /* ── Controls ── */
+    .controls {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 24px;
+      border: 1.5px solid var(--ink);
+      background: transparent;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--ink);
+      transition: background 0.12s, color 0.12s;
+    }
+
+    .btn:hover { background: var(--ink); color: white; }
+    .btn:disabled { opacity: 0.35; cursor: default; }
+    .btn:disabled:hover { background: transparent; color: var(--ink); }
+
+    .btn-primary {
+      background: var(--ink);
+      color: white;
+    }
+
+    .btn-primary:hover { opacity: 0.8; background: var(--ink); color: white; }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed;
+      top: 72px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-8px);
+      background: var(--ink);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 24px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+      z-index: 300;
+      white-space: nowrap;
+    }
+
+    .toast.visible {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Result panel ── */
+    .result-panel {
+      text-align: center;
+      margin-top: 16px;
+      display: none;
+    }
+
+    .result-panel.visible { display: block; }
+
+    .result-title {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.25rem;
+      margin-bottom: 16px;
+    }
+
+    .emoji-grid {
+      font-size: 1.5rem;
+      line-height: 1.8;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    .streak-line {
+      font-size: 0.875rem;
+      color: var(--ink-light);
+      margin-bottom: 16px;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 13px 28px;
+      background: #2d6a4f;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s;
+      margin-bottom: 20px;
+    }
+
+    .share-btn:hover { background: #1e4d38; }
+
+    .next-label {
+      font-size: 0.8125rem;
+      color: var(--ink-faint);
+    }
+
+    .countdown {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      margin-top: 4px;
+    }
+
+    /* ── Loading / Error ── */
+    .loading {
+      text-align: center;
+      padding: 48px 0;
+    }
+
+    .loading-dots {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+    }
+
+    .loading-dots span {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+      animation: dot-pulse 1.2s ease-in-out infinite;
+    }
+
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .error-state {
+      text-align: center;
+      padding: 48px 0;
+      font-size: 0.9375rem;
+      color: var(--ink-light);
+    }
+
+    /* ── Footer ── */
+    footer {
+      border-top: 1px solid var(--border);
+      text-align: center;
+      padding: 16px 24px;
+      font-size: 0.75rem;
+      color: var(--ink-faint);
+    }
+
+    footer a {
+      color: inherit;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/">Pub Quiz Daily <span>/ Groupie</span></a>
+    <button class="burger" id="burgerBtn" aria-label="Menu" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-menu" id="navMenu">
+      <a href="/">Today's question</a>
+      <a href="/groupie.html" class="active">Groupie</a>
+      <a href="/weekly.html">Weekly quiz</a>
+      <a href="/archive.html">Full archive</a>
+    </nav>
+  </header>
+
+  <div class="toast" id="toast"></div>
+
+  <main>
+    <div id="loadingState" class="loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+
+    <div id="gameState" style="display:none">
+      <div class="page-header">
+        <p class="date-label" id="dateLabel"></p>
+        <p class="instruction">Find four groups of four</p>
+      </div>
+
+      <div class="lives">
+        <span>Mistakes remaining</span>
+        <div class="life-dots" id="lifeDots">
+          <div class="life-dot"></div>
+          <div class="life-dot"></div>
+          <div class="life-dot"></div>
+          <div class="life-dot"></div>
+        </div>
+      </div>
+
+      <div class="solved-groups" id="solvedGroups"></div>
+      <div class="grid" id="grid"></div>
+
+      <div class="controls">
+        <button class="btn" id="shuffleBtn" onclick="shuffleGrid()">Shuffle</button>
+        <button class="btn" id="deselectBtn" onclick="deselectAll()" disabled>Deselect all</button>
+        <button class="btn btn-primary" id="submitBtn" onclick="submitGuess()" disabled>Submit</button>
+      </div>
+
+      <div class="result-panel" id="resultPanel">
+        <p class="result-title" id="resultTitle"></p>
+        <div class="emoji-grid" id="emojiGrid"></div>
+        <p class="streak-line" id="streakLine"></p>
+        <button class="share-btn" onclick="shareResult()">
+          Share result
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </button>
+        <p class="next-label">Next puzzle in</p>
+        <p class="countdown" id="countdown"></p>
+      </div>
+    </div>
+
+    <div id="errorState" class="error-state" style="display:none">
+      No puzzle today — check back soon.
+    </div>
+  </main>
+
+  <footer>
+    One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:&#104;&#101;&#108;&#108;&#111;&#64;&#112;&#117;&#98;&#113;&#117;&#105;&#122;&#100;&#97;&#105;&#108;&#121;&#46;&#99;&#111;&#109;">Send feedback</a>
+  </footer>
+
+  <script>
+    // ── Constants ──────────────────────────────────────────────────────
+    const STORAGE_KEY = 'groupie_state';
+    const GROUP_COLORS = ['--g0', '--g1', '--g2', '--g3'];
+    const GROUP_EMOJIS = ['🟦', '🟩', '🟧', '🟥']; // teal→blue, sage→green, rose→orange, orange→red for emoji
+    const COLOR_NAMES  = ['teal', 'green', 'rose', 'orange'];
+
+    const WIN_MSGS  = ["Brilliant! 🎉", "Spot on!", "Clean sweep!", "No hesitation — superb.", "Pub quiz legend."];
+    const LOSE_MSGS = ["So close!", "Better luck tomorrow.", "The groups are revealed above.", "Tricky one today."];
+
+    // ── State ──────────────────────────────────────────────────────────
+    const todayISO = new Date().toISOString().slice(0, 10);
+    let puzzleData  = null;
+    let tiles       = []; // {word, groupIndex, solved}
+    let selected    = new Set(); // indices into tiles[]
+    let livesLeft   = 4;
+    let solvedCount = 0;
+    let guessHistory = []; // array of {groupIndex, correct} for emoji grid
+    let playerState = loadState();
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch { return {}; }
+    }
+
+    function saveState(s) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    }
+
+    // ── Boot ───────────────────────────────────────────────────────────
+    fetchPuzzle();
+
+    async function fetchPuzzle() {
+      try {
+        const res = await fetch(`/.netlify/functions/groupie?date=${todayISO}`);
+        if (!res.ok) throw new Error('no puzzle');
+        puzzleData = await res.json();
+        initGame();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+      }
+    }
+
+    // ── Init ───────────────────────────────────────────────────────────
+    function initGame() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('gameState').style.display = 'block';
+      document.getElementById('dateLabel').textContent = formatDate(todayISO);
+
+      // Build flat tiles array
+      tiles = [];
+      puzzleData.groups.forEach((group, gi) => {
+        group.words.forEach(word => {
+          tiles.push({ word, groupIndex: gi, solved: false });
+        });
+      });
+
+      // Check if already played today
+      if (playerState.date === todayISO && playerState.completed) {
+        restoreCompleted();
+        return;
+      }
+
+      shuffleArray(tiles);
+      renderGrid();
+    }
+
+    function renderGrid() {
+      const grid = document.getElementById('grid');
+      grid.innerHTML = '';
+      tiles.forEach((tile, i) => {
+        if (tile.solved) return;
+        const el = document.createElement('button');
+        el.className = 'tile' + (selected.has(i) ? ' selected' : '');
+        el.textContent = tile.word;
+        el.dataset.index = i;
+        el.onclick = () => toggleTile(i);
+        grid.appendChild(el);
+      });
+    }
+
+    // ── Tile interaction ───────────────────────────────────────────────
+    function toggleTile(index) {
+      if (document.getElementById('resultPanel').classList.contains('visible')) return;
+      if (selected.has(index)) {
+        selected.delete(index);
+      } else {
+        if (selected.size >= 4) return;
+        selected.add(index);
+      }
+      updateControls();
+      renderGrid();
+    }
+
+    function deselectAll() {
+      selected.clear();
+      updateControls();
+      renderGrid();
+    }
+
+    function updateControls() {
+      document.getElementById('deselectBtn').disabled = selected.size === 0;
+      document.getElementById('submitBtn').disabled = selected.size !== 4;
+    }
+
+    function shuffleGrid() {
+      const unsolved = tiles.filter(t => !t.solved);
+      shuffleArray(unsolved);
+      let ui = 0;
+      tiles = tiles.map(t => t.solved ? t : unsolved[ui++]);
+      selected.clear();
+      updateControls();
+      renderGrid();
+    }
+
+    // ── Submit ─────────────────────────────────────────────────────────
+    function submitGuess() {
+      if (selected.size !== 4) return;
+
+      const selectedTiles = [...selected].map(i => tiles[i]);
+      const groupIndices  = selectedTiles.map(t => t.groupIndex);
+      const uniqueGroups  = new Set(groupIndices);
+
+      if (uniqueGroups.size === 1) {
+        // Correct!
+        const groupIndex = groupIndices[0];
+        guessHistory.push({ groupIndex, correct: true });
+        solveGroup(groupIndex);
+      } else {
+        // Wrong
+        guessHistory.push({ groupIndex: groupIndices[0], correct: false });
+        livesLeft--;
+        updateLives();
+        shakeTiles();
+
+        // Check if one away
+        if (uniqueGroups.size === 2) {
+          const counts = {};
+          groupIndices.forEach(g => counts[g] = (counts[g]||0) + 1);
+          const maxCount = Math.max(...Object.values(counts));
+          if (maxCount === 3) showToast("One away...");
+        }
+
+        if (livesLeft === 0) {
+          // Game over — reveal all
+          setTimeout(() => revealAll(), 600);
+        } else {
+          selected.clear();
+          updateControls();
+          renderGrid();
+        }
+      }
+    }
+
+    function solveGroup(groupIndex) {
+      const group = puzzleData.groups[groupIndex];
+      tiles.forEach(t => {
+        if (t.groupIndex === groupIndex) t.solved = true;
+      });
+      selected.clear();
+      solvedCount++;
+
+      // Add solved group card
+      const container = document.getElementById('solvedGroups');
+      const card = document.createElement('div');
+      card.className = 'solved-group';
+      card.dataset.color = groupIndex;
+      card.innerHTML = `
+        <div class="solved-explainer">${group.explainer || COLOR_NAMES[groupIndex].toUpperCase()}</div>
+        <div class="solved-words">${group.words.join(', ')}</div>
+      `;
+      container.appendChild(card);
+
+      updateControls();
+      renderGrid();
+
+      if (solvedCount === 4) {
+        setTimeout(() => showResult(true), 400);
+      }
+    }
+
+    function revealAll() {
+      // Solve remaining groups in order
+      [0,1,2,3].forEach(gi => {
+        if (!puzzleData.groups[gi]._solved) {
+          solveGroup(gi);
+        }
+      });
+      setTimeout(() => showResult(false), 400);
+    }
+
+    function shakeTiles() {
+      document.querySelectorAll('.tile.selected').forEach(el => {
+        el.classList.remove('wrong-shake');
+        void el.offsetWidth;
+        el.classList.add('wrong-shake');
+      });
+    }
+
+    function updateLives() {
+      const dots = document.querySelectorAll('.life-dot');
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('lost', i >= livesLeft);
+      });
+    }
+
+    // ── Result ─────────────────────────────────────────────────────────
+    function showResult(won) {
+      const panel = document.getElementById('resultPanel');
+      const title = document.getElementById('resultTitle');
+      const emojiEl = document.getElementById('emojiGrid');
+      const streakEl = document.getElementById('streakLine');
+
+      title.textContent = won ? pick(WIN_MSGS) : pick(LOSE_MSGS);
+
+      // Build emoji grid
+      const rows = guessHistory.map(g => GROUP_EMOJIS[g.groupIndex]).join('');
+      emojiEl.textContent = rows;
+
+      // Update streak
+      const yesterday = getYesterdayISO();
+      let streak = playerState.streak || 0;
+      if (won) {
+        if (playerState.date === yesterday) streak += 1;
+        else if (playerState.date !== todayISO) streak = 1;
+      } else {
+        streak = 0;
+      }
+
+      streakEl.textContent = streak > 1
+        ? `🔥 ${streak}-day streak`
+        : won ? 'First of a new streak!' : '';
+
+      playerState = { date: todayISO, completed: true, won, streak, guessHistory };
+      saveState(playerState);
+
+      panel.classList.add('visible');
+      startCountdown();
+    }
+
+    function restoreCompleted() {
+      // Re-solve all groups in guess order
+      const { guessHistory: gh, won } = playerState;
+      if (gh) {
+        gh.filter(g => g.correct).forEach(g => {
+          const group = puzzleData.groups[g.groupIndex];
+          tiles.forEach(t => { if (t.groupIndex === g.groupIndex) t.solved = true; });
+          const container = document.getElementById('solvedGroups');
+          const card = document.createElement('div');
+          card.className = 'solved-group';
+          card.dataset.color = g.groupIndex;
+          card.innerHTML = `
+            <div class="solved-explainer">${group.explainer || ''}</div>
+            <div class="solved-words">${group.words.join(', ')}</div>
+          `;
+          container.appendChild(card);
+        });
+      }
+
+      // Fill in lives lost
+      livesLeft = 4 - (gh ? gh.filter(g => !g.correct).length : 0);
+      if (livesLeft < 0) livesLeft = 0;
+      updateLives();
+
+      guessHistory = gh || [];
+      solvedCount = 4;
+      renderGrid();
+
+      const panel = document.getElementById('resultPanel');
+      const title = document.getElementById('resultTitle');
+      const emojiEl = document.getElementById('emojiGrid');
+      const streakEl = document.getElementById('streakLine');
+
+      title.textContent = won ? "You already solved today's Groupie!" : "You already played today.";
+      const rows = guessHistory.map(g => GROUP_EMOJIS[g.groupIndex]).join('');
+      emojiEl.textContent = rows;
+      const streak = playerState.streak || 0;
+      streakEl.textContent = streak > 1 ? `🔥 ${streak}-day streak` : '';
+
+      panel.classList.add('visible');
+      startCountdown();
+    }
+
+    // ── Share ──────────────────────────────────────────────────────────
+    function shareResult() {
+      const { won, streak } = playerState;
+      const emojiRows = guessHistory.map(g => GROUP_EMOJIS[g.groupIndex]).join('');
+      const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
+      const mistakesStr = livesLeft === 4 ? 'No mistakes!' : `${4 - livesLeft} mistake${4-livesLeft>1?'s':''}`;
+      const text = `Groupie — ${formatDate(todayISO)}\n${mistakesStr}${streakStr}\n\n${emojiRows}\n\npubquizdaily.com/groupie`;
+
+      if (navigator.share) {
+        navigator.share({ title: 'Groupie', text }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Copied to clipboard!');
+        });
+      }
+    }
+
+    // ── Countdown ──────────────────────────────────────────────────────
+    function startCountdown() {
+      const el = document.getElementById('countdown');
+      function tick() {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const diff = midnight - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        el.textContent = `${h}:${m}:${s}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    // ── Toast ──────────────────────────────────────────────────────────
+    let toastTimer = null;
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.classList.add('visible');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('visible'), 1800);
+    }
+
+    // ── Menu ───────────────────────────────────────────────────────────
+    function toggleMenu() {
+      document.getElementById('burgerBtn').classList.toggle('open');
+      document.getElementById('navMenu').classList.toggle('open');
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('header')) {
+        document.getElementById('burgerBtn').classList.remove('open');
+        document.getElementById('navMenu').classList.remove('open');
+      }
+    });
+
+    // ── Helpers ────────────────────────────────────────────────────────
+    function formatDate(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function getYesterdayISO() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+    }
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+  </script>
+</body>
+</html>
