@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -52,7 +53,6 @@
       flex-direction: column;
     }
 
-    /* ── Header ── */
     header {
       border-bottom: 1px solid var(--border);
       padding: 0 24px;
@@ -60,6 +60,7 @@
       align-items: center;
       justify-content: space-between;
       height: 56px;
+      position: relative;
     }
 
     .logo {
@@ -80,24 +81,57 @@
       color: var(--ink-light);
     }
 
-    .streak-badge .fire {
-      font-size: 1rem;
+    .streak-badge .fire { font-size: 1rem; }
+
+    .streak-count { font-variant-numeric: tabular-nums; }
+
+    .burger {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      z-index: 200;
     }
+    .burger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--ink);
+      border-radius: 2px;
+      transition: all 0.2s;
+    }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
-
-    .archive-link {
-      font-size: 0.8125rem;
+    .nav-menu {
+      display: none;
+      position: absolute;
+      top: 56px;
+      right: 0;
+      left: 0;
+      background: white;
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      padding: 8px 0;
+    }
+    .nav-menu.open { display: block; }
+    .nav-menu a {
+      display: block;
+      padding: 12px 24px;
+      font-size: 0.9375rem;
       font-weight: 500;
-      color: var(--ink-light);
+      color: var(--ink);
       text-decoration: none;
-      letter-spacing: 0.01em;
+      border-bottom: 1px solid var(--border);
     }
-    .archive-link:hover { color: var(--ink); }
-    .streak-count {
-      font-variant-numeric: tabular-nums;
-    }
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: var(--cream); }
+    .nav-menu a.active { color: #4a7c59; }
 
-    /* ── Main ── */
     main {
       flex: 1;
       display: flex;
@@ -110,7 +144,6 @@
       width: 100%;
     }
 
-    /* ── Date pill ── */
     .date-label {
       font-size: 0.75rem;
       font-weight: 500;
@@ -120,7 +153,6 @@
       margin-bottom: 28px;
     }
 
-    /* ── Question ── */
     .question-text {
       font-family: var(--font-serif);
       font-size: clamp(1.25rem, 4vw, 1.625rem);
@@ -130,7 +162,6 @@
       max-width: 400px;
     }
 
-    /* ── Divider ── */
     .divider {
       width: 32px;
       height: 1px;
@@ -138,7 +169,6 @@
       margin: 0 auto 36px;
     }
 
-    /* ── Options ── */
     .options {
       display: flex;
       flex-direction: column;
@@ -165,18 +195,9 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .option-btn:hover:not(:disabled) {
-      border-color: var(--ink);
-      transform: translateY(-1px);
-    }
-
-    .option-btn:active:not(:disabled) {
-      transform: translateY(0);
-    }
-
-    .option-btn:disabled {
-      cursor: default;
-    }
+    .option-btn:hover:not(:disabled) { border-color: var(--ink); transform: translateY(-1px); }
+    .option-btn:active:not(:disabled) { transform: translateY(0); }
+    .option-btn:disabled { cursor: default; }
 
     .option-letter {
       display: flex;
@@ -193,41 +214,16 @@
       color: var(--ink-light);
     }
 
-    /* Correct state */
-    .option-btn.correct {
-      background: var(--correct-bg);
-      border-color: var(--correct);
-    }
-    .option-btn.correct .option-letter {
-      background: var(--correct);
-      border-color: var(--correct);
-      color: white;
-    }
-    .option-btn.correct .option-text {
-      color: var(--correct);
-      font-weight: 500;
-    }
+    .option-btn.correct { background: var(--correct-bg); border-color: var(--correct); }
+    .option-btn.correct .option-letter { background: var(--correct); border-color: var(--correct); color: white; }
+    .option-btn.correct .option-text { color: var(--correct); font-weight: 500; }
 
-    /* Wrong state */
-    .option-btn.wrong {
-      background: var(--wrong-bg);
-      border-color: var(--wrong);
-    }
-    .option-btn.wrong .option-letter {
-      background: var(--wrong);
-      border-color: var(--wrong);
-      color: white;
-    }
-    .option-btn.wrong .option-text {
-      color: var(--wrong);
-    }
+    .option-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+    .option-btn.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: white; }
+    .option-btn.wrong .option-text { color: var(--wrong); }
 
-    /* Muted (other options after answering) */
-    .option-btn.muted {
-      opacity: 0.4;
-    }
+    .option-btn.muted { opacity: 0.4; }
 
-    /* ── Result panel ── */
     .result-panel {
       margin-top: 32px;
       width: 100%;
@@ -237,10 +233,7 @@
       transition: opacity 0.3s, transform 0.3s;
     }
 
-    .result-panel.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    .result-panel.visible { opacity: 1; transform: translateY(0); }
 
     .result-message {
       font-family: var(--font-serif);
@@ -261,9 +254,7 @@
       min-height: 0;
     }
 
-    .explainer-text:empty {
-      display: none;
-    }
+    .explainer-text:empty { display: none; }
 
     .stats-text {
       display: inline-block;
@@ -279,9 +270,7 @@
       min-height: 0;
     }
 
-    .stats-text:empty {
-      display: none;
-    }
+    .stats-text:empty { display: none; }
 
     .result-actions {
       display: flex;
@@ -316,7 +305,6 @@
     .share-btn:hover { background: #1e4d38; transform: translateY(-1px); }
     .share-btn:active { transform: scale(0.98); }
 
-    /* ── Countdown ── */
     .next-label {
       margin-top: 24px;
       font-size: 0.8125rem;
@@ -332,17 +320,9 @@
       margin-top: 4px;
     }
 
-    /* ── Loading & Error states ── */
-    .loading, .error-state {
-      text-align: center;
-      padding: 48px 0;
-    }
+    .loading, .error-state { text-align: center; padding: 48px 0; }
 
-    .loading-dots {
-      display: flex;
-      gap: 6px;
-      justify-content: center;
-    }
+    .loading-dots { display: flex; gap: 6px; justify-content: center; }
 
     .loading-dots span {
       width: 6px;
@@ -359,27 +339,9 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
-    .error-title {
-      font-family: var(--font-serif);
-      font-size: 1.125rem;
-      margin-bottom: 8px;
-    }
+    .error-title { font-family: var(--font-serif); font-size: 1.125rem; margin-bottom: 8px; }
+    .error-sub { font-size: 0.875rem; color: var(--ink-light); }
 
-    .error-sub {
-      font-size: 0.875rem;
-      color: var(--ink-light);
-    }
-
-    /* Already played state */
-    .already-played {
-      text-align: center;
-    }
-
-    .already-played .result-message {
-      margin-bottom: 8px;
-    }
-
-    /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
       text-align: center;
@@ -389,7 +351,8 @@
       letter-spacing: 0.02em;
     }
 
-    /* ── Confetti burst (CSS only, correct answer) ── */
+    footer a { color: inherit; text-decoration: none; }
+
     .confetti-burst {
       position: fixed;
       top: 50%;
@@ -406,12 +369,8 @@
       opacity: 0;
     }
 
-    @media (max-width: 400px) {
-      .question-text { font-size: 1.125rem; }
-    }
+    @media (max-width: 400px) { .question-text { font-size: 1.125rem; } }
 
-
-    /* ── Email signup ── */
     .email-signup {
       margin-top: 32px;
       width: 100%;
@@ -477,60 +436,13 @@
     }
 
     .signup-confirm.visible { display: block; }
-    /* Streak animation */
+
     @keyframes streak-pop {
       0% { transform: scale(1); }
       50% { transform: scale(1.25); }
       100% { transform: scale(1); }
     }
     .streak-pop { animation: streak-pop 0.4s ease; }
-
-    /* ── Burger menu ── */
-    .burger {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      z-index: 200;
-    }
-    .burger span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--ink);
-      border-radius: 2px;
-      transition: all 0.2s;
-    }
-    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .burger.open span:nth-child(2) { opacity: 0; }
-    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-    .nav-menu {
-      display: none;
-      position: absolute;
-      top: 56px;
-      right: 0;
-      left: 0;
-      background: white;
-      border-bottom: 1px solid var(--border);
-      z-index: 100;
-      padding: 8px 0;
-    }
-    .nav-menu.open { display: block; }
-    .nav-menu a {
-      display: block;
-      padding: 12px 24px;
-      font-size: 0.9375rem;
-      font-weight: 500;
-      color: var(--ink);
-      text-decoration: none;
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-menu a:last-child { border-bottom: none; }
-    .nav-menu a:hover { background: var(--cream); }
-    .nav-menu a.active { color: #4a7c59; }
   </style>
   <script type="application/ld+json">
   {
@@ -548,10 +460,10 @@
 </head>
 <body>
 
-  <header style="position:relative;">
+  <header>
     <a class="logo" href="/">Pub Quiz Daily</a>
     <div style="display:flex;align-items:center;gap:16px;">
-      <div class="streak-badge">
+      <div class="streak-badge" id="streakBadge">
         <span class="fire">🔥</span>
         <span class="streak-count" id="streakDisplay">0</span>
         <span>day streak</span>
@@ -562,22 +474,19 @@
     </div>
     <nav class="nav-menu" id="navMenu">
       <a href="/" class="active">Today's question</a>
-      <a href="/groupie.html">Groupie</a>
       <a href="/weekly.html">Weekly quiz</a>
       <a href="/archive.html">Full archive</a>
     </nav>
   </header>
 
   <main id="app">
-    <!-- Loading -->
     <div class="loading" id="loadingState">
       <div class="loading-dots">
         <span></span><span></span><span></span>
       </div>
     </div>
 
-    <!-- Game (hidden until loaded) -->
-    <div id="gameState" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+    <div id="gameState" style="display:none; width:100%; flex-direction:column; align-items:center;">
       <p class="date-label" id="dateLabel"></p>
       <h1 class="question-text" id="questionText"></h1>
       <div class="divider"></div>
@@ -594,6 +503,7 @@
         </div>
         <p class="next-label" id="nextLabel">Next question in</p>
         <p class="countdown" id="countdown"></p>
+        <a class="archive-back" id="archiveBack" href="/archive.html" style="display:none;font-size:0.875rem;color:var(--ink-light);text-decoration:none;margin-top:4px;">← Back to archive</a>
         <div class="email-signup" id="emailSignup">
           <p class="signup-label">Never miss a question — get the weekly round-up</p>
           <div class="signup-row">
@@ -602,61 +512,45 @@
           </div>
           <p class="signup-confirm" id="signupConfirm">You're in! See you Friday. 🍺</p>
         </div>
-        <a class="archive-back" id="archiveBack" href="/archive.html" style="display:none;font-size:0.875rem;color:var(--ink-light);text-decoration:none;margin-top:4px;">← Back to archive</a>
       </div>
     </div>
 
-    <!-- Error -->
     <div id="errorState" style="display:none" class="error-state">
       <p class="error-title">No question today</p>
       <p class="error-sub">Check back soon — something went wrong loading today's quiz.</p>
     </div>
   </main>
 
-
   <footer>
-    One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:&#104;&#101;&#108;&#108;&#111;&#64;&#112;&#117;&#98;&#113;&#117;&#105;&#122;&#100;&#97;&#105;&#108;&#121;&#46;&#99;&#111;&#109;" style="color:inherit;text-decoration:none;">Send feedback</a>
+    One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:&#104;&#101;&#108;&#108;&#111;&#64;&#112;&#117;&#98;&#113;&#117;&#105;&#122;&#100;&#97;&#105;&#108;&#121;&#46;&#99;&#111;&#109;">Send feedback</a>
   </footer>
 
-  <!-- Confetti container -->
   <div class="confetti-burst" id="confetti" aria-hidden="true"></div>
 
   <script>
-    // ── Constants ──────────────────────────────────────────────────────
     const STORAGE_KEY = 'pqd_state';
     const CORRECT_MSGS = [
-      "Nailed it. 🎉",
-      "Spot on!",
-      "Get in! Top marks.",
-      "Right first time — brilliant.",
-      "Knew it, didn't you?",
-      "Textbook answer. Lovely.",
+      "Nailed it. 🎉", "Spot on!", "Get in! Top marks.",
+      "Right first time — brilliant.", "Knew it, didn't you?", "Textbook answer. Lovely.",
     ];
     const WRONG_MSGS = [
-      "Unlucky — so close.",
-      "Ooh, not quite.",
-      "The correct answer is revealed above.",
-      "Even the best pub quizzers get one wrong.",
-      "Better luck tomorrow!",
+      "Unlucky — so close.", "Ooh, not quite.", "The correct answer is revealed above.",
+      "Even the best pub quizzers get one wrong.", "Better luck tomorrow!",
     ];
 
-    // ── State ──────────────────────────────────────────────────────────
     const realTodayISO = new Date().toISOString().slice(0, 10);
     const urlDate = new URLSearchParams(location.search).get('date');
-    const isArchiveMode = urlDate && urlDate !== realTodayISO;
+    const isArchiveMode = !!(urlDate && urlDate !== realTodayISO);
     let todayISO = urlDate || realTodayISO;
     let gameData = null;
     let playerState = loadState();
 
     function loadState() {
-      try {
-        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
-      } catch { return {}; }
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch { return {}; }
     }
 
-    function saveState(s) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
-    }
+    function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
 
     function loadArchivePlayed() {
       try { return JSON.parse(localStorage.getItem('pqd_archive_played')) || {}; }
@@ -669,16 +563,12 @@
       localStorage.setItem('pqd_archive_played', JSON.stringify(played));
     }
 
-    // ── Boot ───────────────────────────────────────────────────────────
+    // Boot
     updateStreakDisplay();
-
-    // In archive mode, hide streak badge and show archive label
     if (isArchiveMode) {
-      document.querySelector('.streak-badge').style.display = 'none';
-      document.querySelector('.archive-link').textContent = '← Archive';
-      document.querySelector('.archive-link').href = '/archive.html';
+      const badge = document.getElementById('streakBadge');
+      if (badge) badge.style.display = 'none';
     }
-
     fetchQuestion();
 
     async function fetchQuestion() {
@@ -690,44 +580,33 @@
         renderGame();
       } catch (err) {
         console.error(err);
-        // Only show error if game hasn't already rendered
-        if (document.getElementById('gameState').style.display === 'none' ||
-            document.getElementById('gameState').style.display === '') {
+        if (!document.getElementById('gameState').style.display ||
+            document.getElementById('gameState').style.display === 'none') {
           show('errorState');
         }
         hide('loadingState');
       }
     }
 
-    // ── Render ─────────────────────────────────────────────────────────
     function renderGame() {
       hide('loadingState');
-
-      const { question, options, date } = gameData;
-
-      document.getElementById('dateLabel').textContent = formatDate(date || todayISO);
-      document.getElementById('questionText').textContent = question;
+      document.getElementById('dateLabel').textContent = formatDate(todayISO);
+      document.getElementById('questionText').textContent = gameData.question;
 
       const container = document.getElementById('optionsContainer');
       container.innerHTML = '';
-
-      const letters = ['A', 'B', 'C', 'D'];
-      options.forEach((text, i) => {
+      ['A','B','C','D'].forEach((letter, i) => {
         const btn = document.createElement('button');
         btn.className = 'option-btn';
-        btn.dataset.letter = letters[i];
-        btn.innerHTML = `
-          <span class="option-letter">${letters[i]}</span>
-          <span class="option-text">${text}</span>
-        `;
-        btn.addEventListener('click', () => handleAnswer(letters[i]));
+        btn.dataset.letter = letter;
+        btn.innerHTML = `<span class="option-letter">${letter}</span><span class="option-text">${gameData.options[i]}</span>`;
+        btn.addEventListener('click', () => handleAnswer(letter));
         container.appendChild(btn);
       });
 
       show('gameState');
       document.getElementById('gameState').style.display = 'flex';
 
-      // If already played, restore result
       const archivePlayed = loadArchivePlayed();
       if (isArchiveMode && archivePlayed[todayISO]) {
         restoreAnswered();
@@ -739,70 +618,47 @@
     }
 
     function handleAnswer(chosen) {
-      const correct = gameData.correct; // e.g. "B"
+      const correct = gameData.correct;
       const isCorrect = chosen === correct;
 
-      // Disable all buttons
-      const buttons = document.querySelectorAll('.option-btn');
-      buttons.forEach(btn => {
+      document.querySelectorAll('.option-btn').forEach(btn => {
         btn.disabled = true;
-        const letter = btn.dataset.letter;
-        if (letter === correct) {
-          btn.classList.add('correct');
-        } else if (letter === chosen && !isCorrect) {
-          btn.classList.add('wrong');
-        } else {
-          btn.classList.add('muted');
-        }
+        const l = btn.dataset.letter;
+        if (l === correct) btn.classList.add('correct');
+        else if (l === chosen && !isCorrect) btn.classList.add('wrong');
+        else btn.classList.add('muted');
       });
 
-      // Update streak (only for today's question, not archive)
       if (!isArchiveMode) {
         const yesterday = getYesterdayISO();
         let streak = playerState.streak || 0;
-        if (playerState.date === yesterday) {
-          streak += 1;
-        } else if (playerState.date !== todayISO) {
-          streak = 1;
-        }
-        playerState = {
-          date: todayISO,
-          answered: true,
-          chosen,
-          correct,
-          isCorrect,
-          streak,
-        };
+        if (playerState.date === yesterday) streak += 1;
+        else if (playerState.date !== todayISO) streak = 1;
+        playerState = { date: todayISO, answered: true, chosen, correct, isCorrect, streak };
         saveState(playerState);
         updateStreakDisplay();
       } else {
-        // Archive mode — just save to archive played store
         saveArchivePlayed(todayISO, isCorrect ? 'correct' : 'wrong');
       }
 
-      // Show result
-      const panel = document.getElementById('resultPanel');
       const msg = document.getElementById('resultMessage');
-
       if (isCorrect) {
         msg.textContent = pick(CORRECT_MSGS);
         triggerConfetti();
-        // Animate streak badge
-        document.querySelector('.streak-badge').classList.add('streak-pop');
-        setTimeout(() => document.querySelector('.streak-badge').classList.remove('streak-pop'), 500);
+        const badge = document.querySelector('.streak-badge');
+        if (badge) {
+          badge.classList.add('streak-pop');
+          setTimeout(() => badge.classList.remove('streak-pop'), 500);
+        }
       } else {
         msg.textContent = pick(WRONG_MSGS);
       }
 
-      // Show explainer if present
-      const explainerEl = document.getElementById('explainerText');
-      explainerEl.textContent = gameData.explainer || '';
-
-      // Record answer and show stat
+      document.getElementById('explainerText').textContent = gameData.explainer || '';
       recordAndShowStat(isCorrect);
 
       requestAnimationFrame(() => {
-        panel.classList.add('visible');
+        document.getElementById('resultPanel').classList.add('visible');
         initSignup();
       });
 
@@ -811,60 +667,43 @@
 
     function restoreAnswered() {
       const correct = gameData.correct;
-      let chosen, isCorrect;
+      let chosen = null, isCorrect = false;
 
       if (isArchiveMode) {
-        const archiveResult = loadArchivePlayed()[todayISO]; // 'correct' or 'wrong'
-        isCorrect = archiveResult === 'correct';
-        chosen = null; // we don't know which wrong answer they picked, just show correct
+        const r = loadArchivePlayed()[todayISO];
+        isCorrect = r === 'correct';
       } else {
         if (!playerState.answered) return;
         chosen = playerState.chosen;
         isCorrect = playerState.isCorrect;
       }
 
-      const buttons = document.querySelectorAll('.option-btn');
-      buttons.forEach(btn => {
+      document.querySelectorAll('.option-btn').forEach(btn => {
         btn.disabled = true;
-        const letter = btn.dataset.letter;
-        if (letter === correct) {
-          btn.classList.add('correct');
-        } else if (chosen && letter === chosen && !isCorrect) {
-          btn.classList.add('wrong');
-        } else {
-          btn.classList.add('muted');
-        }
+        const l = btn.dataset.letter;
+        if (l === correct) btn.classList.add('correct');
+        else if (chosen && l === chosen && !isCorrect) btn.classList.add('wrong');
+        else btn.classList.add('muted');
       });
 
-      const panel = document.getElementById('resultPanel');
       const msg = document.getElementById('resultMessage');
-
       if (isArchiveMode) {
-        msg.textContent = isCorrect
-          ? "You already played this one — and got it right!"
-          : "You already played this one.";
+        msg.textContent = isCorrect ? "You already played this one — and got it right!" : "You already played this one.";
       } else {
-        msg.textContent = isCorrect
-          ? "You already got this one — and got it right! Come back tomorrow."
-          : "You already played today. Come back tomorrow!";
+        msg.textContent = isCorrect ? "You already got this one — and got it right! Come back tomorrow." : "You already played today. Come back tomorrow!";
       }
 
-      const explainerEl = document.getElementById('explainerText');
-      explainerEl.textContent = gameData.explainer || '';
-
+      document.getElementById('explainerText').textContent = gameData.explainer || '';
       fetchAndShowStat(isCorrect);
-
-      panel.classList.add('visible');
+      document.getElementById('resultPanel').classList.add('visible');
       initSignup();
       startCountdown();
     }
 
-
-    // ── Email signup ──────────────────────────────────────────────────
+    // Email signup
     const SIGNUP_KEY = 'pqd_subscribed';
 
     function initSignup() {
-      // Hide if already subscribed or in archive mode
       if (isArchiveMode || localStorage.getItem(SIGNUP_KEY)) {
         const el = document.getElementById('emailSignup');
         if (el) el.classList.add('hidden');
@@ -876,28 +715,22 @@
       const btn = document.getElementById('signupBtn');
       const confirm = document.getElementById('signupConfirm');
       const email = input.value.trim();
-
-      if (!email || !email.includes('@')) {
-        input.focus();
-        return;
-      }
-
+      if (!email || !email.includes('@')) { input.focus(); return; }
       btn.disabled = true;
       btn.textContent = 'Signing up…';
-
       try {
         const res = await fetch('/.netlify/functions/subscribe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email }),
         });
-
         if (res.ok) {
           localStorage.setItem(SIGNUP_KEY, '1');
           input.style.display = 'none';
           btn.style.display = 'none';
           confirm.classList.add('visible');
-          document.querySelector('.signup-label').textContent = "You're on the list!";
+          const label = document.querySelector('#emailSignup .signup-label');
+          if (label) label.textContent = "You're on the list!";
         } else {
           btn.disabled = false;
           btn.textContent = 'Sign up';
@@ -909,7 +742,7 @@
       }
     }
 
-    // ── Stats ──────────────────────────────────────────────────────────
+    // Stats
     async function recordAndShowStat(isCorrect) {
       try {
         const res = await fetch('/.netlify/functions/record-answer', {
@@ -920,9 +753,7 @@
         if (!res.ok) return;
         const { total, correctCount } = await res.json();
         showStat(total, correctCount, isCorrect);
-      } catch (e) {
-        // Silently fail — stats are a nice-to-have
-      }
+      } catch {}
     }
 
     async function fetchAndShowStat(isCorrect) {
@@ -931,41 +762,40 @@
         if (!res.ok) return;
         const { total, correctCount } = await res.json();
         showStat(total, correctCount, isCorrect);
-      } catch (e) {
-        // Silently fail
-      }
+      } catch {}
     }
 
     function showStat(total, correctCount, isCorrect) {
-      if (!total || total < 2) return; // Don't show until at least 2 plays
+      if (!total || total < 2) return;
       const pct = Math.round((correctCount / total) * 100);
       const el = document.getElementById('statsText');
+      if (!el) return;
       if (isCorrect) {
-        el.textContent = pct >= 70
-          ? `Most players got this — ${pct}% answered correctly today`
-          : pct >= 40
-          ? `${pct}% of players got this right today`
+        el.textContent = pct >= 70 ? `Most players got this — ${pct}% answered correctly today`
+          : pct >= 40 ? `${pct}% of players got this right today`
           : `You're sharper than most — only ${pct}% got this right today`;
       } else {
-        el.textContent = pct >= 70
-          ? `Tricky one — ${100 - pct}% also got this wrong today`
-          : pct >= 40
-          ? `${pct}% of players got this right today`
+        el.textContent = pct >= 70 ? `Tricky one — ${100 - pct}% also got this wrong today`
+          : pct >= 40 ? `${pct}% of players got this right today`
           : `Tough question — only ${pct}% of players got this right`;
       }
     }
 
-    // ── Countdown ──────────────────────────────────────────────────────
+    // Countdown
     let countdownInterval = null;
 
     function startCountdown() {
       if (isArchiveMode) {
-        document.getElementById('nextLabel').style.display = 'none';
-        document.getElementById('countdown').style.display = 'none';
-        document.getElementById('archiveBack').style.display = 'inline';
+        const nl = document.getElementById('nextLabel');
+        const cd = document.getElementById('countdown');
+        const ab = document.getElementById('archiveBack');
+        if (nl) nl.style.display = 'none';
+        if (cd) cd.style.display = 'none';
+        if (ab) ab.style.display = 'inline';
         return;
       }
       const el = document.getElementById('countdown');
+      if (!el) return;
       function tick() {
         const now = new Date();
         const midnight = new Date(now);
@@ -980,13 +810,12 @@
       countdownInterval = setInterval(tick, 1000);
     }
 
-    // ── Share ──────────────────────────────────────────────────────────
+    // Share
     function shareResult() {
       const { isCorrect, streak } = playerState;
       const result = isCorrect ? '✅' : '❌';
       const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
       const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${result}${streakStr}\n\n"${gameData.question}"\n\nCan you get it right? → ${location.origin}`;
-
       if (navigator.share) {
         navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
       } else {
@@ -1000,41 +829,30 @@
       }
     }
 
-    // ── Confetti ───────────────────────────────────────────────────────
+    // Confetti
     const CONFETTI_COLORS = ['#4a7c59', '#c0622e', '#1a1a1a', '#8b6c42', '#2c6e8a'];
 
     function triggerConfetti() {
       const container = document.getElementById('confetti');
       container.innerHTML = '';
-      const count = 28;
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < 28; i++) {
         const el = document.createElement('span');
-        const angle = (360 / count) * i;
+        const angle = (360 / 28) * i;
         const distance = 60 + Math.random() * 60;
         const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
         const size = 5 + Math.random() * 5;
-        el.style.cssText = `
-          background: ${color};
-          width: ${size}px;
-          height: ${size}px;
-          border-radius: ${Math.random() > 0.5 ? '50%' : '1px'};
-          animation: confetti-${i} 0.7s ease-out forwards;
-        `;
+        el.style.cssText = `background:${color};width:${size}px;height:${size}px;border-radius:${Math.random()>.5?'50%':'1px'};animation:confetti-${i} 0.7s ease-out forwards;`;
         const rad = (angle * Math.PI) / 180;
         const x = Math.cos(rad) * distance;
         const y = Math.sin(rad) * distance;
         const style = document.createElement('style');
-        style.textContent = `@keyframes confetti-${i} {
-          0%   { opacity: 1; transform: translate(0,0) rotate(0deg); }
-          100% { opacity: 0; transform: translate(${x}px,${y}px) rotate(${360 * (Math.random() > 0.5 ? 1 : -1)}deg); }
-        }`;
+        style.textContent = `@keyframes confetti-${i}{0%{opacity:1;transform:translate(0,0) rotate(0deg)}100%{opacity:0;transform:translate(${x}px,${y}px) rotate(${360*(Math.random()>.5?1:-1)}deg)}}`;
         document.head.appendChild(style);
         container.appendChild(el);
       }
     }
 
-
-    // ── Helpers ────────────────────────────────────────────────────────
+    // Helpers
     function formatDate(iso) {
       const d = new Date(iso + 'T12:00:00');
       return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
@@ -1047,26 +865,29 @@
     }
 
     function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
-
     function show(id) { document.getElementById(id).style.display = ''; }
     function hide(id) { document.getElementById(id).style.display = 'none'; }
 
     function updateStreakDisplay() {
-      const streak = playerState.streak || 0;
-      document.getElementById('streakDisplay').textContent = streak;
+      const streak = playerState ? (playerState.streak || 0) : 0;
+      const el = document.getElementById('streakDisplay');
+      if (el) el.textContent = streak;
     }
-  
-    // ── Burger menu ────────────────────────────────────────────────────
+
+    // Burger menu
     function toggleMenu() {
       document.getElementById('burgerBtn').classList.toggle('open');
       document.getElementById('navMenu').classList.toggle('open');
     }
+
     document.addEventListener('click', function(e) {
       if (!e.target.closest('header')) {
-        document.getElementById('burgerBtn').classList.remove('open');
-        document.getElementById('navMenu').classList.remove('open');
+        const btn = document.getElementById('burgerBtn');
+        const menu = document.getElementById('navMenu');
+        if (btn) btn.classList.remove('open');
+        if (menu) menu.classList.remove('open');
       }
     });
-</script>
+  </script>
 </body>
 </html>
