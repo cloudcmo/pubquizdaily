@@ -1,15 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Archive — Pub Quiz Daily</title>
-  <meta name="description" content="Play past Pub Quiz Daily questions. Browse the full archive and test yourself on previous daily questions." />
+  <title>Pub Quiz Daily — Free daily pub quiz</title>
+  <meta name="description" content="One free pub quiz question every day. Test your general knowledge, build a streak and share your score. A new question drops every day." />
+  <meta name="keywords" content="pub quiz, daily quiz, free quiz, general knowledge, trivia" />
   <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://pubquizdaily.com/archive.html" />
+  <meta property="og:title" content="Pub Quiz Daily — Free daily pub quiz" />
+  <meta property="og:description" content="One question. Every day. How's your general knowledge? Play free at pubquizdaily.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pubquizdaily.com" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Pub Quiz Daily — Free daily pub quiz" />
+  <meta name="twitter:description" content="One question. Every day. Play free at pubquizdaily.com" />
+  <link rel="canonical" href="https://pubquizdaily.com" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta property="og:image" content="https://pubquizdaily.com/logo.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -24,9 +35,14 @@
       --border: #e0ddd8;
       --correct: #4a7c59;
       --correct-bg: #edf4ef;
+      --wrong: #c0622e;
+      --wrong-bg: #fdf0eb;
+      --accent: #1a1a1a;
       --font-serif: 'Libre Baskerville', Georgia, serif;
       --font-sans: 'DM Sans', system-ui, sans-serif;
     }
+
+    html { font-size: 16px; }
 
     body {
       background: var(--cream);
@@ -37,6 +53,7 @@
       flex-direction: column;
     }
 
+    /* ── Header ── */
     header {
       border-bottom: 1px solid var(--border);
       padding: 0 24px;
@@ -55,100 +72,277 @@
       text-decoration: none;
     }
 
-    .today-link {
+    .streak-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+    }
+
+    .streak-badge .fire {
+      font-size: 1rem;
+    }
+
+
+    .archive-link {
       font-size: 0.8125rem;
       font-weight: 500;
       color: var(--ink-light);
       text-decoration: none;
       letter-spacing: 0.01em;
     }
-    .today-link:hover { color: var(--ink); }
+    .archive-link:hover { color: var(--ink); }
+    .streak-count {
+      font-variant-numeric: tabular-nums;
+    }
 
+    /* ── Main ── */
     main {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px;
       max-width: 480px;
       margin: 0 auto;
       width: 100%;
-      padding: 40px 24px;
     }
 
-    .page-title {
-      font-family: var(--font-serif);
-      font-size: 1.5rem;
-      margin-bottom: 6px;
-    }
-
-    .page-subtitle {
-      font-size: 0.875rem;
+    /* ── Date pill ── */
+    .date-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
       color: var(--ink-light);
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
-    .archive-list {
+    /* ── Question ── */
+    .question-text {
+      font-family: var(--font-serif);
+      font-size: clamp(1.25rem, 4vw, 1.625rem);
+      line-height: 1.45;
+      text-align: center;
+      margin-bottom: 36px;
+      max-width: 400px;
+    }
+
+    /* ── Divider ── */
+    .divider {
+      width: 32px;
+      height: 1px;
+      background: var(--border);
+      margin: 0 auto 36px;
+    }
+
+    /* ── Options ── */
+    .options {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
+      width: 100%;
     }
 
-    .archive-item {
+    .option-btn {
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 14px;
+      width: 100%;
       padding: 14px 18px;
       background: white;
       border: 1px solid var(--border);
       border-radius: 8px;
-      text-decoration: none;
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--font-sans);
+      font-size: 0.9375rem;
+      font-weight: 400;
       color: var(--ink);
-      transition: border-color 0.12s, transform 0.08s;
+      transition: border-color 0.12s, background 0.12s, transform 0.08s;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    .archive-item:hover {
+    .option-btn:hover:not(:disabled) {
       border-color: var(--ink);
       transform: translateY(-1px);
     }
 
-    .archive-item.played {
+    .option-btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    .option-btn:disabled {
+      cursor: default;
+    }
+
+    .option-letter {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      font-size: 0.75rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      transition: background 0.12s, border-color 0.12s, color 0.12s;
+      color: var(--ink-light);
+    }
+
+    /* Correct state */
+    .option-btn.correct {
       background: var(--correct-bg);
       border-color: var(--correct);
     }
-
-    .archive-date {
-      font-size: 0.9375rem;
+    .option-btn.correct .option-letter {
+      background: var(--correct);
+      border-color: var(--correct);
+      color: white;
+    }
+    .option-btn.correct .option-text {
+      color: var(--correct);
       font-weight: 500;
     }
 
-    .archive-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
+    /* Wrong state */
+    .option-btn.wrong {
+      background: var(--wrong-bg);
+      border-color: var(--wrong);
+    }
+    .option-btn.wrong .option-letter {
+      background: var(--wrong);
+      border-color: var(--wrong);
+      color: white;
+    }
+    .option-btn.wrong .option-text {
+      color: var(--wrong);
     }
 
-    .played-tick {
+    /* Muted (other options after answering) */
+    .option-btn.muted {
+      opacity: 0.4;
+    }
+
+    /* ── Result panel ── */
+    .result-panel {
+      margin-top: 32px;
+      width: 100%;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .result-panel.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .result-message {
+      font-family: var(--font-serif);
+      font-style: italic;
+      font-size: 1.125rem;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    .explainer-text {
       font-size: 0.875rem;
-      color: var(--correct);
+      color: var(--ink-light);
+      line-height: 1.6;
+      margin-bottom: 20px;
+      max-width: 360px;
+      margin-left: auto;
+      margin-right: auto;
+      min-height: 0;
+    }
+
+    .explainer-text:empty {
       display: none;
     }
 
-    .archive-item.played .played-tick { display: block; }
-
-    .archive-chevron {
-      color: var(--ink-faint);
-      font-size: 1rem;
+    .stats-text {
+      display: inline-block;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 5px 14px;
+      letter-spacing: 0.01em;
+      margin-bottom: 20px;
+      min-height: 0;
     }
 
-    .loading {
+    .stats-text:empty {
+      display: none;
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 15px 32px;
+      background: #2d6a4f;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: 0.01em;
+      animation: share-nudge 2.5s ease 1.2s 2;
+    }
+
+    @keyframes share-nudge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.04); }
+    }
+
+    .share-btn:hover { background: #1e4d38; transform: translateY(-1px); }
+    .share-btn:active { transform: scale(0.98); }
+
+    /* ── Countdown ── */
+    .next-label {
+      margin-top: 24px;
+      font-size: 0.8125rem;
+      color: var(--ink-faint);
+      letter-spacing: 0.01em;
+    }
+
+    .countdown {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      margin-top: 4px;
+    }
+
+    /* ── Loading & Error states ── */
+    .loading, .error-state {
       text-align: center;
       padding: 48px 0;
-      color: var(--ink-light);
-      font-size: 0.875rem;
     }
 
     .loading-dots {
       display: flex;
       gap: 6px;
       justify-content: center;
-      margin-bottom: 12px;
     }
 
     .loading-dots span {
@@ -166,13 +360,131 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
+    .error-title {
+      font-family: var(--font-serif);
+      font-size: 1.125rem;
+      margin-bottom: 8px;
+    }
+
+    .error-sub {
+      font-size: 0.875rem;
+      color: var(--ink-light);
+    }
+
+    /* Already played state */
+    .already-played {
+      text-align: center;
+    }
+
+    .already-played .result-message {
+      margin-bottom: 8px;
+    }
+
+    /* ── Footer ── */
     footer {
       border-top: 1px solid var(--border);
       text-align: center;
       padding: 16px 24px;
       font-size: 0.75rem;
       color: var(--ink-faint);
+      letter-spacing: 0.02em;
     }
+
+    /* ── Confetti burst (CSS only, correct answer) ── */
+    .confetti-burst {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .confetti-burst span {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 1px;
+      opacity: 0;
+    }
+
+    @media (max-width: 400px) {
+      .question-text { font-size: 1.125rem; }
+    }
+
+
+    /* ── Email signup ── */
+    .email-signup {
+      margin-top: 32px;
+      width: 100%;
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      text-align: center;
+    }
+
+    .email-signup.hidden { display: none; }
+
+    .signup-label {
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      margin-bottom: 10px;
+      letter-spacing: 0.01em;
+    }
+
+    .signup-row {
+      display: flex;
+      gap: 8px;
+      max-width: 340px;
+      margin: 0 auto;
+    }
+
+    .signup-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .signup-input:focus { border-color: var(--ink); }
+
+    .signup-btn {
+      padding: 10px 16px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: opacity 0.15s;
+    }
+
+    .signup-btn:hover { opacity: 0.8; }
+    .signup-btn:disabled { opacity: 0.5; cursor: default; }
+
+    .signup-confirm {
+      font-size: 0.8125rem;
+      color: var(--correct);
+      font-weight: 500;
+      display: none;
+    }
+
+    .signup-confirm.visible { display: block; }
+    /* Streak animation */
+    @keyframes streak-pop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.25); }
+      100% { transform: scale(1); }
+    }
+    .streak-pop { animation: streak-pop 0.4s ease; }
 
     /* ── Burger menu ── */
     .burger {
@@ -221,106 +533,530 @@
     .nav-menu a:hover { background: var(--cream); }
     .nav-menu a.active { color: #4a7c59; }
   </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Pub Quiz Daily",
+    "url": "https://pubquizdaily.com",
+    "description": "One free pub quiz question every day. Test your general knowledge, build a streak and share your score.",
+    "potentialAction": {
+      "@type": "PlayAction",
+      "target": "https://pubquizdaily.com"
+    }
+  }
+  </script>
 </head>
 <body>
 
   <header style="position:relative;">
     <a class="logo" href="/">Pub Quiz Daily</a>
-    <button class="burger" id="burgerBtn" aria-label="Menu" onclick="toggleMenu()">
-      <span></span><span></span><span></span>
-    </button>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="streak-badge">
+        <span class="fire">🔥</span>
+        <span class="streak-count" id="streakDisplay">0</span>
+        <span>day streak</span>
+      </div>
+      <button class="burger" id="burgerBtn" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
     <nav class="nav-menu" id="navMenu">
-      <a href="/">Today's question</a>
+      <a href="/" class="active">Today's question</a>
       <a href="/groupie.html">Groupie</a>
       <a href="/weekly.html">Weekly quiz</a>
-      <a href="/archive.html" class="active">Full archive</a>
+      <a href="/archive.html">Full archive</a>
     </nav>
   </header>
 
-  <main>
-    <h1 class="page-title">Archive</h1>
-    <p class="page-subtitle">Past questions — play any one you missed.</p>
-
-    <div id="archiveList">
-      <div class="loading">
-        <div class="loading-dots"><span></span><span></span><span></span></div>
-        Loading past questions…
+  <main id="app">
+    <!-- Loading -->
+    <div class="loading" id="loadingState">
+      <div class="loading-dots">
+        <span></span><span></span><span></span>
       </div>
+    </div>
+
+    <!-- Game (hidden until loaded) -->
+    <div id="gameState" style="display:none; width:100%; display:none; flex-direction:column; align-items:center;">
+      <p class="date-label" id="dateLabel"></p>
+      <h1 class="question-text" id="questionText"></h1>
+      <div class="divider"></div>
+      <div class="options" id="optionsContainer"></div>
+      <div class="result-panel" id="resultPanel">
+        <p class="result-message" id="resultMessage"></p>
+        <p class="explainer-text" id="explainerText"></p>
+        <p class="stats-text" id="statsText"></p>
+        <div class="result-actions">
+          <button class="share-btn" id="shareBtn" onclick="shareResult()">
+            Share result
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+          </button>
+        </div>
+        <p class="next-label" id="nextLabel">Next question in</p>
+        <p class="countdown" id="countdown"></p>
+        <div class="email-signup" id="emailSignup">
+          <p class="signup-label">Never miss a question — get the weekly round-up</p>
+          <div class="signup-row">
+            <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" />
+            <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up</button>
+          </div>
+          <p class="signup-confirm" id="signupConfirm">You're in! See you Friday. 🍺</p>
+        </div>
+        <a class="archive-back" id="archiveBack" href="/archive.html" style="display:none;font-size:0.875rem;color:var(--ink-light);text-decoration:none;margin-top:4px;">← Back to archive</a>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorState" style="display:none" class="error-state">
+      <p class="error-title">No question today</p>
+      <p class="error-sub">Check back soon — something went wrong loading today's quiz.</p>
     </div>
   </main>
 
-  <footer>One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:&#104;&#101;&#108;&#108;&#111;&#64;&#112;&#117;&#98;&#113;&#117;&#105;&#122;&#100;&#97;&#105;&#108;&#121;&#46;&#99;&#111;&#109;" style="color:inherit;text-decoration:none;">Send feedback</a></footer>
+
+  <footer>
+    One question. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:&#104;&#101;&#108;&#108;&#111;&#64;&#112;&#117;&#98;&#113;&#117;&#105;&#122;&#100;&#97;&#105;&#108;&#121;&#46;&#99;&#111;&#109;" style="color:inherit;text-decoration:none;">Send feedback</a>
+  </footer>
+
+  <!-- Confetti container -->
+  <div class="confetti-burst" id="confetti" aria-hidden="true"></div>
 
   <script>
-    // First question ever published
-    const FIRST_DATE = '2026-03-06';
-    const STORAGE_KEY = 'pqd_archive_played';
+    // ── Constants ──────────────────────────────────────────────────────
+    const STORAGE_KEY = 'pqd_state';
+    const CORRECT_MSGS = [
+      "Nailed it. 🎉",
+      "Spot on!",
+      "Get in! Top marks.",
+      "Right first time — brilliant.",
+      "Knew it, didn't you?",
+      "Textbook answer. Lovely.",
+    ];
+    const WRONG_MSGS = [
+      "Unlucky — so close.",
+      "Ooh, not quite.",
+      "The correct answer is revealed above.",
+      "Even the best pub quizzers get one wrong.",
+      "Better luck tomorrow!",
+    ];
 
-    // Load which archive dates have been played
-    function loadPlayed() {
-      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+    // ── State ──────────────────────────────────────────────────────────
+    const realTodayISO = new Date().toISOString().slice(0, 10);
+    const urlDate = new URLSearchParams(location.search).get('date');
+    const isArchiveMode = urlDate && urlDate !== realTodayISO;
+    let todayISO = urlDate || realTodayISO;
+    let gameData = null;
+    let playerState = loadState();
+
+    function loadState() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch { return {}; }
+    }
+
+    function saveState(s) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
+    }
+
+    function loadArchivePlayed() {
+      try { return JSON.parse(localStorage.getItem('pqd_archive_played')) || {}; }
       catch { return {}; }
     }
 
-    // Also check main game state for today
-    function loadMainState() {
-      try { return JSON.parse(localStorage.getItem('pqd_state')) || {}; }
-      catch { return {}; }
+    function saveArchivePlayed(date, result) {
+      const played = loadArchivePlayed();
+      played[date] = result;
+      localStorage.setItem('pqd_archive_played', JSON.stringify(played));
     }
 
+    // ── Boot ───────────────────────────────────────────────────────────
+    updateStreakDisplay();
+
+    // In archive mode, hide streak badge and show archive label
+    if (isArchiveMode) {
+      document.querySelector('.streak-badge').style.display = 'none';
+      document.querySelector('.archive-link').textContent = '← Archive';
+      document.querySelector('.archive-link').href = '/archive.html';
+    }
+
+    fetchQuestion();
+
+    async function fetchQuestion() {
+      try {
+        const res = await fetch(`/.netlify/functions/question?date=${todayISO}`);
+        if (!res.ok) throw new Error('no question');
+        gameData = await res.json();
+        hide('errorState');
+        renderGame();
+      } catch (err) {
+        console.error(err);
+        // Only show error if game hasn't already rendered
+        if (document.getElementById('gameState').style.display === 'none' ||
+            document.getElementById('gameState').style.display === '') {
+          show('errorState');
+        }
+        hide('loadingState');
+      }
+    }
+
+    // ── Render ─────────────────────────────────────────────────────────
+    function renderGame() {
+      hide('loadingState');
+
+      const { question, options, date } = gameData;
+
+      document.getElementById('dateLabel').textContent = formatDate(date || todayISO);
+      document.getElementById('questionText').textContent = question;
+
+      const container = document.getElementById('optionsContainer');
+      container.innerHTML = '';
+
+      const letters = ['A', 'B', 'C', 'D'];
+      options.forEach((text, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn';
+        btn.dataset.letter = letters[i];
+        btn.innerHTML = `
+          <span class="option-letter">${letters[i]}</span>
+          <span class="option-text">${text}</span>
+        `;
+        btn.addEventListener('click', () => handleAnswer(letters[i]));
+        container.appendChild(btn);
+      });
+
+      show('gameState');
+      document.getElementById('gameState').style.display = 'flex';
+
+      // If already played, restore result
+      const archivePlayed = loadArchivePlayed();
+      if (isArchiveMode && archivePlayed[todayISO]) {
+        restoreAnswered();
+      } else if (!isArchiveMode && playerState.date === todayISO && playerState.answered) {
+        restoreAnswered();
+      } else if (!isArchiveMode) {
+        startCountdown();
+      }
+    }
+
+    function handleAnswer(chosen) {
+      const correct = gameData.correct; // e.g. "B"
+      const isCorrect = chosen === correct;
+
+      // Disable all buttons
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const letter = btn.dataset.letter;
+        if (letter === correct) {
+          btn.classList.add('correct');
+        } else if (letter === chosen && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('muted');
+        }
+      });
+
+      // Update streak (only for today's question, not archive)
+      if (!isArchiveMode) {
+        const yesterday = getYesterdayISO();
+        let streak = playerState.streak || 0;
+        if (playerState.date === yesterday) {
+          streak += 1;
+        } else if (playerState.date !== todayISO) {
+          streak = 1;
+        }
+        playerState = {
+          date: todayISO,
+          answered: true,
+          chosen,
+          correct,
+          isCorrect,
+          streak,
+        };
+        saveState(playerState);
+        updateStreakDisplay();
+      } else {
+        // Archive mode — just save to archive played store
+        saveArchivePlayed(todayISO, isCorrect ? 'correct' : 'wrong');
+      }
+
+      // Show result
+      const panel = document.getElementById('resultPanel');
+      const msg = document.getElementById('resultMessage');
+
+      if (isCorrect) {
+        msg.textContent = pick(CORRECT_MSGS);
+        triggerConfetti();
+        // Animate streak badge
+        document.querySelector('.streak-badge').classList.add('streak-pop');
+        setTimeout(() => document.querySelector('.streak-badge').classList.remove('streak-pop'), 500);
+      } else {
+        msg.textContent = pick(WRONG_MSGS);
+      }
+
+      // Show explainer if present
+      const explainerEl = document.getElementById('explainerText');
+      explainerEl.textContent = gameData.explainer || '';
+
+      // Record answer and show stat
+      recordAndShowStat(isCorrect);
+
+      requestAnimationFrame(() => {
+        panel.classList.add('visible');
+        initSignup();
+      });
+
+      startCountdown();
+    }
+
+    function restoreAnswered() {
+      const correct = gameData.correct;
+      let chosen, isCorrect;
+
+      if (isArchiveMode) {
+        const archiveResult = loadArchivePlayed()[todayISO]; // 'correct' or 'wrong'
+        isCorrect = archiveResult === 'correct';
+        chosen = null; // we don't know which wrong answer they picked, just show correct
+      } else {
+        if (!playerState.answered) return;
+        chosen = playerState.chosen;
+        isCorrect = playerState.isCorrect;
+      }
+
+      const buttons = document.querySelectorAll('.option-btn');
+      buttons.forEach(btn => {
+        btn.disabled = true;
+        const letter = btn.dataset.letter;
+        if (letter === correct) {
+          btn.classList.add('correct');
+        } else if (chosen && letter === chosen && !isCorrect) {
+          btn.classList.add('wrong');
+        } else {
+          btn.classList.add('muted');
+        }
+      });
+
+      const panel = document.getElementById('resultPanel');
+      const msg = document.getElementById('resultMessage');
+
+      if (isArchiveMode) {
+        msg.textContent = isCorrect
+          ? "You already played this one — and got it right!"
+          : "You already played this one.";
+      } else {
+        msg.textContent = isCorrect
+          ? "You already got this one — and got it right! Come back tomorrow."
+          : "You already played today. Come back tomorrow!";
+      }
+
+      const explainerEl = document.getElementById('explainerText');
+      explainerEl.textContent = gameData.explainer || '';
+
+      fetchAndShowStat(isCorrect);
+
+      panel.classList.add('visible');
+      initSignup();
+      startCountdown();
+    }
+
+
+    // ── Email signup ──────────────────────────────────────────────────
+    const SIGNUP_KEY = 'pqd_subscribed';
+
+    function initSignup() {
+      // Hide if already subscribed or in archive mode
+      if (isArchiveMode || localStorage.getItem(SIGNUP_KEY)) {
+        const el = document.getElementById('emailSignup');
+        if (el) el.classList.add('hidden');
+      }
+    }
+
+    async function submitSignup() {
+      const input = document.getElementById('signupEmail');
+      const btn = document.getElementById('signupBtn');
+      const confirm = document.getElementById('signupConfirm');
+      const email = input.value.trim();
+
+      if (!email || !email.includes('@')) {
+        input.focus();
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          confirm.classList.add('visible');
+          document.querySelector('.signup-label').textContent = "You're on the list!";
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up';
+      }
+    }
+
+    // ── Stats ──────────────────────────────────────────────────────────
+    async function recordAndShowStat(isCorrect) {
+      try {
+        const res = await fetch('/.netlify/functions/record-answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: todayISO, correct: isCorrect }),
+        });
+        if (!res.ok) return;
+        const { total, correctCount } = await res.json();
+        showStat(total, correctCount, isCorrect);
+      } catch (e) {
+        // Silently fail — stats are a nice-to-have
+      }
+    }
+
+    async function fetchAndShowStat(isCorrect) {
+      try {
+        const res = await fetch(`/.netlify/functions/record-answer?date=${todayISO}`);
+        if (!res.ok) return;
+        const { total, correctCount } = await res.json();
+        showStat(total, correctCount, isCorrect);
+      } catch (e) {
+        // Silently fail
+      }
+    }
+
+    function showStat(total, correctCount, isCorrect) {
+      if (!total || total < 2) return; // Don't show until at least 2 plays
+      const pct = Math.round((correctCount / total) * 100);
+      const el = document.getElementById('statsText');
+      if (isCorrect) {
+        el.textContent = pct >= 70
+          ? `Most players got this — ${pct}% answered correctly today`
+          : pct >= 40
+          ? `${pct}% of players got this right today`
+          : `You're sharper than most — only ${pct}% got this right today`;
+      } else {
+        el.textContent = pct >= 70
+          ? `Tricky one — ${100 - pct}% also got this wrong today`
+          : pct >= 40
+          ? `${pct}% of players got this right today`
+          : `Tough question — only ${pct}% of players got this right`;
+      }
+    }
+
+    // ── Countdown ──────────────────────────────────────────────────────
+    let countdownInterval = null;
+
+    function startCountdown() {
+      if (isArchiveMode) {
+        document.getElementById('nextLabel').style.display = 'none';
+        document.getElementById('countdown').style.display = 'none';
+        document.getElementById('archiveBack').style.display = 'inline';
+        return;
+      }
+      const el = document.getElementById('countdown');
+      function tick() {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const diff = midnight - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        el.textContent = `${h}:${m}:${s}`;
+      }
+      tick();
+      countdownInterval = setInterval(tick, 1000);
+    }
+
+    // ── Share ──────────────────────────────────────────────────────────
+    function shareResult() {
+      const { isCorrect, streak } = playerState;
+      const result = isCorrect ? '✅' : '❌';
+      const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
+      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${result}${streakStr}\n\n"${gameData.question}"\n\nCan you get it right? → ${location.origin}`;
+
+      if (navigator.share) {
+        navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.getElementById('shareBtn');
+          btn.textContent = 'Copied!';
+          setTimeout(() => {
+            btn.innerHTML = 'Share result <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+          }, 2000);
+        });
+      }
+    }
+
+    // ── Confetti ───────────────────────────────────────────────────────
+    const CONFETTI_COLORS = ['#4a7c59', '#c0622e', '#1a1a1a', '#8b6c42', '#2c6e8a'];
+
+    function triggerConfetti() {
+      const container = document.getElementById('confetti');
+      container.innerHTML = '';
+      const count = 28;
+      for (let i = 0; i < count; i++) {
+        const el = document.createElement('span');
+        const angle = (360 / count) * i;
+        const distance = 60 + Math.random() * 60;
+        const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+        const size = 5 + Math.random() * 5;
+        el.style.cssText = `
+          background: ${color};
+          width: ${size}px;
+          height: ${size}px;
+          border-radius: ${Math.random() > 0.5 ? '50%' : '1px'};
+          animation: confetti-${i} 0.7s ease-out forwards;
+        `;
+        const rad = (angle * Math.PI) / 180;
+        const x = Math.cos(rad) * distance;
+        const y = Math.sin(rad) * distance;
+        const style = document.createElement('style');
+        style.textContent = `@keyframes confetti-${i} {
+          0%   { opacity: 1; transform: translate(0,0) rotate(0deg); }
+          100% { opacity: 0; transform: translate(${x}px,${y}px) rotate(${360 * (Math.random() > 0.5 ? 1 : -1)}deg); }
+        }`;
+        document.head.appendChild(style);
+        container.appendChild(el);
+      }
+    }
+
+
+    // ── Helpers ────────────────────────────────────────────────────────
     function formatDate(iso) {
       const d = new Date(iso + 'T12:00:00');
       return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     }
 
-    function getPastDates() {
-      const dates = [];
-      const today = new Date().toISOString().slice(0, 10);
-      const start = new Date(FIRST_DATE + 'T12:00:00');
-      const end = new Date(today + 'T12:00:00');
-      end.setDate(end.getDate() - 1); // exclude today
-
-      const cur = new Date(end);
-      while (cur >= start) {
-        dates.push(cur.toISOString().slice(0, 10));
-        cur.setDate(cur.getDate() - 1);
-      }
-      return dates; // newest first
+    function getYesterdayISO() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
     }
 
-    function render() {
-      const dates = getPastDates();
-      const played = loadPlayed();
-      const mainState = loadMainState();
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-      // Mark today if played via main game
-      if (mainState.date && mainState.answered) {
-        played[mainState.date] = mainState.isCorrect ? 'correct' : 'wrong';
-      }
+    function show(id) { document.getElementById(id).style.display = ''; }
+    function hide(id) { document.getElementById(id).style.display = 'none'; }
 
-      const list = document.getElementById('archiveList');
-
-      if (dates.length === 0) {
-        list.innerHTML = '<p style="color:var(--ink-light);font-size:0.875rem;">No past questions yet — check back tomorrow!</p>';
-        return;
-      }
-
-      list.innerHTML = dates.map(date => {
-        const wasPlayed = played[date];
-        const playedClass = wasPlayed ? ' played' : '';
-        const tick = wasPlayed === 'correct' ? '✓ Correct' : wasPlayed === 'wrong' ? '✗ Played' : '';
-        return `
-          <a class="archive-item${playedClass}" href="/?date=${date}">
-            <span class="archive-date">${formatDate(date)}</span>
-            <span class="archive-meta">
-              <span class="played-tick">${tick}</span>
-              <span class="archive-chevron">›</span>
-            </span>
-          </a>`;
-      }).join('');
+    function updateStreakDisplay() {
+      const streak = playerState.streak || 0;
+      const el = document.getElementById('streakDisplay');
+      if (el) el.textContent = streak;
     }
-
-    render();
   
     // ── Burger menu ────────────────────────────────────────────────────
     function toggleMenu() {
