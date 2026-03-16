@@ -218,6 +218,64 @@
       text-decoration: none;
     }
     .back-link:hover { color: var(--ink); }
+
+    /* ── Newsletter chart ── */
+    .chart-section {
+      margin-top: 40px;
+      margin-bottom: 8px;
+    }
+
+    .chart-section h2 {
+      font-family: var(--font-serif);
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .chart-section .subtitle {
+      font-size: 0.8125rem;
+      color: var(--ink-light);
+      margin-bottom: 20px;
+    }
+
+    .chart-wrap {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 28px 24px 20px;
+    }
+
+    .chart-title {
+      font-family: var(--font-serif);
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 4px;
+      color: var(--ink);
+    }
+
+    .chart-subtitle {
+      font-size: 0.75rem;
+      text-align: center;
+      color: var(--ink-light);
+      margin-bottom: 24px;
+      letter-spacing: 0.03em;
+    }
+
+    .save-btn {
+      margin-top: 16px;
+      padding: 9px 20px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+
+    .save-btn:hover { opacity: 0.8; }
   </style>
 </head>
 <body>
@@ -257,6 +315,17 @@
         </thead>
         <tbody id="statsBody"></tbody>
       </table>
+    </div>
+
+    <div class="chart-section" id="chartSection" style="display:none">
+      <h2>Newsletter chart</h2>
+      <p class="subtitle">This week's daily scores — save and drop into your Friday email.</p>
+      <div class="chart-wrap" id="chartWrap">
+        <div class="chart-title">Pub Quiz Daily</div>
+        <div class="chart-subtitle" id="chartDateRange"></div>
+        <div id="barChart"></div>
+      </div>
+      <button class="save-btn" onclick="saveChart()">Save chart as image</button>
     </div>
 
     <a class="back-link" href="/">← Back to site</a>
@@ -346,6 +415,9 @@
         )
       );
 
+      // Render newsletter chart
+      renderChart(stats, questions);
+
       // Table rows
       const tbody = document.getElementById('statsBody');
       tbody.innerHTML = stats.map((row, i) => {
@@ -368,6 +440,97 @@
           </tr>
         `;
       }).join('');
+    }
+
+    function renderChart(stats, questions) {
+      // Get last 7 days (Sat to Fri or most recent 7 with data)
+      const chartData = stats
+        .filter(r => r.total > 0)
+        .slice(0, 7)
+        .reverse(); // oldest first for chart
+
+      if (chartData.length === 0) return;
+
+      document.getElementById('chartSection').style.display = 'block';
+
+      // Date range label
+      const oldest = new Date(chartData[0].date + 'T12:00:00');
+      const newest = new Date(chartData[chartData.length - 1].date + 'T12:00:00');
+      const fmt = { day: 'numeric', month: 'long' };
+      document.getElementById('chartDateRange').textContent =
+        `${oldest.toLocaleDateString('en-GB', fmt)} – ${newest.toLocaleDateString('en-GB', fmt)}`;
+
+      const barW = 56;
+      const gap = 16;
+      const chartH = 180;
+      const labelH = 48;
+      const topPad = 32;
+      const totalW = chartData.length * (barW + gap) - gap;
+      const svgW = totalW + 40;
+      const svgH = chartH + labelH + topPad;
+
+      const colors = ['#4a7c59','#4a7c59','#4a7c59','#4a7c59','#4a7c59','#4a7c59','#4a7c59'];
+
+      const bars = chartData.map((row, i) => {
+        const pct = Math.round((row.correctCount / row.total) * 100);
+        const barH = Math.max(8, Math.round((pct / 100) * chartH));
+        const x = 20 + i * (barW + gap);
+        const y = topPad + chartH - barH;
+        const d = new Date(row.date + 'T12:00:00');
+        const dayLabel = d.toLocaleDateString('en-GB', { weekday: 'short' });
+        const dateLabel = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+        const labelY = topPad + chartH + 16;
+        const color = colors[i % colors.length];
+
+        return `
+          <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="5" fill="${color}" opacity="0.85"/>
+          <text x="${x + barW/2}" y="${y - 7}" text-anchor="middle"
+            font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">${pct}%</text>
+          <text x="${x + barW/2}" y="${labelY}" text-anchor="middle"
+            font-family="DM Sans, sans-serif" font-size="11" font-weight="600" fill="#6b6b6b">${dayLabel}</text>
+          <text x="${x + barW/2}" y="${labelY + 14}" text-anchor="middle"
+            font-family="DM Sans, sans-serif" font-size="10" fill="#c8c8c8">${dateLabel}</text>
+        `;
+      }).join('');
+
+      // Subtle grid lines at 25%, 50%, 75%
+      const gridLines = [25, 50, 75].map(pct => {
+        const y = topPad + chartH - Math.round((pct / 100) * chartH);
+        return `<line x1="20" y1="${y}" x2="${svgW - 20}" y2="${y}"
+          stroke="#e0ddd8" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="16" y="${y + 4}" text-anchor="end"
+            font-family="DM Sans, sans-serif" font-size="9" fill="#c8c8c8">${pct}%</text>`;
+      }).join('');
+
+      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ${svgW} ${svgH}" id="chartSvg">
+        ${gridLines}
+        ${bars}
+      </svg>`;
+
+      document.getElementById('barChart').innerHTML = svg;
+    }
+
+    function saveChart() {
+      const svg = document.getElementById('chartSvg');
+      if (!svg) return;
+
+      // Add white background and title for standalone image
+      const clone = svg.cloneNode(true);
+      const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+      const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      bg.setAttribute('x', 0); bg.setAttribute('y', 0);
+      bg.setAttribute('width', vb[2]); bg.setAttribute('height', vb[3]);
+      bg.setAttribute('fill', '#faf9f7');
+      clone.insertBefore(bg, clone.firstChild);
+
+      const svgStr = new XMLSerializer().serializeToString(clone);
+      const blob = new Blob([svgStr], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'pubquizdaily-weekly-chart.svg';
+      a.click();
+      URL.revokeObjectURL(url);
     }
   </script>
 </body>
