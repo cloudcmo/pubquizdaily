@@ -321,11 +321,11 @@
       <h2>Newsletter chart</h2>
       <p class="subtitle">This week's daily scores — save and drop into your Friday email.</p>
       <div class="chart-wrap" id="chartWrap">
-        <div class="chart-title">Pub Quiz Daily</div>
+        <div class="chart-title">Pub Quiz Daily - how many got it right?</div>
         <div class="chart-subtitle" id="chartDateRange"></div>
         <div id="barChart"></div>
       </div>
-      <button class="save-btn" onclick="saveChart()">Save chart as image</button>
+      <button class="save-btn" onclick="saveChart()">Save chart as JPG</button>
     </div>
 
     <a class="back-link" href="/">← Back to site</a>
@@ -514,23 +514,45 @@
       const svg = document.getElementById('chartSvg');
       if (!svg) return;
 
-      // Add white background and title for standalone image
-      const clone = svg.cloneNode(true);
       const vb = svg.getAttribute('viewBox').split(' ').map(Number);
+      const scale = 2; // retina quality
+      const w = vb[2] * scale;
+      const h = vb[3] * scale;
+
+      // Clone SVG and add cream background
+      const clone = svg.cloneNode(true);
       const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       bg.setAttribute('x', 0); bg.setAttribute('y', 0);
       bg.setAttribute('width', vb[2]); bg.setAttribute('height', vb[3]);
       bg.setAttribute('fill', '#faf9f7');
       clone.insertBefore(bg, clone.firstChild);
+      clone.setAttribute('width', vb[2]);
+      clone.setAttribute('height', vb[3]);
 
       const svgStr = new XMLSerializer().serializeToString(clone);
-      const blob = new Blob([svgStr], { type: 'image/svg+xml' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'pubquizdaily-weekly-chart.svg';
-      a.click();
-      URL.revokeObjectURL(url);
+      const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(svgBlob);
+
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#faf9f7';
+        ctx.fillRect(0, 0, w, h);
+        ctx.scale(scale, scale);
+        ctx.drawImage(img, 0, 0);
+        URL.revokeObjectURL(url);
+
+        canvas.toBlob(blob => {
+          const a = document.createElement('a');
+          a.href = URL.createObjectURL(blob);
+          a.download = 'pubquizdaily-weekly-chart.jpg';
+          a.click();
+        }, 'image/jpeg', 0.95);
+      };
+      img.src = url;
     }
   </script>
 </body>
