@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stats — Pub Quiz Daily</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf9f7;
+      --ink: #1a1a1a;
+      --ink-light: #6b6b6b;
+      --ink-faint: #c8c8c8;
+      --border: #e0ddd8;
+      --correct: #4a7c59;
+      --correct-bg: #edf4ef;
+      --wrong: #c0622e;
+      --wrong-bg: #fdf0eb;
+      --font-serif: 'Libre Baskerville', Georgia, serif;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: var(--font-sans);
+      min-height: 100dvh;
+      padding: 40px 24px;
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-family: var(--font-serif);
+      font-size: 1.5rem;
+      margin-bottom: 4px;
+    }
+
+    .subtitle {
+      font-size: 0.875rem;
+      color: var(--ink-light);
+      margin-bottom: 32px;
+    }
+
+    /* Login form */
+    .login-form {
+      display: flex;
+      gap: 8px;
+      max-width: 340px;
+      margin-top: 24px;
+    }
+
+    .login-input {
+      flex: 1;
+      padding: 10px 14px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      color: var(--ink);
+      outline: none;
+    }
+
+    .login-input:focus { border-color: var(--ink); }
+
+    .login-btn {
+      padding: 10px 20px;
+      background: var(--ink);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-family: var(--font-sans);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .login-btn:hover { opacity: 0.8; }
+
+    .error-msg {
+      color: var(--wrong);
+      font-size: 0.875rem;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* Summary cards */
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+
+    .card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .card-value {
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .card-label {
+      font-size: 0.75rem;
+      color: var(--ink-light);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-light);
+      border-bottom: 2px solid var(--border);
+    }
+
+    th:last-child, td:last-child { text-align: right; }
+
+    td {
+      padding: 12px 12px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .bar-cell { width: 40%; }
+
+    .bar-wrap {
+      background: var(--border);
+      border-radius: 4px;
+      height: 8px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 4px;
+      background: var(--correct);
+      transition: width 0.4s ease;
+    }
+
+    .bar-fill.low { background: var(--wrong); }
+    .bar-fill.mid { background: #c08030; }
+
+    .pct {
+      font-weight: 600;
+      font-size: 0.9375rem;
+    }
+
+    .pct.high { color: var(--correct); }
+    .pct.mid { color: #c08030; }
+    .pct.low { color: var(--wrong); }
+
+    .plays {
+      color: var(--ink-light);
+      font-size: 0.875rem;
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 48px 0;
+      color: var(--ink-light);
+    }
+
+    .loading-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
+    .loading-dots span {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--ink-faint);
+      animation: dot-pulse 1.2s ease-in-out infinite;
+    }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-pulse {
+      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
+      40% { transform: scale(1); opacity: 1; }
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-top: 32px;
+      font-size: 0.875rem;
+      color: var(--ink-light);
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--ink); }
+  </style>
+</head>
+<body>
+
+  <!-- Login screen -->
+  <div id="loginScreen">
+    <h1>Pub Quiz Daily</h1>
+    <p class="subtitle">Stats dashboard — private</p>
+    <div class="login-form">
+      <input class="login-input" type="password" id="passwordInput" placeholder="Password" />
+      <button class="login-btn" onclick="login()">View stats</button>
+    </div>
+    <p class="error-msg" id="errorMsg">Wrong password</p>
+  </div>
+
+  <!-- Stats screen -->
+  <div id="statsScreen" style="display:none">
+    <h1>Pub Quiz Daily</h1>
+    <p class="subtitle" id="statsSubtitle">Loading stats…</p>
+
+    <div id="loadingState" class="loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+      Fetching data…
+    </div>
+
+    <div id="statsContent" style="display:none">
+      <div class="summary" id="summaryCards"></div>
+      <table id="statsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Plays</th>
+            <th class="bar-cell">% Correct</th>
+            <th>Score</th>
+          </tr>
+        </thead>
+        <tbody id="statsBody"></tbody>
+      </table>
+    </div>
+
+    <a class="back-link" href="/">← Back to site</a>
+  </div>
+
+  <script>
+    let currentPassword = '';
+
+    // Check if password stored in session
+    const saved = sessionStorage.getItem('stats_pw');
+    if (saved) {
+      currentPassword = saved;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('statsScreen').style.display = 'block';
+      loadStats();
+    }
+
+    // Allow Enter key on password field
+    document.getElementById('passwordInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    function login() {
+      const pw = document.getElementById('passwordInput').value.trim();
+      if (!pw) return;
+      currentPassword = pw;
+      sessionStorage.setItem('stats_pw', pw);
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('statsScreen').style.display = 'block';
+      loadStats();
+    }
+
+    async function loadStats() {
+      try {
+        const res = await fetch(`/.netlify/functions/stats?password=${encodeURIComponent(currentPassword)}`);
+
+        if (res.status === 401) {
+          sessionStorage.removeItem('stats_pw');
+          document.getElementById('statsScreen').style.display = 'none';
+          document.getElementById('loginScreen').style.display = 'block';
+          document.getElementById('errorMsg').style.display = 'block';
+          return;
+        }
+
+        const data = await res.json();
+        renderStats(data.stats || []);
+
+      } catch (e) {
+        document.getElementById('loadingState').textContent = 'Failed to load stats.';
+      }
+    }
+
+    function renderStats(stats) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('statsContent').style.display = 'block';
+
+      const totalPlays = stats.reduce((s, r) => s + r.total, 0);
+      const totalCorrect = stats.reduce((s, r) => s + r.correctCount, 0);
+      const avgPct = totalPlays > 0 ? Math.round((totalCorrect / totalPlays) * 100) : 0;
+      const activeDays = stats.filter(r => r.total > 0).length;
+
+      document.getElementById('statsSubtitle').textContent =
+        `${activeDays} day${activeDays !== 1 ? 's' : ''} of data`;
+
+      // Summary cards
+      document.getElementById('summaryCards').innerHTML = `
+        <div class="card">
+          <div class="card-value">${totalPlays.toLocaleString()}</div>
+          <div class="card-label">Total plays</div>
+        </div>
+        <div class="card">
+          <div class="card-value">${activeDays}</div>
+          <div class="card-label">Active days</div>
+        </div>
+        <div class="card">
+          <div class="card-value">${avgPct}%</div>
+          <div class="card-label">Avg correct</div>
+        </div>
+      `;
+
+      // Table rows
+      const tbody = document.getElementById('statsBody');
+      tbody.innerHTML = stats.map(row => {
+        const pct = row.total > 0 ? Math.round((row.correctCount / row.total) * 100) : 0;
+        const tier = pct >= 60 ? 'high' : pct >= 40 ? 'mid' : 'low';
+        const d = new Date(row.date + 'T12:00:00');
+        const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        return `
+          <tr>
+            <td>${dateStr}</td>
+            <td class="plays">${row.total}</td>
+            <td class="bar-cell">
+              <div class="bar-wrap">
+                <div class="bar-fill ${tier}" style="width:${pct}%"></div>
+              </div>
+            </td>
+            <td class="pct ${tier}">${row.total > 0 ? pct + '%' : '—'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>
