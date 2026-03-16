@@ -319,9 +319,9 @@
 
     <div class="chart-section" id="chartSection" style="display:none">
       <h2>Newsletter chart</h2>
-      <p class="subtitle">This week's daily scores — save and drop into your Friday email.</p>
+      <p class="subtitle">Most recent 7 days with plays — save and drop into your Friday email.</p>
       <div class="chart-wrap" id="chartWrap">
-        <div class="chart-title">Pub Quiz Daily - how many got it right?</div>
+        <div class="chart-title">Pub Quiz Daily</div>
         <div class="chart-subtitle" id="chartDateRange"></div>
         <div id="barChart"></div>
       </div>
@@ -443,22 +443,24 @@
     }
 
     function renderChart(stats, questions) {
-      // Get last 7 days (Sat to Fri or most recent 7 with data)
+      // Get the 7 most recent days with data, oldest first for chart
       const chartData = stats
         .filter(r => r.total > 0)
         .slice(0, 7)
-        .reverse(); // oldest first for chart
+        .reverse();
 
       if (chartData.length === 0) return;
 
       document.getElementById('chartSection').style.display = 'block';
 
-      // Date range label
+      // Date range label — show actual dates in chart
       const oldest = new Date(chartData[0].date + 'T12:00:00');
       const newest = new Date(chartData[chartData.length - 1].date + 'T12:00:00');
       const fmt = { day: 'numeric', month: 'long' };
-      document.getElementById('chartDateRange').textContent =
-        `${oldest.toLocaleDateString('en-GB', fmt)} – ${newest.toLocaleDateString('en-GB', fmt)}`;
+      const label = chartData.length === 7
+        ? `${oldest.toLocaleDateString('en-GB', fmt)} – ${newest.toLocaleDateString('en-GB', fmt)}`
+        : `Last ${chartData.length} days`;
+      document.getElementById('chartDateRange').textContent = label;
 
       const barW = 56;
       const gap = 16;
