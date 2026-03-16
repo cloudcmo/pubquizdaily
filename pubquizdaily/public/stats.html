@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -202,6 +203,13 @@
       40% { transform: scale(1); opacity: 1; }
     }
 
+
+    .q-text {
+      font-size: 0.8125rem;
+      color: var(--ink-light);
+      max-width: 260px;
+      line-height: 1.4;
+    }
     .back-link {
       display: inline-block;
       margin-top: 32px;
@@ -241,6 +249,7 @@
         <thead>
           <tr>
             <th>Date</th>
+            <th>Question</th>
             <th>Plays</th>
             <th class="bar-cell">% Correct</th>
             <th>Score</th>
@@ -300,7 +309,7 @@
       }
     }
 
-    function renderStats(stats) {
+    async function renderStats(stats) {
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('statsContent').style.display = 'block';
 
@@ -328,16 +337,27 @@
         </div>
       `;
 
+      // Fetch question text for each date
+      const questions = await Promise.all(
+        stats.map(row =>
+          fetch(`/.netlify/functions/question?date=${row.date}&password=${encodeURIComponent(currentPassword)}`)
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null)
+        )
+      );
+
       // Table rows
       const tbody = document.getElementById('statsBody');
-      tbody.innerHTML = stats.map(row => {
+      tbody.innerHTML = stats.map((row, i) => {
         const pct = row.total > 0 ? Math.round((row.correctCount / row.total) * 100) : 0;
         const tier = pct >= 60 ? 'high' : pct >= 40 ? 'mid' : 'low';
         const d = new Date(row.date + 'T12:00:00');
         const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+        const qText = questions[i]?.question || '—';
         return `
           <tr>
             <td>${dateStr}</td>
+            <td class="q-text">${qText}</td>
             <td class="plays">${row.total}</td>
             <td class="bar-cell">
               <div class="bar-wrap">
