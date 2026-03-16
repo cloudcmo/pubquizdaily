@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -239,6 +240,21 @@
     .option-btn.wrong .option-text { color: var(--wrong); }
     .option-btn.muted { opacity: 0.38; }
 
+
+    .stats-text {
+      display: none;
+      margin-top: 8px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      color: var(--ink-light);
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 4px 12px;
+      text-align: center;
+    }
+
+    .stats-text.visible { display: inline-block; }
     .explainer {
       margin-top: 10px;
       font-size: 0.8125rem;
@@ -460,7 +476,6 @@
     </button>
     <nav class="nav-menu" id="navMenu">
       <a href="/">Today's question</a>
-      <a href="/groupie.html">Groupie</a>
       <a href="/weekly.html" class="active">Weekly quiz</a>
       <a href="/archive.html">Full archive</a>
     </nav>
@@ -602,6 +617,7 @@
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
+          <div class="stats-text" id="stats-${i}"></div>
         `;
         list.appendChild(card);
       });
@@ -635,6 +651,9 @@
       const exp = document.getElementById(`explainer-${qi}`);
       if (exp) exp.classList.add('visible');
 
+      // Fetch and show stat for this question
+      fetchWeeklyStat(qi, q.date, isCorrect);
+
       // Update pip
       const pip = document.getElementById(`pip-${qi}`);
       if (pip) pip.classList.add(isCorrect ? 'correct' : 'wrong');
@@ -655,6 +674,32 @@
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
       panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    async function fetchWeeklyStat(qi, date, isCorrect) {
+      try {
+        const res = await fetch(`/.netlify/functions/record-answer?date=${date}`);
+        if (!res.ok) return;
+        const { total, correctCount } = await res.json();
+        if (!total || total < 2) return;
+        const pct = Math.round((correctCount / total) * 100);
+        const el = document.getElementById(`stats-${qi}`);
+        if (!el) return;
+        if (isCorrect) {
+          el.textContent = pct >= 70
+            ? `Most people got this — ${pct}% answered correctly`
+            : pct >= 40
+            ? `${pct}% of daily players got this right`
+            : `Sharp! Only ${pct}% of daily players got this`;
+        } else {
+          el.textContent = pct >= 70
+            ? `Tricky one — ${100 - pct}% also got this wrong`
+            : pct >= 40
+            ? `${pct}% of daily players got this right`
+            : `Tough question — only ${pct}% got it right`;
+        }
+        el.classList.add('visible');
+      } catch {}
     }
 
     function shareResult() {
