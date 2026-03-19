@@ -935,4 +935,12 @@
     }
 
     document.addEventListener('click', function(e) {
-      if (!e.target.closest('header'))
+      if (!e.target.closest('header')) {
+        document.getElementById('burgerBtn').classList.remove('open');
+        document.getElementById('navMenu').classList.remove('open');
+      }
+    });
+  </script>
+
+</body>
+</html>
