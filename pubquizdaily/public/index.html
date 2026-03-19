@@ -308,27 +308,33 @@
     .weekly-nudge {
       margin-top: 16px;
       width: 100%;
-      background: #f0ede8;
-      border: 1px solid var(--border);
+      background: #edf4ef;
+      border: 1.5px solid #b8d4bf;
       border-radius: 10px;
-      padding: 14px 20px;
+      padding: 15px 20px;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 10px;
       text-decoration: none;
       transition: background 0.12s, border-color 0.12s, transform 0.08s;
     }
-    .weekly-nudge:hover { background: #e8e4de; border-color: #bbb8b2; transform: translateY(-1px); }
+    .weekly-nudge:hover { background: #ddeee2; border-color: #8ab89a; transform: translateY(-1px); }
     .weekly-nudge:active { transform: translateY(0); }
 
+    .weekly-nudge-icon {
+      font-size: 1.25rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .weekly-nudge-text { text-align: center; }
     .weekly-nudge-label {
       font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--ink-light);
+      color: #4a7c59;
+      margin-bottom: 1px;
     }
     .weekly-nudge-title {
       font-family: var(--font-serif);
@@ -534,8 +540,11 @@
           </button>
         </div>
         <a class="weekly-nudge" id="weeklyNudge" href="/weekly.html">
-          <p class="weekly-nudge-label">Want more?</p>
-          <p class="weekly-nudge-title">Play the weekly quiz now</p>
+          <span class="weekly-nudge-icon">🍺</span>
+          <div class="weekly-nudge-text">
+            <p class="weekly-nudge-label">Want more?</p>
+            <p class="weekly-nudge-title">Play the weekly quiz now</p>
+          </div>
         </a>
         <p class="next-label" id="nextLabel">Next question in</p>
         <p class="countdown" id="countdown"></p>
