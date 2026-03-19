@@ -306,49 +306,36 @@
     .share-btn:active { transform: scale(0.98); }
 
     .weekly-nudge {
-      margin-top: 24px;
+      margin-top: 16px;
       width: 100%;
-      background: white;
+      background: #f0ede8;
       border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 16px 20px;
+      padding: 14px 20px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
-      gap: 16px;
+      justify-content: center;
+      gap: 2px;
       text-decoration: none;
-      transition: border-color 0.12s, transform 0.08s;
+      transition: background 0.12s, border-color 0.12s, transform 0.08s;
     }
-    .weekly-nudge:hover { border-color: var(--ink); transform: translateY(-1px); }
+    .weekly-nudge:hover { background: #e8e4de; border-color: #bbb8b2; transform: translateY(-1px); }
     .weekly-nudge:active { transform: translateY(0); }
 
-    .weekly-nudge-text { text-align: left; }
     .weekly-nudge-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.07em;
+      letter-spacing: 0.08em;
       color: var(--ink-light);
-      margin-bottom: 3px;
     }
     .weekly-nudge-title {
       font-family: var(--font-serif);
       font-size: 0.9375rem;
       color: var(--ink);
     }
-    .weekly-nudge-arrow {
-      flex-shrink: 0;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--ink);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 1rem;
-      line-height: 1;
-    }
+    .weekly-nudge-arrow { display: none; }
 
     .next-label {
       margin-top: 24px;
@@ -547,11 +534,8 @@
           </button>
         </div>
         <a class="weekly-nudge" id="weeklyNudge" href="/weekly.html">
-          <div class="weekly-nudge-text">
-            <p class="weekly-nudge-label">Want more?</p>
-            <p class="weekly-nudge-title">Play the weekly quiz now</p>
-          </div>
-          <div class="weekly-nudge-arrow">›</div>
+          <p class="weekly-nudge-label">Want more?</p>
+          <p class="weekly-nudge-title">Play the weekly quiz now</p>
         </a>
         <p class="next-label" id="nextLabel">Next question in</p>
         <p class="countdown" id="countdown"></p>
