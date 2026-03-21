@@ -5,7 +5,7 @@ exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
-    'Cache-Control': 'public, max-age=300', // cache for 5 minutes
+    'Cache-Control': 'public, max-age=60', // cache for 1 minute
   };
 
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
