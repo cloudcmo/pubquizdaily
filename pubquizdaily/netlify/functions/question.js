@@ -1,6 +1,6 @@
 // netlify/functions/question.js
 // Fetches all quiz questions for a given date from the 'multi' tab of the Google Sheet
-// Sheet columns: date | question | A | B | C | D | correct | explainer | weekly
+// Sheet columns: date | question | A | B | C | D | correct | explainer | weekly | image
 
 exports.handler = async function(event) {
   const headers = {
@@ -19,7 +19,7 @@ exports.handler = async function(event) {
   const requestedDate = event.queryStringParameters?.date || todayISO();
 
   try {
-    const range = encodeURIComponent('multi!A:I');
+    const range = encodeURIComponent('multi!A:J');
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
 
     const res = await fetch(url);
@@ -44,7 +44,7 @@ exports.handler = async function(event) {
 
     // Map each row to a question object
     const questions = matchingRows.map((row, index) => {
-      const [date, question, optA, optB, optC, optD, correct, explainer, weekly] = row;
+      const [date, question, optA, optB, optC, optD, correct, explainer, weekly, image] = row;
 
       if (!question || !optA || !optB || !optC || !optD || !correct) return null;
 
@@ -55,6 +55,7 @@ exports.handler = async function(event) {
         correct: correct.trim().toUpperCase(),
         explainer: explainer ? explainer.trim() : null,
         weekly: (weekly || '').trim().toUpperCase() === 'W',
+        image: image ? image.trim() : null,
       };
     }).filter(Boolean);
 

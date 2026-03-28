@@ -274,29 +274,64 @@
       document.getElementById('out-date').textContent = document.getElementById('dateLabel').value;
 
       const container = document.getElementById('out-questions');
+      const eyebrow = document.querySelector('.card-eyebrow');
+      const cardFooterTag = document.querySelector('.card-footer-tag');
+
       if (loadedQuestions.length === 0) {
         container.innerHTML = '<div style="color:#6b6b6b;font-size:1.4rem;">Load data to begin…</div>';
         return;
       }
 
-      container.innerHTML = loadedQuestions.map((q, i) => {
-        const s = loadedStats[i] || { total: 0, correctCount: 0 };
+      // Check for a picture question — use first one found
+      const picQ = loadedQuestions.find(q => q.image);
+      const picIdx = picQ ? loadedQuestions.indexOf(picQ) : -1;
+
+      if (picQ) {
+        // ── Picture question card ──
+        const s = loadedStats[picIdx] || { total: 0, correctCount: 0 };
         const pct = s.total > 0 ? Math.round((s.correctCount / s.total) * 100) : 0;
-        return `
-          <div class="card-q-item">
-            <span class="card-q-num">Q${i + 1}</span>
-            <div class="card-q-content">
-              <div class="card-q-text">${q.question}</div>
-              <div class="card-q-bar-row">
-                <div class="card-q-bar-wrap">
-                  <div class="card-q-bar-fill" style="width:${pct}%"></div>
-                </div>
-                <span class="card-q-pct">${pct}% correct</span>
-              </div>
+        const imgUrl = `/.netlify/images?url=/pictures/${encodeURIComponent(picQ.image)}&w=936&fit=cover`;
+
+        eyebrow.textContent = 'Picture round';
+        cardFooterTag.innerHTML = `${pct}% got<br>this right`;
+
+        container.innerHTML = `
+          <img src="${imgUrl}" alt="${picQ.question}"
+            style="width:100%;border-radius:14px;object-fit:cover;max-height:380px;display:block;" />
+          <div style="font-family:var(--font-serif);font-size:2rem;line-height:1.35;color:var(--ink);margin-top:4px;">
+            ${picQ.question}
+          </div>
+          <div style="display:flex;align-items:center;gap:20px;margin-top:8px;">
+            <div style="flex:1;height:14px;background:var(--border);border-radius:8px;overflow:hidden;">
+              <div style="width:${pct}%;height:100%;background:var(--correct);border-radius:8px;"></div>
             </div>
+            <span style="font-size:1.6rem;font-weight:600;color:var(--correct);min-width:80px;text-align:right;">${pct}% correct</span>
           </div>
         `;
-      }).join('');
+      } else {
+        // ── Multi-question results card ──
+        eyebrow.textContent = 'Yesterday\'s questions';
+        cardFooterTag.innerHTML = 'How did<br>you do?';
+
+        container.innerHTML = loadedQuestions.map((q, i) => {
+          const s = loadedStats[i] || { total: 0, correctCount: 0 };
+          const pct = s.total > 0 ? Math.round((s.correctCount / s.total) * 100) : 0;
+          return `
+            <div class="card-q-item">
+              <span class="card-q-num">Q${i + 1}</span>
+              <div class="card-q-content">
+                <div class="card-q-text">${q.question}</div>
+                <div class="card-q-bar-row">
+                  <div class="card-q-bar-wrap">
+                    <div class="card-q-bar-fill" style="width:${pct}%"></div>
+                  </div>
+                  <span class="card-q-pct">${pct}% correct</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
     }
 
     async function exportJpg() {

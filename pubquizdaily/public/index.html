@@ -79,6 +79,7 @@
     .question-card.answered-wrong { border-color: var(--wrong); }
 
     .q-number { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+    .q-image { width: 100%; border-radius: 8px; margin-bottom: 14px; display: block; max-height: 260px; object-fit: cover; }
     .q-text { font-family: var(--font-serif); font-size: 1.0625rem; line-height: 1.5; margin-bottom: 14px; }
 
     .options { display: flex; flex-direction: column; gap: 7px; }
@@ -321,6 +322,7 @@
 
         card.innerHTML = `
           <div class="q-number">Q${i + 1}</div>
+          ${q.image ? `<img class="q-image" src="/.netlify/images?url=/pictures/${encodeURIComponent(q.image)}&w=600&fit=cover" alt="${q.question}" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
