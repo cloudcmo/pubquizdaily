@@ -239,12 +239,12 @@
   </main>
 
   <footer>
-    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:hello@pubquizdaily.com">Send feedback</a>
+    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#224a474e4e4d6252574053574b5846434b4e5b0c414d4f">Send feedback</a>
   </footer>
 
   <div class="confetti-burst" id="confetti" aria-hidden="true"></div>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const STORAGE_KEY = 'pqd_multi_state';
     const ARCHIVE_KEY = 'pqd_archive_multi';
     const SIGNUP_KEY  = 'pqd_subscribed';
@@ -509,7 +509,25 @@
       const emojiRow = questions.map((_, i) => answered[i] === 'correct' ? '🟢' : '🔴').join('');
       const streak = playerState.streak || 0;
       const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
-      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}  ${score}/${questions.length}${streakStr}\n\npubquizdaily.com`;
+      const total = questions.length;
+      const pct = Math.round((score / total) * 100);
+
+      let taunt;
+      if (score === total) {
+        taunt = `Full marks. Think you can match it?`;
+      } else if (pct >= 75) {
+        taunt = `${score}/${total} — not bad. Reckon you can do better?`;
+      } else if (pct >= 50) {
+        taunt = `${score}/${total} today. The bar is set. Over to you.`;
+      } else if (score === 1) {
+        taunt = `1/${total}. At least one stuck. Can you beat that?`;
+      } else if (score === 0) {
+        taunt = `0/${total}. A masterclass in wrong answers. Your turn.`;
+      } else {
+        taunt = `${score}/${total} — there's room at the top. Have a go.`;
+      }
+
+      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}${streakStr}\n\n${taunt}\npubquizdaily.com`;
       if (navigator.share) {
         navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
       } else {
@@ -604,10 +622,4 @@
 
     document.addEventListener('click', function(e) {
       if (!e.target.closest('header')) {
-        document.getElementById('burgerBtn').classList.remove('open');
-        document.getElementById('navMenu').classList.remove('open');
-      }
-    });
-  </script>
-</body>
-</html>
+        document.getElementById
