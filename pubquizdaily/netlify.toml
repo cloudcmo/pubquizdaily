@@ -5,6 +5,9 @@
 [functions]
   node_bundler = "esbuild"
 
+[functions."daily-report"]
+  schedule = "0 8 * * *"
+
 [[headers]]
   for = "/*"
   [headers.values]
