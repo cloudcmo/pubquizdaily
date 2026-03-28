@@ -325,15 +325,20 @@
       }).catch(() => {});
 
       const emojiRow = questions.map((_, i) => answered[i] === 'correct' ? '🟢' : '🔴').join('');
-      const dates = questions.map(q => q.date).sort();
-      const oldest = new Date(dates[0] + 'T12:00:00');
-      const newest = new Date(dates[dates.length - 1] + 'T12:00:00');
-      const opts = { day: 'numeric', month: 'long' };
-      const range = `${oldest.toLocaleDateString('en-GB', opts)} – ${newest.toLocaleDateString('en-GB', opts)}`;
-      const text = `Pub Quiz Daily — Weekly Round-up\n${range}\n\n${emojiRow}  ${score}/${questions.length}\n\npubquizdaily.com/weekly`;
+      const total = questions.length;
+      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+
+      let taunt;
+      if (score === total)  taunt = `Full marks on the Weekly Best-of. Can you match it?`;
+      else if (pct >= 80)   taunt = `${score}/${total} on the Weekly Best-of. Reckon you can do better?`;
+      else if (pct >= 60)   taunt = `${score}/${total} this week. The bar is set.`;
+      else if (score === 0) taunt = `0/${total}. A heroic performance in wrongness. Your go.`;
+      else                  taunt = `${score}/${total} this week. Room at the top.`;
+
+      const text = `🍺 Pub Quiz Daily\n\n${emojiRow}\n\n${taunt}\npubquizdaily.com/weekly`;
 
       if (navigator.share) {
-        navigator.share({ title: 'Pub Quiz Daily Weekly Round-up', text }).catch(() => {});
+        navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
       } else {
         navigator.clipboard.writeText(text).then(() => {
           const btn = document.querySelector('.share-btn');
