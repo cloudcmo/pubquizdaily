@@ -1,12 +1,12 @@
-// netlify/functions/question.js
-// Fetches all quiz questions for a given date from the 'multi' tab of the Google Sheet
+// netlify/functions/weekly.js
+// Fetches questions flagged with 'W' in column I from the past 7 days
 // Sheet columns: date | question | A | B | C | D | correct | explainer | weekly
 
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
-    'Cache-Control': 'public, max-age=60',
+    'Cache-Control': 'public, max-age=300',
   };
 
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
@@ -16,67 +16,68 @@ exports.handler = async function(event) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing environment variables' }) };
   }
 
-  const requestedDate = event.queryStringParameters?.date || todayISO();
-
   try {
     const range = encodeURIComponent('multi!A:I');
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
 
     const res = await fetch(url);
     if (!res.ok) {
-      const err = await res.text();
-      console.error('Sheets API error:', err);
       return { statusCode: 502, headers, body: JSON.stringify({ error: 'Failed to fetch sheet' }) };
     }
 
     const data = await res.json();
     const rows = data.values || [];
 
-    // Find all rows matching the requested date
-    const matchingRows = rows.slice(1).filter(row => {
-      const cellDate = (row[0] || '').trim();
-      return cellDate === requestedDate || parseFlexDate(cellDate) === requestedDate;
-    });
-
-    if (matchingRows.length === 0) {
-      return { statusCode: 404, headers, body: JSON.stringify({ error: 'No questions for this date' }) };
+    // Build the set of valid dates: past 7 days (not including today)
+    const validDates = new Set();
+    const today = new Date();
+    for (let i = 1; i <= 7; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      validDates.add(d.toISOString().slice(0, 10));
     }
 
-    // Map each row to a question object
-    const questions = matchingRows.map((row, index) => {
-      const [date, question, optA, optB, optC, optD, correct, explainer, weekly] = row;
+    // Filter rows: must be in past 7 days AND have W in weekly column
+    const questions = rows.slice(1).reduce((acc, row, rowIndex) => {
+      const cellDate = (row[0] || '').trim();
+      const isoDate = parseFlexDate(cellDate) || cellDate;
+      const weekly = (row[8] || '').trim().toUpperCase();
 
-      if (!question || !optA || !optB || !optC || !optD || !correct) return null;
+      if (!validDates.has(isoDate) || weekly !== 'W') return acc;
 
-      return {
-        index,
+      const [, question, optA, optB, optC, optD, correct, explainer] = row;
+      if (!question || !optA || !optB || !optC || !optD || !correct) return acc;
+
+      acc.push({
+        date: isoDate,
+        index: rowIndex,
         question: question.trim(),
         options: [optA.trim(), optB.trim(), optC.trim(), optD.trim()],
         correct: correct.trim().toUpperCase(),
         explainer: explainer ? explainer.trim() : null,
-        weekly: (weekly || '').trim().toUpperCase() === 'W',
-      };
-    }).filter(Boolean);
+      });
+
+      return acc;
+    }, []);
+
+    // Sort oldest first so the quiz runs chronologically
+    questions.sort((a, b) => a.date.localeCompare(b.date));
 
     if (questions.length === 0) {
-      return { statusCode: 422, headers, body: JSON.stringify({ error: 'Incomplete question data in sheet' }) };
+      return { statusCode: 404, headers, body: JSON.stringify({ error: 'No weekly questions found' }) };
     }
 
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ date: requestedDate, questions }),
+      body: JSON.stringify({ questions }),
     };
 
   } catch (err) {
-    console.error('Function error:', err);
+    console.error('Weekly function error:', err);
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal error' }) };
   }
 };
-
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
-}
 
 function parseFlexDate(str) {
   if (!str) return '';

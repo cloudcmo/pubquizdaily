@@ -1,5 +1,6 @@
 // netlify/functions/record-answer.js
 // Records answers and returns stats using Netlify Blobs REST API
+// Blob key format: quiz-stats/YYYY-MM-DD-N (where N is question index within that day)
 
 exports.handler = async function(event) {
   const headers = {
@@ -15,14 +16,28 @@ exports.handler = async function(event) {
     return { statusCode: 200, headers, body: JSON.stringify({ total: 0, correctCount: 0 }) };
   }
 
-  const date = (event.httpMethod === 'GET'
-    ? event.queryStringParameters?.date
-    : JSON.parse(event.body || '{}').date) || todayISO();
-
-  const blobUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-stats/${date}`;
   const authHeader = { 'Authorization': `Bearer ${TOKEN}` };
 
-  // GET — fetch current stats
+  let date, index;
+
+  if (event.httpMethod === 'GET') {
+    date  = event.queryStringParameters?.date  || todayISO();
+    index = event.queryStringParameters?.index ?? '0';
+  } else {
+    try {
+      const body = JSON.parse(event.body || '{}');
+      date  = body.date  || todayISO();
+      index = body.index ?? 0;
+    } catch {
+      date  = todayISO();
+      index = 0;
+    }
+  }
+
+  const blobKey = `${date}-${index}`;
+  const blobUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-stats/${blobKey}`;
+
+  // GET — fetch current stats for this question
   if (event.httpMethod === 'GET') {
     try {
       const res = await fetch(blobUrl, { headers: authHeader });
@@ -43,18 +58,13 @@ exports.handler = async function(event) {
     } catch {}
 
     try {
-      // Read current
       let stats = { total: 0, correctCount: 0 };
       const getRes = await fetch(blobUrl, { headers: authHeader });
-      if (getRes.ok) {
-        stats = await getRes.json();
-      }
+      if (getRes.ok) stats = await getRes.json();
 
-      // Increment
       stats.total += 1;
       if (correct) stats.correctCount += 1;
 
-      // Write back
       await fetch(blobUrl, {
         method: 'PUT',
         headers: { ...authHeader, 'Content-Type': 'application/json' },
