@@ -162,16 +162,15 @@
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const LETTERS = ['A','B','C','D'];
-    const FINAL_MSGS = [
-      [0, "Zero out of the lot — were you even trying? 😄"],
-      [1, "One on the board — at least you showed up."],
-      [2, "Two — better luck next week."],
-      [3, "Three — room to improve!"],
-      [4, "Four — respectable pub quizzer."],
-      [5, "Five — solid stuff."],
-      [6, "Six — outstanding."],
-      [7, "Seven out of seven — pub quiz royalty. 👑"],
-    ];
+    function weeklyMessage(score, total) {
+      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+      if (score === 0)    return "Zero out of the lot — were you even trying? 😄";
+      if (score === total) return "Full marks — pub quiz royalty. 👑";
+      if (pct >= 80)     return `${score}/${total} — outstanding effort.`;
+      if (pct >= 60)     return `${score}/${total} — solid pub quizzer.`;
+      if (pct >= 40)     return `${score}/${total} — respectable. Room to grow.`;
+      return `${score}/${total} — better luck next week.`;
+    }
 
     let questions = [];
     let answered  = {};
@@ -290,7 +289,7 @@
     function showFinal() {
       const panel = document.getElementById('finalPanel');
       document.getElementById('finalScore').textContent = score;
-      const msg = FINAL_MSGS.find(([n]) => n === score)?.[1] || `${score} out of ${questions.length} — well played!`;
+      const msg = weeklyMessage(score, questions.length);
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
