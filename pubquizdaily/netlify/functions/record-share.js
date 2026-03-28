@@ -28,7 +28,7 @@ exports.handler = async function(event) {
     date = todayISO();
   }
 
-  const blobKey = `${type}/${date}`;
+  const blobKey = `${type}-${date}`;
   const blobUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-shares/${blobKey}`;
   const authHeader = { 'Authorization': `Bearer ${TOKEN}` };
 
