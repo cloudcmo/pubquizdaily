@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -13,308 +12,101 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --cream: #faf9f7;
-      --ink: #1a1a1a;
-      --ink-light: #6b6b6b;
-      --ink-faint: #c8c8c8;
-      --border: #e0ddd8;
-      --correct: #4a7c59;
-      --correct-bg: #edf4ef;
-      --wrong: #c0622e;
-      --wrong-bg: #fdf0eb;
+      --cream: #faf9f7; --ink: #1a1a1a; --ink-light: #6b6b6b; --ink-faint: #c8c8c8;
+      --border: #e0ddd8; --correct: #4a7c59; --correct-bg: #edf4ef;
+      --wrong: #c0622e; --wrong-bg: #fdf0eb;
       --font-serif: 'Libre Baskerville', Georgia, serif;
       --font-sans: 'DM Sans', system-ui, sans-serif;
     }
 
-    body {
-      background: var(--cream);
-      color: var(--ink);
-      font-family: var(--font-sans);
-      min-height: 100dvh;
-      padding: 40px 24px;
-      max-width: 640px;
-      margin: 0 auto;
-    }
+    body { background: var(--cream); color: var(--ink); font-family: var(--font-sans); min-height: 100dvh; padding: 40px 24px; max-width: 700px; margin: 0 auto; }
 
-    h1 {
-      font-family: var(--font-serif);
-      font-size: 1.5rem;
-      margin-bottom: 4px;
-    }
+    h1 { font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 4px; }
+    .subtitle { font-size: 0.875rem; color: var(--ink-light); margin-bottom: 32px; }
 
-    .subtitle {
-      font-size: 0.875rem;
-      color: var(--ink-light);
-      margin-bottom: 32px;
-    }
-
-    /* Login form */
-    .login-form {
-      display: flex;
-      gap: 8px;
-      max-width: 340px;
-      margin-top: 24px;
-    }
-
-    .login-input {
-      flex: 1;
-      padding: 10px 14px;
-      font-family: var(--font-sans);
-      font-size: 0.875rem;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      background: white;
-      color: var(--ink);
-      outline: none;
-    }
-
+    .login-form { display: flex; gap: 8px; max-width: 340px; margin-top: 24px; }
+    .login-input { flex: 1; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.875rem; border: 1px solid var(--border); border-radius: 8px; background: white; color: var(--ink); outline: none; }
     .login-input:focus { border-color: var(--ink); }
-
-    .login-btn {
-      padding: 10px 20px;
-      background: var(--ink);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-family: var(--font-sans);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-    }
-
+    .login-btn { padding: 10px 20px; background: var(--ink); color: white; border: none; border-radius: 8px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 500; cursor: pointer; }
     .login-btn:hover { opacity: 0.8; }
+    .error-msg { color: var(--wrong); font-size: 0.875rem; margin-top: 8px; display: none; }
 
-    .error-msg {
-      color: var(--wrong);
-      font-size: 0.875rem;
-      margin-top: 8px;
-      display: none;
-    }
+    .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 28px; }
+    .card { background: white; border: 1px solid var(--border); border-radius: 10px; padding: 16px; text-align: center; }
+    .card-value { font-size: 1.75rem; font-weight: 600; color: var(--ink); line-height: 1; margin-bottom: 4px; }
+    .card-label { font-size: 0.75rem; color: var(--ink-light); text-transform: uppercase; letter-spacing: 0.06em; }
 
-    /* Summary cards */
-    .summary {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-bottom: 28px;
-    }
+    /* Date group */
+    .date-group { margin-bottom: 24px; background: white; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+    .date-header { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: var(--cream); border-bottom: 1px solid var(--border); }
+    .date-header-left { font-size: 0.875rem; font-weight: 600; color: var(--ink); }
+    .date-header-right { font-size: 0.8125rem; color: var(--ink-light); }
 
-    .card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      text-align: center;
-    }
-
-    .card-value {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: var(--ink);
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .card-label {
-      font-size: 0.75rem;
-      color: var(--ink-light);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-    }
-
-    /* Table */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.9rem;
-    }
-
-    th {
-      text-align: left;
-      padding: 8px 12px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--ink-light);
-      border-bottom: 2px solid var(--border);
-    }
-
+    table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+    th { text-align: left; padding: 8px 16px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-light); border-bottom: 1px solid var(--border); }
     th:last-child, td:last-child { text-align: right; }
-
-    td {
-      padding: 12px 12px;
-      border-bottom: 1px solid var(--border);
-      vertical-align: middle;
-    }
-
+    td { padding: 10px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
     tr:last-child td { border-bottom: none; }
 
-    .bar-cell { width: 40%; }
-
-    .bar-wrap {
-      background: var(--border);
-      border-radius: 4px;
-      height: 8px;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      border-radius: 4px;
-      background: var(--correct);
-      transition: width 0.4s ease;
-    }
-
+    .bar-cell { width: 35%; }
+    .bar-wrap { background: var(--border); border-radius: 4px; height: 7px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 4px; background: var(--correct); }
     .bar-fill.low { background: var(--wrong); }
     .bar-fill.mid { background: #c08030; }
 
-    .pct {
-      font-weight: 600;
-      font-size: 0.9375rem;
-    }
-
+    .pct { font-weight: 600; font-size: 0.9375rem; }
     .pct.high { color: var(--correct); }
     .pct.mid { color: #c08030; }
     .pct.low { color: var(--wrong); }
+    .plays { color: var(--ink-light); font-size: 0.875rem; }
+    .q-label { font-size: 0.75rem; font-weight: 600; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.05em; }
+    .q-text { font-size: 0.8125rem; color: var(--ink-light); line-height: 1.4; max-width: 280px; }
 
-    .plays {
-      color: var(--ink-light);
-      font-size: 0.875rem;
-    }
-
-    /* Loading */
-    .loading {
-      text-align: center;
-      padding: 48px 0;
-      color: var(--ink-light);
-    }
-
+    .loading { text-align: center; padding: 48px 0; color: var(--ink-light); }
     .loading-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 8px; }
-    .loading-dots span {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--ink-faint);
-      animation: dot-pulse 1.2s ease-in-out infinite;
-    }
+    .loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); animation: dot-pulse 1.2s ease-in-out infinite; }
     .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes dot-pulse {
-      0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; }
-      40% { transform: scale(1); opacity: 1; }
-    }
+    @keyframes dot-pulse { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
+    .chart-section { margin-top: 40px; margin-bottom: 8px; }
+    .chart-section h2 { font-family: var(--font-serif); font-size: 1.1rem; margin-bottom: 4px; }
+    .chart-section .subtitle { font-size: 0.8125rem; color: var(--ink-light); margin-bottom: 20px; }
+    .chart-wrap { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 28px 24px 20px; }
+    .chart-title { font-family: var(--font-serif); font-size: 1rem; font-weight: 700; text-align: center; margin-bottom: 4px; color: var(--ink); }
+    .chart-subtitle { font-size: 0.75rem; text-align: center; color: var(--ink-light); margin-bottom: 24px; letter-spacing: 0.03em; }
 
-    .q-text {
-      font-size: 0.8125rem;
-      color: var(--ink-light);
-      max-width: 260px;
-      line-height: 1.4;
-    }
-    .back-link {
-      display: inline-block;
-      margin-top: 32px;
-      font-size: 0.875rem;
-      color: var(--ink-light);
-      text-decoration: none;
-    }
-    .back-link:hover { color: var(--ink); }
-
-    /* ── Newsletter chart ── */
-    .chart-section {
-      margin-top: 40px;
-      margin-bottom: 8px;
-    }
-
-    .chart-section h2 {
-      font-family: var(--font-serif);
-      font-size: 1.1rem;
-      margin-bottom: 4px;
-    }
-
-    .chart-section .subtitle {
-      font-size: 0.8125rem;
-      color: var(--ink-light);
-      margin-bottom: 20px;
-    }
-
-    .chart-wrap {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px 24px 20px;
-    }
-
-    .chart-title {
-      font-family: var(--font-serif);
-      font-size: 1rem;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 4px;
-      color: var(--ink);
-    }
-
-    .chart-subtitle {
-      font-size: 0.75rem;
-      text-align: center;
-      color: var(--ink-light);
-      margin-bottom: 24px;
-      letter-spacing: 0.03em;
-    }
-
-    .save-btn {
-      margin-top: 16px;
-      padding: 9px 20px;
-      background: var(--ink);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-family: var(--font-sans);
-      font-size: 0.875rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: opacity 0.15s;
-    }
-
+    .save-btn { margin-top: 16px; padding: 10px 20px; background: var(--ink); color: white; border: none; border-radius: 8px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 500; cursor: pointer; }
     .save-btn:hover { opacity: 0.8; }
+
+    .back-link { display: inline-block; margin-top: 32px; font-size: 0.875rem; color: var(--ink-light); text-decoration: none; }
+    .back-link:hover { color: var(--ink); }
   </style>
 </head>
 <body>
 
-  <!-- Login screen -->
   <div id="loginScreen">
     <h1>Pub Quiz Daily</h1>
-    <p class="subtitle">Stats dashboard — private</p>
+    <p class="subtitle">Stats dashboard</p>
     <div class="login-form">
       <input class="login-input" type="password" id="passwordInput" placeholder="Password" />
       <button class="login-btn" onclick="login()">View stats</button>
     </div>
-    <p class="error-msg" id="errorMsg">Wrong password</p>
+    <p class="error-msg" id="errorMsg">Incorrect password</p>
   </div>
 
-  <!-- Stats screen -->
   <div id="statsScreen" style="display:none">
     <h1>Pub Quiz Daily</h1>
-    <p class="subtitle" id="statsSubtitle">Loading stats…</p>
+    <p class="subtitle" id="statsSubtitle">Loading…</p>
 
-    <div id="loadingState" class="loading">
+    <div class="loading" id="loadingState">
       <div class="loading-dots"><span></span><span></span><span></span></div>
       Fetching data…
     </div>
 
     <div id="statsContent" style="display:none">
       <div class="summary" id="summaryCards"></div>
-      <table id="statsTable">
-        <thead>
-          <tr>
-            <th>Date</th>
-            <th>Question</th>
-            <th>Plays</th>
-            <th class="bar-cell">% Correct</th>
-            <th>Score</th>
-          </tr>
-        </thead>
-        <tbody id="statsBody"></tbody>
-      </table>
+      <div id="dateGroups"></div>
     </div>
 
     <div class="chart-section" id="chartSection" style="display:none">
@@ -331,10 +123,9 @@
     <a class="back-link" href="/">← Back to site</a>
   </div>
 
-  <script>
+  <script data-cfasync="false">
     let currentPassword = '';
 
-    // Check if password stored in session
     const saved = sessionStorage.getItem('stats_pw');
     if (saved) {
       currentPassword = saved;
@@ -343,7 +134,6 @@
       loadStats();
     }
 
-    // Allow Enter key on password field
     document.getElementById('passwordInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
     });
@@ -361,7 +151,6 @@
     async function loadStats() {
       try {
         const res = await fetch(`/.netlify/functions/stats?password=${encodeURIComponent(currentPassword)}`);
-
         if (res.status === 401) {
           sessionStorage.removeItem('stats_pw');
           document.getElementById('statsScreen').style.display = 'none';
@@ -369,10 +158,8 @@
           document.getElementById('errorMsg').style.display = 'block';
           return;
         }
-
         const data = await res.json();
         renderStats(data.stats || []);
-
       } catch (e) {
         document.getElementById('loadingState').textContent = 'Failed to load stats.';
       }
@@ -382,19 +169,23 @@
       document.getElementById('loadingState').style.display = 'none';
       document.getElementById('statsContent').style.display = 'block';
 
-      const totalPlays = stats.reduce((s, r) => s + r.total, 0);
+      const totalPlayers = stats.reduce((s, r) => s + r.players, 0);
+      const totalAnswers = stats.reduce((s, r) => s + r.total, 0);
       const totalCorrect = stats.reduce((s, r) => s + r.correctCount, 0);
-      const avgPct = totalPlays > 0 ? Math.round((totalCorrect / totalPlays) * 100) : 0;
-      const activeDays = stats.filter(r => r.total > 0).length;
+      const avgPct = totalAnswers > 0 ? Math.round((totalCorrect / totalAnswers) * 100) : 0;
+      const activeDays = stats.filter(r => r.players > 0).length;
 
       document.getElementById('statsSubtitle').textContent =
         `${activeDays} day${activeDays !== 1 ? 's' : ''} of data`;
 
-      // Summary cards
       document.getElementById('summaryCards').innerHTML = `
         <div class="card">
-          <div class="card-value">${totalPlays.toLocaleString()}</div>
-          <div class="card-label">Total plays</div>
+          <div class="card-value">${totalPlayers.toLocaleString()}</div>
+          <div class="card-label">Total players</div>
+        </div>
+        <div class="card">
+          <div class="card-value">${totalAnswers.toLocaleString()}</div>
+          <div class="card-label">Total answers</div>
         </div>
         <div class="card">
           <div class="card-value">${activeDays}</div>
@@ -406,75 +197,91 @@
         </div>
       `;
 
-      // Fetch question text for each date
-      const questions = await Promise.all(
+      // Fetch question text for all dates
+      const questionData = await Promise.all(
         stats.map(row =>
-          fetch(`/.netlify/functions/question?date=${row.date}&password=${encodeURIComponent(currentPassword)}`)
+          fetch(`/.netlify/functions/question?date=${row.date}`)
             .then(r => r.ok ? r.json() : null)
             .catch(() => null)
         )
       );
 
-      // Render newsletter chart
-      renderChart(stats, questions);
+      renderChart(stats);
 
-      // Table rows
-      const tbody = document.getElementById('statsBody');
-      tbody.innerHTML = stats.map((row, i) => {
-        const pct = row.total > 0 ? Math.round((row.correctCount / row.total) * 100) : 0;
-        const tier = pct >= 60 ? 'high' : pct >= 40 ? 'mid' : 'low';
+      // Render date groups
+      const container = document.getElementById('dateGroups');
+      container.innerHTML = '';
+
+      stats.forEach((row, i) => {
         const d = new Date(row.date + 'T12:00:00');
-        const dateStr = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
-        const qText = questions[i]?.question || '—';
-        return `
-          <tr>
-            <td>${dateStr}</td>
-            <td class="q-text">${qText}</td>
-            <td class="plays">${row.total}</td>
-            <td class="bar-cell">
-              <div class="bar-wrap">
-                <div class="bar-fill ${tier}" style="width:${pct}%"></div>
-              </div>
-            </td>
-            <td class="pct ${tier}">${row.total > 0 ? pct + '%' : '—'}</td>
-          </tr>
+        const dateStr = d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+        const qs = questionData[i]?.questions || [];
+        const qCount = row.questions.length;
+        const dayPct = row.total > 0 ? Math.round((row.correctCount / row.total) * 100) : 0;
+
+        const rows = row.questions.map((q, qi) => {
+          const qPct = q.total > 0 ? Math.round((q.correctCount / q.total) * 100) : 0;
+          const tier = qPct >= 60 ? 'high' : qPct >= 40 ? 'mid' : 'low';
+          const qText = qs[qi]?.question || '—';
+          return `
+            <tr>
+              <td><span class="q-label">Q${qi + 1}</span></td>
+              <td class="q-text">${qText}</td>
+              <td class="plays">${q.total}</td>
+              <td class="bar-cell">
+                <div class="bar-wrap">
+                  <div class="bar-fill ${tier}" style="width:${qPct}%"></div>
+                </div>
+              </td>
+              <td class="pct ${tier}">${q.total > 0 ? qPct + '%' : '—'}</td>
+            </tr>
+          `;
+        }).join('');
+
+        const group = document.createElement('div');
+        group.className = 'date-group';
+        group.innerHTML = `
+          <div class="date-header">
+            <span class="date-header-left">${dateStr}</span>
+            <span class="date-header-right">${row.players} player${row.players !== 1 ? 's' : ''} · ${qCount} question${qCount !== 1 ? 's' : ''} · ${dayPct}% avg correct</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Question</th>
+                <th>Answers</th>
+                <th class="bar-cell">% Correct</th>
+                <th>Score</th>
+              </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+          </table>
         `;
-      }).join('');
+        container.appendChild(group);
+      });
     }
 
-    function renderChart(stats, questions) {
-      // Get the 7 most recent days with data, oldest first for chart
-      const chartData = stats
-        .filter(r => r.total > 0)
-        .slice(0, 7)
-        .reverse();
-
+    function renderChart(stats) {
+      const chartData = stats.filter(r => r.players > 0).slice(0, 7).reverse();
       if (chartData.length === 0) return;
 
       document.getElementById('chartSection').style.display = 'block';
 
-      // Date range label — show actual dates in chart
       const oldest = new Date(chartData[0].date + 'T12:00:00');
       const newest = new Date(chartData[chartData.length - 1].date + 'T12:00:00');
       const fmt = { day: 'numeric', month: 'long' };
-      const label = chartData.length === 7
+      document.getElementById('chartDateRange').textContent = chartData.length === 7
         ? `${oldest.toLocaleDateString('en-GB', fmt)} – ${newest.toLocaleDateString('en-GB', fmt)}`
         : `Last ${chartData.length} days`;
-      document.getElementById('chartDateRange').textContent = label;
 
-      const barW = 56;
-      const gap = 16;
-      const chartH = 180;
-      const labelH = 48;
-      const topPad = 32;
+      const barW = 56, gap = 16, chartH = 180, labelH = 48, topPad = 32;
       const totalW = chartData.length * (barW + gap) - gap;
       const svgW = totalW + 40;
       const svgH = chartH + labelH + topPad;
 
-      const colors = ['#4a7c59','#4a7c59','#4a7c59','#4a7c59','#4a7c59','#4a7c59','#4a7c59'];
-
       const bars = chartData.map((row, i) => {
-        const pct = Math.round((row.correctCount / row.total) * 100);
+        const pct = row.total > 0 ? Math.round((row.correctCount / row.total) * 100) : 0;
         const barH = Math.max(8, Math.round((pct / 100) * chartH));
         const x = 20 + i * (barW + gap);
         const y = topPad + chartH - barH;
@@ -482,71 +289,48 @@
         const dayLabel = d.toLocaleDateString('en-GB', { weekday: 'short' });
         const dateLabel = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
         const labelY = topPad + chartH + 16;
-        const color = colors[i % colors.length];
-
         return `
-          <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="5" fill="${color}" opacity="0.85"/>
-          <text x="${x + barW/2}" y="${y - 7}" text-anchor="middle"
-            font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">${pct}%</text>
-          <text x="${x + barW/2}" y="${labelY}" text-anchor="middle"
-            font-family="DM Sans, sans-serif" font-size="11" font-weight="600" fill="#6b6b6b">${dayLabel}</text>
-          <text x="${x + barW/2}" y="${labelY + 14}" text-anchor="middle"
-            font-family="DM Sans, sans-serif" font-size="10" fill="#c8c8c8">${dateLabel}</text>
+          <rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="5" fill="#4a7c59" opacity="0.85"/>
+          <text x="${x + barW/2}" y="${y - 7}" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="13" font-weight="600" fill="#1a1a1a">${pct}%</text>
+          <text x="${x + barW/2}" y="${labelY}" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="11" font-weight="600" fill="#6b6b6b">${dayLabel}</text>
+          <text x="${x + barW/2}" y="${labelY + 14}" text-anchor="middle" font-family="DM Sans, sans-serif" font-size="10" fill="#c8c8c8">${dateLabel}</text>
         `;
       }).join('');
 
-      // Subtle grid lines at 25%, 50%, 75%
       const gridLines = [25, 50, 75].map(pct => {
         const y = topPad + chartH - Math.round((pct / 100) * chartH);
-        return `<line x1="20" y1="${y}" x2="${svgW - 20}" y2="${y}"
-          stroke="#e0ddd8" stroke-width="1" stroke-dasharray="3 3"/>
-          <text x="16" y="${y + 4}" text-anchor="end"
-            font-family="DM Sans, sans-serif" font-size="9" fill="#c8c8c8">${pct}%</text>`;
+        return `<line x1="20" y1="${y}" x2="${svgW - 20}" y2="${y}" stroke="#e0ddd8" stroke-width="1" stroke-dasharray="3 3"/>
+          <text x="16" y="${y + 4}" text-anchor="end" font-family="DM Sans, sans-serif" font-size="9" fill="#c8c8c8">${pct}%</text>`;
       }).join('');
 
-      const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ${svgW} ${svgH}" id="chartSvg">
-        ${gridLines}
-        ${bars}
-      </svg>`;
-
-      document.getElementById('barChart').innerHTML = svg;
+      document.getElementById('barChart').innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="100%" viewBox="0 0 ${svgW} ${svgH}" id="chartSvg">
+          ${gridLines}${bars}
+        </svg>`;
     }
 
     function saveChart() {
       const svg = document.getElementById('chartSvg');
       if (!svg) return;
-
       const vb = svg.getAttribute('viewBox').split(' ').map(Number);
-      const scale = 2; // retina quality
-      const w = vb[2] * scale;
-      const h = vb[3] * scale;
-
-      // Clone SVG and add cream background
+      const scale = 2;
       const clone = svg.cloneNode(true);
       const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
       bg.setAttribute('x', 0); bg.setAttribute('y', 0);
       bg.setAttribute('width', vb[2]); bg.setAttribute('height', vb[3]);
       bg.setAttribute('fill', '#faf9f7');
       clone.insertBefore(bg, clone.firstChild);
-      clone.setAttribute('width', vb[2]);
-      clone.setAttribute('height', vb[3]);
-
+      clone.setAttribute('width', vb[2]); clone.setAttribute('height', vb[3]);
       const svgStr = new XMLSerializer().serializeToString(clone);
-      const svgBlob = new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' });
-      const url = URL.createObjectURL(svgBlob);
-
+      const url = URL.createObjectURL(new Blob([svgStr], { type: 'image/svg+xml;charset=utf-8' }));
       const img = new Image();
       img.onload = function() {
         const canvas = document.createElement('canvas');
-        canvas.width = w;
-        canvas.height = h;
+        canvas.width = vb[2] * scale; canvas.height = vb[3] * scale;
         const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#faf9f7';
-        ctx.fillRect(0, 0, w, h);
-        ctx.scale(scale, scale);
-        ctx.drawImage(img, 0, 0);
+        ctx.fillStyle = '#faf9f7'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.scale(scale, scale); ctx.drawImage(img, 0, 0);
         URL.revokeObjectURL(url);
-
         canvas.toBlob(blob => {
           const a = document.createElement('a');
           a.href = URL.createObjectURL(blob);

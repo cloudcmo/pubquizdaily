@@ -1,12 +1,10 @@
 // netlify/functions/stats.js
 // Returns stats for all dates — password protected
+// Blob keys format: YYYY-MM-DD-N (one per question per day)
 
 exports.handler = async function(event) {
-  const headers = {
-    'Content-Type': 'application/json',
-  };
+  const headers = { 'Content-Type': 'application/json' };
 
-  // Simple password check
   const STATS_PASSWORD = process.env.STATS_PASSWORD;
   const supplied = event.queryStringParameters?.password;
 
@@ -24,7 +22,6 @@ exports.handler = async function(event) {
   const authHeader = { 'Authorization': `Bearer ${TOKEN}` };
 
   try {
-    // List all blobs in quiz-stats store
     const listUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-stats`;
     const listRes = await fetch(listUrl, { headers: authHeader });
 
@@ -35,25 +32,57 @@ exports.handler = async function(event) {
     const listData = await listRes.json();
     const blobs = listData.blobs || [];
 
-    // Fetch each date's stats
-    const results = await Promise.all(
+    // Fetch all blob data
+    const rawResults = await Promise.all(
       blobs.map(async blob => {
-        const date = blob.key;
+        const key = blob.key;
         try {
           const res = await fetch(
-            `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-stats/${date}`,
+            `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-stats/${key}`,
             { headers: authHeader }
           );
-          if (!res.ok) return { date, total: 0, correctCount: 0 };
+          if (!res.ok) return null;
           const data = await res.json();
-          return { date, total: data.total || 0, correctCount: data.correctCount || 0 };
+
+          // Key format: YYYY-MM-DD-N (new) or YYYY-MM-DD (old single-question)
+          const parts = key.split('-');
+          let date, index;
+          if (parts.length === 4) {
+            date = parts.slice(0, 3).join('-');
+            index = parseInt(parts[3]);
+          } else {
+            date = key;
+            index = 0;
+          }
+
+          return { key, date, index, total: data.total || 0, correctCount: data.correctCount || 0 };
         } catch {
-          return { date, total: 0, correctCount: 0 };
+          return null;
         }
       })
     );
 
-    // Sort newest first
+    // Group by date
+    const byDate = {};
+    rawResults.filter(Boolean).forEach(r => {
+      if (!byDate[r.date]) byDate[r.date] = [];
+      byDate[r.date].push(r);
+    });
+
+    const results = Object.entries(byDate).map(([date, qs]) => {
+      qs.sort((a, b) => a.index - b.index);
+      const players = Math.max(...qs.map(q => q.total));
+      const correctCount = qs.reduce((s, q) => s + q.correctCount, 0);
+      const total = qs.reduce((s, q) => s + q.total, 0);
+      return {
+        date,
+        players,
+        total,
+        correctCount,
+        questions: qs.map(q => ({ index: q.index, total: q.total, correctCount: q.correctCount })),
+      };
+    });
+
     results.sort((a, b) => b.date.localeCompare(a.date));
 
     return { statusCode: 200, headers, body: JSON.stringify({ stats: results }) };
