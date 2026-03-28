@@ -156,9 +156,9 @@
     </div>
   </main>
 
-  <footer>Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:hello@pubquizdaily.com">Send feedback</a></footer>
+  <footer>Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#4028252c2c2f003035223135293a2421292c396e232f2d">Send feedback</a></footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     const LETTERS = ['A','B','C','D'];
     const FINAL_MSGS = [
       [0, "Zero out of the lot — were you even trying? 😄"],
@@ -316,6 +316,12 @@
     }
 
     function shareResult() {
+      fetch('/.netlify/functions/record-share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'weekly', date: new Date().toISOString().slice(0, 10) }),
+      }).catch(() => {});
+
       const emojiRow = questions.map((_, i) => answered[i] === 'correct' ? '🟢' : '🔴').join('');
       const dates = questions.map(q => q.date).sort();
       const oldest = new Date(dates[0] + 'T12:00:00');

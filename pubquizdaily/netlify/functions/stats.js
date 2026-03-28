@@ -85,10 +85,61 @@ exports.handler = async function(event) {
 
     results.sort((a, b) => b.date.localeCompare(a.date));
 
-    return { statusCode: 200, headers, body: JSON.stringify({ stats: results }) };
+    // Fetch share counts for each date (daily + weekly total)
+    const [dailyShares, weeklyShares] = await Promise.all([
+      fetchShareCounts(SITE_ID, TOKEN, 'daily', results.map(r => r.date)),
+      fetchWeeklyShareTotal(SITE_ID, TOKEN),
+    ]);
+
+    results.forEach(r => {
+      r.shares = dailyShares[r.date] || 0;
+    });
+
+    return { statusCode: 200, headers, body: JSON.stringify({ stats: results, weeklyShares }) };
 
   } catch (e) {
     console.error('Stats error:', e);
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Internal error' }) };
   }
 };
+
+async function fetchShareCounts(SITE_ID, TOKEN, type, dates) {
+  const authHeader = { 'Authorization': `Bearer ${TOKEN}` };
+  const counts = {};
+  await Promise.all(dates.map(async date => {
+    try {
+      const res = await fetch(
+        `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-shares/${type}/${date}`,
+        { headers: authHeader }
+      );
+      if (res.ok) {
+        const data = await res.json();
+        counts[date] = data.count || 0;
+      }
+    } catch {}
+  }));
+  return counts;
+}
+
+async function fetchWeeklyShareTotal(SITE_ID, TOKEN) {
+  const authHeader = { 'Authorization': `Bearer ${TOKEN}` };
+  try {
+    const listUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-shares/weekly`;
+    const listRes = await fetch(listUrl, { headers: authHeader });
+    if (!listRes.ok) return 0;
+    const listData = await listRes.json();
+    const blobs = listData.blobs || [];
+    const counts = await Promise.all(blobs.map(async blob => {
+      try {
+        const res = await fetch(
+          `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-shares/weekly/${blob.key}`,
+          { headers: authHeader }
+        );
+        if (!res.ok) return 0;
+        const data = await res.json();
+        return data.count || 0;
+      } catch { return 0; }
+    }));
+    return counts.reduce((a, b) => a + b, 0);
+  } catch { return 0; }
+}

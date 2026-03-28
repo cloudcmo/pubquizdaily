@@ -507,6 +507,12 @@
     }
 
     function shareResult() {
+      fetch('/.netlify/functions/record-share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'daily', date: todayISO }),
+      }).catch(() => {});
+
       const emojiRow = questions.map((_, i) => answered[i] === 'correct' ? '🟢' : '🔴').join('');
       const streak = playerState.streak || 0;
       const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
