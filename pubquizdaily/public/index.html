@@ -157,6 +157,30 @@
 
     @keyframes streak-pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
     .streak-pop { animation: streak-pop 0.4s ease; }
+
+    /* ── Signup bar ── */
+    .signup-bar {
+      display: none;
+      background: #2d6a4f;
+      color: white;
+      padding: 12px 24px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      position: relative;
+    }
+    .signup-bar.visible { display: block; }
+    .signup-bar.shown { opacity: 1; }
+    .signup-bar.fading { opacity: 0; }
+    .signup-bar-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .signup-bar-label { font-size: 0.875rem; font-weight: 500; white-space: nowrap; }
+    .signup-bar-input { padding: 7px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; color: var(--ink); outline: none; width: 200px; }
+    .signup-bar-btn { padding: 7px 16px; background: white; color: #2d6a4f; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .signup-bar-btn:hover { opacity: 0.85; }
+    .signup-bar-btn:disabled { opacity: 0.5; cursor: default; }
+    .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
+    .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
+    .signup-bar-close:hover { color: white; }
   </style>
   <script type="application/ld+json">
   {
@@ -189,6 +213,16 @@
       <a href="/archive.html">Full archive</a>
     </nav>
   </header>
+
+  <div class="signup-bar" id="signupBar">
+    <div class="signup-bar-inner" id="signupBarInner">
+      <span class="signup-bar-label">🍺 Get the Friday Best-of in your inbox</span>
+      <input class="signup-bar-input" type="email" id="barEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitBarSignup()" />
+      <button class="signup-bar-btn" id="barBtn" onclick="submitBarSignup()">Sign up free</button>
+    </div>
+    <div class="signup-bar-thanks" id="signupBarThanks" style="display:none;">You're in! See you Friday. 🍺</div>
+    <button class="signup-bar-close" onclick="closeSignupBar()" aria-label="Close">✕</button>
+  </div>
 
   <main id="app">
     <div class="loading" id="loadingState">
@@ -250,17 +284,19 @@
     const STORAGE_KEY = 'pqd_multi_state';
     const ARCHIVE_KEY = 'pqd_archive_multi';
     const SIGNUP_KEY  = 'pqd_subscribed';
+    const DISMISSED_KEY = 'pqd_bar_dismissed';
     const LETTERS     = ['A','B','C','D'];
 
-    function dailyMessage(score, total) {
-      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-      if (score === 0)     return "Unlucky — come back stronger tomorrow!";
-      if (score === total) return "Full house! Buy yourself a pint. 🍺";
-      if (pct >= 80)       return `${score}/${total} — sharp stuff!`;
-      if (pct >= 60)       return `${score}/${total} — not bad at all.`;
-      if (pct >= 40)       return `${score}/${total} — room to improve.`;
-      return `${score}/${total} — better luck tomorrow!`;
-    }
+    const FINAL_MSGS = [
+      [0, "Unlucky — come back stronger tomorrow!"],
+      [1, "One on the board. Room to grow!"],
+      [2, "Not bad — room for more though!"],
+      [3, "Three out of four — sharp stuff!"],
+      [4, "Full house! Buy yourself a pint. 🍺"],
+      [5, "Five out of five — outstanding!"],
+      [6, "Six out of six. Pub quiz legend."],
+      [7, "Perfect score. Seriously impressive!"],
+    ];
 
     const CONFETTI_COLORS = ['#4a7c59', '#c0622e', '#1a1a1a', '#8b6c42', '#2c6e8a'];
 
@@ -390,7 +426,8 @@
 
       const panel = document.getElementById('finalPanel');
       document.getElementById('finalScore').textContent = score;
-      const msg = dailyMessage(score, questions.length);
+      const msg = FINAL_MSGS.find(([n]) => n === score)?.[1]
+        || (score === questions.length ? 'Perfect score! Outstanding!' : `${score} out of ${questions.length} — well played!`);
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
@@ -549,9 +586,62 @@
     }
 
     function initSignup() {
-      if (isArchiveMode || localStorage.getItem(SIGNUP_KEY)) {
+      const alreadySubscribed = localStorage.getItem(SIGNUP_KEY);
+      const dismissed = localStorage.getItem(DISMISSED_KEY);
+      if (isArchiveMode || alreadySubscribed) {
         const el = document.getElementById('emailSignup');
         if (el) el.classList.add('hidden');
+      }
+      if (!isArchiveMode && !alreadySubscribed && !dismissed) {
+        const bar = document.getElementById('signupBar');
+        bar.classList.add('visible');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => bar.classList.add('shown'));
+        });
+      }
+    }
+
+    function closeSignupBar() {
+      localStorage.setItem(DISMISSED_KEY, '1');
+      const bar = document.getElementById('signupBar');
+      bar.classList.add('fading');
+      setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
+    }
+
+    async function submitBarSignup() {
+      const input = document.getElementById('barEmail');
+      const btn = document.getElementById('barBtn');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          // Hide inline signup too
+          const el = document.getElementById('emailSignup');
+          if (el) el.classList.add('hidden');
+          // Show thanks, then fade out
+          document.getElementById('signupBarInner').style.display = 'none';
+          document.getElementById('signupBarThanks').style.display = 'block';
+          setTimeout(() => {
+            const bar = document.getElementById('signupBar');
+            bar.classList.add('fading');
+            setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
+          }, 2000);
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up free';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up free';
       }
     }
 
