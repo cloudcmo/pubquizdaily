@@ -19,7 +19,7 @@
     :root {
       --cream: #faf9f7; --ink: #1a1a1a; --ink-light: #6b6b6b; --ink-faint: #c8c8c8;
       --border: #e0ddd8; --correct: #4a7c59; --correct-bg: #edf4ef;
-      --wrong: #c0622e; --wrong-bg: #fdf0eb;
+      --wrong: #3d6b8c; --wrong-bg: #eaf1f7;
       --font-serif: 'Libre Baskerville', Georgia, serif;
       --font-sans: 'DM Sans', system-ui, sans-serif;
     }
@@ -73,10 +73,16 @@
 
     .option-btn.correct { background: var(--correct-bg); border-color: var(--correct); }
     .option-btn.correct .option-letter { background: var(--correct); border-color: var(--correct); color: white; }
+    .option-btn.correct .option-letter::after { content: '✓'; }
     .option-btn.correct .option-text { color: var(--correct); font-weight: 500; }
     .option-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
     .option-btn.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: white; }
+    .option-btn.wrong .option-letter::after { content: '✗'; }
     .option-btn.wrong .option-text { color: var(--wrong); }
+    .option-btn.correct .option-letter,
+    .option-btn.wrong .option-letter { font-size: 0; }
+    .option-btn.correct .option-letter::after,
+    .option-btn.wrong .option-letter::after { font-size: 0.6875rem; }
     .option-btn.muted { opacity: 0.38; }
 
     .explainer { margin-top: 10px; font-size: 0.8125rem; color: var(--ink-light); line-height: 1.5; display: none; padding-top: 10px; border-top: 1px solid var(--border); }
