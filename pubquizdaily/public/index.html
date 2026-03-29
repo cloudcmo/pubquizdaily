@@ -163,11 +163,16 @@
       display: none;
       background: #2d6a4f;
       color: white;
-      padding: 12px 24px;
+      padding: 14px 24px;
       text-align: center;
       opacity: 0;
       transition: opacity 0.4s ease;
-      position: relative;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
     }
     .signup-bar.visible { display: block; }
     .signup-bar.shown { opacity: 1; }
@@ -213,16 +218,6 @@
       <a href="/archive.html">Full archive</a>
     </nav>
   </header>
-
-  <div class="signup-bar" id="signupBar">
-    <div class="signup-bar-inner" id="signupBarInner">
-      <span class="signup-bar-label">🍺 Get the Friday Best-of in your inbox</span>
-      <input class="signup-bar-input" type="email" id="barEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitBarSignup()" />
-      <button class="signup-bar-btn" id="barBtn" onclick="submitBarSignup()">Sign up free</button>
-    </div>
-    <div class="signup-bar-thanks" id="signupBarThanks" style="display:none;">You're in! See you Friday. 🍺</div>
-    <button class="signup-bar-close" onclick="closeSignupBar()" aria-label="Close">✕</button>
-  </div>
 
   <main id="app">
     <div class="loading" id="loadingState">
@@ -724,5 +719,15 @@
       }
     });
   </script>
+  <div class="signup-bar" id="signupBar">
+    <div class="signup-bar-inner" id="signupBarInner">
+      <span class="signup-bar-label">🍺 Get the Friday Best-of in your inbox</span>
+      <input class="signup-bar-input" type="email" id="barEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitBarSignup()" />
+      <button class="signup-bar-btn" id="barBtn" onclick="submitBarSignup()">Sign up free</button>
+    </div>
+    <div class="signup-bar-thanks" id="signupBarThanks" style="display:none;">You're in! See you Friday. 🍺</div>
+    <button class="signup-bar-close" onclick="closeSignupBar()" aria-label="Close">✕</button>
+  </div>
+
 </body>
 </html>
