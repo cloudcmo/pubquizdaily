@@ -24,6 +24,21 @@ exports.handler = async function(event) {
   });
 
   try {
+    // ── Deduplication check — bail if already sent today ──
+    const sentKey = `report-sent-${yesterdayISO}`;
+    const sentUrl = `https://api.netlify.com/api/v1/blobs/${SITE_ID}/quiz-meta/${sentKey}`;
+    const alreadySent = await fetch(sentUrl, { headers: authHeader });
+    if (alreadySent.ok) {
+      console.log(`Report already sent for ${yesterdayISO} — skipping`);
+      return { statusCode: 200, body: 'Already sent' };
+    }
+    // Mark as sent immediately so a second invocation bails out
+    await fetch(sentUrl, {
+      method: 'PUT',
+      headers: { ...authHeader, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sent: true, sentAt: new Date().toISOString() }),
+    });
+
     // ── Fetch yesterday's question stats ──
     let yesterdayPlayers = 0;
     let yesterdayAnswers = 0;
