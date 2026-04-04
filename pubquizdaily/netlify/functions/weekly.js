@@ -17,7 +17,7 @@ exports.handler = async function(event) {
   }
 
   try {
-    const range = encodeURIComponent('multi!A:I');
+    const range = encodeURIComponent('multi!A:J');
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
 
     const res = await fetch(url);
@@ -45,7 +45,7 @@ exports.handler = async function(event) {
 
       if (!validDates.has(isoDate) || weekly !== 'W') return acc;
 
-      const [, question, optA, optB, optC, optD, correct, explainer] = row;
+      const [, question, optA, optB, optC, optD, correct, explainer, , image] = row;
       if (!question || !optA || !optB || !optC || !optD || !correct) return acc;
 
       acc.push({
@@ -55,6 +55,7 @@ exports.handler = async function(event) {
         options: [optA.trim(), optB.trim(), optC.trim(), optD.trim()],
         correct: correct.trim().toUpperCase(),
         explainer: explainer ? explainer.trim() : null,
+        image: image ? image.trim() : null,
       });
 
       return acc;

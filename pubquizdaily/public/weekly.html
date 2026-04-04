@@ -62,6 +62,7 @@
     .question-card.answered-wrong { border-color: var(--wrong); }
 
     .q-meta { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+    .q-image { width: 100%; border-radius: 8px; margin-bottom: 14px; display: block; max-height: 260px; object-fit: cover; }
     .q-text { font-family: var(--font-serif); font-size: 1.0625rem; line-height: 1.5; margin-bottom: 14px; }
 
     .options { display: flex; flex-direction: column; gap: 7px; }
@@ -125,19 +126,18 @@
     footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); }
     footer a { color: inherit; text-decoration: none; }
 
-    .signup-bar { display: none; background: #2d6a4f; color: white; padding: 14px 24px; text-align: center; opacity: 0; transition: opacity 0.4s ease; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; box-shadow: 0 -2px 12px rgba(0,0,0,0.15); }
-    .signup-bar.visible { display: block; }
-    .signup-bar.shown { opacity: 1; }
-    .signup-bar.fading { opacity: 0; }
-    .signup-bar-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
-    .signup-bar-label { font-size: 0.875rem; font-weight: 500; white-space: nowrap; }
-    .signup-bar-input { padding: 7px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; color: var(--ink); outline: none; width: 200px; }
-    .signup-bar-btn { padding: 7px 16px; background: white; color: #2d6a4f; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
-    .signup-bar-btn:hover { opacity: 0.85; }
-    .signup-bar-btn:disabled { opacity: 0.5; cursor: default; }
-    .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
-    .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
-    .signup-bar-close:hover { color: white; }
+    /* ── Sticky top bar ── */
+    .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 500; background: var(--ink); color: white; padding: 10px 24px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; transform: translateY(-100%); transition: transform 0.3s ease; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+    .sticky-bar.visible { transform: translateY(0); }
+    .sticky-bar-label { font-size: 0.8125rem; color: rgba(255,255,255,0.75); white-space: nowrap; }
+    .sticky-bar-input { padding: 6px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.8125rem; color: var(--ink); outline: none; width: 180px; }
+    .sticky-bar-btn { padding: 6px 14px; background: #4a7c59; color: white; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .sticky-bar-btn:hover { opacity: 0.85; }
+    .sticky-bar-btn:disabled { opacity: 0.5; cursor: default; }
+    .sticky-bar-thanks { font-size: 0.8125rem; color: rgba(255,255,255,0.9); display: none; }
+    .sticky-bar-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1rem; cursor: pointer; padding: 0 4px; line-height: 1; margin-left: 4px; }
+    .sticky-bar-close:hover { color: white; }
+
   </style>
 </head>
 <body>
@@ -153,6 +153,14 @@
       <a href="/archive.html">Full archive</a>
     </nav>
   </header>
+
+  <div class="sticky-bar" id="stickyBar">
+    <span class="sticky-bar-label">🍺 Get the Friday Best-of in your inbox</span>
+    <input class="sticky-bar-input" type="email" id="stickyEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitStickySignup()" />
+    <button class="sticky-bar-btn" id="stickyBtn" onclick="submitStickySignup()">Sign up free</button>
+    <span class="sticky-bar-thanks" id="stickyThanks">You're in! See you Friday. 🍺</span>
+    <button class="sticky-bar-close" onclick="closeStickyBar()" aria-label="Close">✕</button>
+  </div>
 
   <main>
     <div class="page-header">
@@ -179,16 +187,6 @@
   </main>
 
   <footer>Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#4028252c2c2f003035223135293a2421292c396e232f2d">Send feedback</a></footer>
-
-  <div class="signup-bar" id="signupBar">
-    <div class="signup-bar-inner" id="signupBarInner">
-      <span class="signup-bar-label">🍺 Get the Friday Best-of in your inbox</span>
-      <input class="signup-bar-input" type="email" id="barEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitBarSignup()" />
-      <button class="signup-bar-btn" id="barBtn" onclick="submitBarSignup()">Sign up free</button>
-    </div>
-    <div class="signup-bar-thanks" id="signupBarThanks" style="display:none;">You're in! See you Friday. 🍺</div>
-    <button class="signup-bar-close" onclick="closeSignupBar()" aria-label="Close">✕</button>
-  </div>
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false">
     const LETTERS = ['A','B','C','D'];
@@ -275,6 +273,7 @@
 
         card.innerHTML = `
           <div class="q-meta">Q${i + 1} · ${formatDateShort(q.date)}</div>
+          ${q.image ? `<img class="q-image" src="/.netlify/images?url=/pictures/${encodeURIComponent(q.image)}&w=600&fit=cover" alt="${q.question}" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
@@ -385,50 +384,6 @@
       if (localStorage.getItem(SIGNUP_KEY)) {
         document.getElementById('emailSignup').classList.add('hidden');
       }
-      if (!localStorage.getItem(SIGNUP_KEY) && !localStorage.getItem(DISMISSED_KEY)) {
-        const bar = document.getElementById('signupBar');
-        bar.classList.add('visible');
-        requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('shown')));
-      }
-    }
-
-    function closeSignupBar() {
-      localStorage.setItem(DISMISSED_KEY, '1');
-      const bar = document.getElementById('signupBar');
-      bar.classList.add('fading');
-      setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
-    }
-
-    async function submitBarSignup() {
-      const input = document.getElementById('barEmail');
-      const btn = document.getElementById('barBtn');
-      const email = input.value.trim();
-      if (!email || !email.includes('@')) { input.focus(); return; }
-      btn.disabled = true;
-      btn.textContent = 'Signing up…';
-      try {
-        const res = await fetch('/.netlify/functions/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        if (res.ok) {
-          localStorage.setItem(SIGNUP_KEY, '1');
-          document.getElementById('emailSignup').classList.add('hidden');
-          document.getElementById('signupBarInner').style.display = 'none';
-          document.getElementById('signupBarThanks').style.display = 'block';
-          setTimeout(() => {
-            const bar = document.getElementById('signupBar');
-            bar.classList.add('fading');
-            setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
-          }, 2000);
-        } else {
-          btn.disabled = false; btn.textContent = 'Sign up free';
-          input.placeholder = 'Something went wrong — try again';
-        }
-      } catch {
-        btn.disabled = false; btn.textContent = 'Sign up free';
-      }
     }
 
     async function submitSignup() {
@@ -474,6 +429,50 @@
 
     loadQuestions();
     initSignup();
-  </script>
+
+    // ── Sticky top bar ──
+    (function() {
+      if (localStorage.getItem('pqd_subscribed') || localStorage.getItem('pqd_bar_dismissed')) return;
+      const bar = document.getElementById('stickyBar');
+      const header = document.querySelector('header');
+      const obs = new IntersectionObserver(([e]) => bar.classList.toggle('visible', !e.isIntersecting), { threshold: 0 });
+      obs.observe(header);
+    })();
+
+    function closeStickyBar() {
+      localStorage.setItem('pqd_bar_dismissed', '1');
+      document.getElementById('stickyBar').classList.remove('visible');
+    }
+
+    async function submitStickySignup() {
+      const input = document.getElementById('stickyEmail');
+      const btn = document.getElementById('stickyBtn');
+      const thanks = document.getElementById('stickyThanks');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem('pqd_subscribed', '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          thanks.style.display = 'inline';
+          const emailSignup = document.getElementById('emailSignup');
+          if (emailSignup) emailSignup.classList.add('hidden');
+          setTimeout(() => document.getElementById('stickyBar').classList.remove('visible'), 2500);
+        } else {
+          btn.disabled = false; btn.textContent = 'Sign up free';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false; btn.textContent = 'Sign up free';
+      }
+    }
 </body>
 </html>
