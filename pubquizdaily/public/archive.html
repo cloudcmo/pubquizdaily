@@ -126,7 +126,7 @@
     }
 
     function loadMainState() {
-      try { return JSON.parse(localStorage.getItem('pqd_state')) || {}; }
+      try { return JSON.parse(localStorage.getItem('pqd_multi_state')) || {}; }
       catch { return {}; }
     }
 
@@ -247,5 +247,6 @@
         btn.disabled = false; btn.textContent = 'Sign up free';
       }
     }
+  </script>
 </body>
 </html>
