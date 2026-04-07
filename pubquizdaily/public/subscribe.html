@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Friday Email — Pub Quiz Daily</title>
+  <meta name="description" content="Get the Pub Quiz Daily Weekly Best-of in your inbox every Friday. Free, no spam, just great questions." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://pubquizdaily.com/subscribe.html" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --cream: #faf9f7; --ink: #1a1a1a; --ink-light: #6b6b6b; --ink-faint: #c8c8c8;
+      --border: #e0ddd8; --correct: #4a7c59; --correct-bg: #edf4ef;
+      --font-serif: 'Libre Baskerville', Georgia, serif;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+    body { background: var(--cream); color: var(--ink); font-family: var(--font-sans); min-height: 100dvh; display: flex; flex-direction: column; }
+    header { border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: relative; flex-shrink: 0; }
+    .logo { font-family: var(--font-serif); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+    .burger { background: none; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 5px; z-index: 200; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; transition: all 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-menu { display: none; position: absolute; top: 56px; right: 0; left: 0; background: white; border-bottom: 1px solid var(--border); z-index: 100; padding: 8px 0; }
+    .nav-menu.open { display: block; }
+    .nav-menu a { display: block; padding: 12px 24px; font-size: 0.9375rem; font-weight: 500; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--border); }
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: var(--cream); }
+    .nav-menu a.active { color: var(--correct); }
+
+    main { flex: 1; max-width: 480px; margin: 0 auto; width: 100%; padding: 56px 24px 64px; }
+
+    .page-kicker { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--correct); margin-bottom: 14px; }
+    .page-title { font-family: var(--font-serif); font-size: 2rem; line-height: 1.2; margin-bottom: 20px; }
+    .page-title em { font-style: italic; }
+
+    .sell-copy { display: flex; flex-direction: column; gap: 14px; margin-bottom: 40px; }
+    .sell-copy p { font-size: 0.9375rem; color: var(--ink-light); line-height: 1.65; }
+    .sell-copy strong { color: var(--ink); font-weight: 600; }
+
+    .perks { list-style: none; margin: 4px 0 0; display: flex; flex-direction: column; gap: 8px; }
+    .perks li { display: flex; align-items: flex-start; gap: 10px; font-size: 0.9375rem; color: var(--ink-light); line-height: 1.5; }
+    .perks li::before { content: '✓'; color: var(--correct); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    .signup-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 32px 28px; }
+    .signup-card-label { font-size: 0.875rem; font-weight: 500; color: var(--ink-light); margin-bottom: 14px; }
+    .signup-row { display: flex; gap: 8px; }
+    .signup-input { flex: 1; padding: 11px 14px; font-family: var(--font-sans); font-size: 0.9375rem; border: 1px solid var(--border); border-radius: 8px; background: var(--cream); color: var(--ink); outline: none; transition: border-color 0.15s; }
+    .signup-input:focus { border-color: var(--ink); background: white; }
+    .signup-btn { padding: 11px 20px; background: var(--ink); color: white; border: none; border-radius: 8px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .signup-btn:hover { opacity: 0.8; }
+    .signup-btn:disabled { opacity: 0.5; cursor: default; }
+    .signup-note { margin-top: 12px; font-size: 0.75rem; color: var(--ink-faint); }
+
+    .already-subscribed { text-align: center; padding: 12px 0; }
+    .already-subscribed p { font-size: 0.9375rem; color: var(--correct); font-weight: 500; }
+    .already-subscribed .back-link { display: inline-block; margin-top: 12px; font-size: 0.875rem; color: var(--ink-light); text-decoration: none; }
+    .already-subscribed .back-link:hover { color: var(--ink); }
+
+    .confirm-state { display: none; text-align: center; padding: 8px 0; }
+    .confirm-state.visible { display: block; }
+    .confirm-emoji { font-size: 2rem; margin-bottom: 12px; }
+    .confirm-title { font-family: var(--font-serif); font-size: 1.25rem; margin-bottom: 8px; }
+    .confirm-sub { font-size: 0.875rem; color: var(--ink-light); line-height: 1.6; }
+    .confirm-play { display: inline-block; margin-top: 20px; padding: 11px 24px; background: var(--correct); color: white; border-radius: 8px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
+    .confirm-play:hover { opacity: 0.85; }
+
+    footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); flex-shrink: 0; }
+    footer a { color: inherit; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/">Pub Quiz Daily</a>
+    <button class="burger" id="burgerBtn" aria-label="Menu" onclick="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav-menu" id="navMenu">
+      <a href="/">Today's questions</a>
+      <a href="/weekly.html">Weekly Best-of</a>
+      <a href="/archive.html">Full archive</a>
+      <a href="/subscribe.html" class="active">Friday email</a>
+    </nav>
+  </header>
+
+  <main>
+    <p class="page-kicker">🍺 Every Friday</p>
+    <h1 class="page-title">The week's best questions,<br><em>in your inbox.</em></h1>
+
+    <div class="sell-copy">
+      <p>Each Friday we hand-pick the <strong>best questions from the week</strong> and send them straight to you — a mini pub quiz you can do over your morning coffee or lunchtime sandwich.</p>
+      <ul class="perks">
+        <li>5–7 of the week's finest questions</li>
+        <li>Free, always — no catch, no ads</li>
+        <li>One email a week, never more</li>
+        <li>Unsubscribe any time, instantly</li>
+      </ul>
+    </div>
+
+    <div class="signup-card" id="signupCard">
+      <p class="signup-card-label">Enter your email to get Friday's Best-of</p>
+      <div class="signup-row">
+        <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitSignup()" />
+        <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up free</button>
+      </div>
+      <p class="signup-note">No spam. One email a week. Unsubscribe any time.</p>
+    </div>
+
+    <div class="confirm-state" id="confirmState">
+      <div class="confirm-emoji">🍺</div>
+      <p class="confirm-title">You're in! See you Friday.</p>
+      <p class="confirm-sub">Check your inbox Friday morning for<br>the Weekly Best-of.</p>
+      <a class="confirm-play" href="/">Play today's questions →</a>
+    </div>
+  </main>
+
+  <footer>
+    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:hello@pubquizdaily.com">Send feedback</a>
+  </footer>
+
+  <script>
+    // If already subscribed, show a different state
+    if (localStorage.getItem('pqd_subscribed')) {
+      document.getElementById('signupCard').innerHTML = `
+        <div class="already-subscribed">
+          <p>🍺 You're already on the list!</p>
+          <a class="back-link" href="/">← Play today's questions</a>
+        </div>
+      `;
+    }
+
+    async function submitSignup() {
+      const input = document.getElementById('signupEmail');
+      const btn = document.getElementById('signupBtn');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem('pqd_subscribed', '1');
+          document.getElementById('signupCard').style.display = 'none';
+          document.getElementById('confirmState').classList.add('visible');
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up free';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up free';
+      }
+    }
+
+    function toggleMenu() {
+      document.getElementById('burgerBtn').classList.toggle('open');
+      document.getElementById('navMenu').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('header')) {
+        document.getElementById('burgerBtn').classList.remove('open');
+        document.getElementById('navMenu').classList.remove('open');
+      }
+    });
+  </script>
+</body>
+</html>
