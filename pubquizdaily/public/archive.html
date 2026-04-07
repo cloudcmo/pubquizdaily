@@ -56,6 +56,18 @@
     footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); }
     footer a { color: inherit; text-decoration: none; }
     .share-row { margin-bottom: 24px; }
+
+    /* ── Sticky top bar ── */
+    .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 500; background: var(--ink); color: white; padding: 10px 24px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; transform: translateY(-100%); transition: transform 0.3s ease; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+    .sticky-bar.visible { transform: translateY(0); }
+    .sticky-bar-label { font-size: 0.8125rem; color: rgba(255,255,255,0.75); white-space: nowrap; }
+    .sticky-bar-input { padding: 6px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.8125rem; color: var(--ink); outline: none; width: 180px; }
+    .sticky-bar-btn { padding: 6px 14px; background: #4a7c59; color: white; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .sticky-bar-btn:hover { opacity: 0.85; }
+    .sticky-bar-btn:disabled { opacity: 0.5; cursor: default; }
+    .sticky-bar-thanks { font-size: 0.8125rem; color: rgba(255,255,255,0.9); display: none; }
+    .sticky-bar-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1rem; cursor: pointer; padding: 0 4px; line-height: 1; margin-left: 4px; }
+    .sticky-bar-close:hover { color: white; }
     .share-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: #2d6a4f; color: white; border: none; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
     .share-btn:hover { background: #1e4d38; }
     .share-sub { margin-top: 8px; font-size: 0.8rem; color: var(--ink-faint); }
@@ -71,8 +83,17 @@
       <a href="/">Today's questions</a>
       <a href="/weekly.html">Weekly Best-of</a>
       <a href="/archive.html" class="active">Full archive</a>
+      <a href="/subscribe.html">Friday email</a>
     </nav>
   </header>
+
+  <div class="sticky-bar" id="stickyBar">
+    <span class="sticky-bar-label">🍺 Get the Friday Best-of in your inbox</span>
+    <input class="sticky-bar-input" type="email" id="stickyEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitStickySignup()" />
+    <button class="sticky-bar-btn" id="stickyBtn" onclick="submitStickySignup()">Sign up free</button>
+    <span class="sticky-bar-thanks" id="stickyThanks">You're in! See you Friday. 🍺</span>
+    <button class="sticky-bar-close" onclick="closeStickyBar()" aria-label="Close">✕</button>
+  </div>
 
   <main>
     <h1 class="page-title">Archive</h1>
@@ -183,6 +204,48 @@
         document.getElementById('navMenu').classList.remove('open');
       }
     });
-  </script>
+
+    // ── Sticky top bar ──
+    (function() {
+      if (localStorage.getItem('pqd_subscribed') || localStorage.getItem('pqd_bar_dismissed')) return;
+      const bar = document.getElementById('stickyBar');
+      const header = document.querySelector('header');
+      const obs = new IntersectionObserver(([e]) => bar.classList.toggle('visible', !e.isIntersecting), { threshold: 0 });
+      obs.observe(header);
+    })();
+
+    function closeStickyBar() {
+      localStorage.setItem('pqd_bar_dismissed', '1');
+      document.getElementById('stickyBar').classList.remove('visible');
+    }
+
+    async function submitStickySignup() {
+      const input = document.getElementById('stickyEmail');
+      const btn = document.getElementById('stickyBtn');
+      const thanks = document.getElementById('stickyThanks');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem('pqd_subscribed', '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          thanks.style.display = 'inline';
+          setTimeout(() => document.getElementById('stickyBar').classList.remove('visible'), 2500);
+        } else {
+          btn.disabled = false; btn.textContent = 'Sign up free';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false; btn.textContent = 'Sign up free';
+      }
+    }
 </body>
 </html>
