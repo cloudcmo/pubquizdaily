@@ -290,16 +290,15 @@
     const DISMISSED_KEY = 'pqd_bar_dismissed';
     const LETTERS     = ['A','B','C','D'];
 
-    const FINAL_MSGS = [
-      [0, "Unlucky — come back stronger tomorrow!"],
-      [1, "One on the board. Room to grow!"],
-      [2, "Not bad — room for more though!"],
-      [3, "Three out of four — sharp stuff!"],
-      [4, "Full house! Buy yourself a pint. 🍺"],
-      [5, "Five out of five — outstanding!"],
-      [6, "Six out of six. Pub quiz legend."],
-      [7, "Perfect score. Seriously impressive!"],
-    ];
+    function getFinalMsg(score, total) {
+      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+      if (score === 0)    return "Unlucky — come back stronger tomorrow!";
+      if (score === total) return "Full house! Buy yourself a pint. 🍺";
+      if (pct >= 80)     return `${score} out of ${total} — sharp stuff!`;
+      if (pct >= 60)     return `${score} out of ${total} — not bad at all!`;
+      if (pct >= 40)     return `${score} out of ${total} — room to grow!`;
+      return `${score} out of ${total} — better luck tomorrow!`;
+    }
 
     const CONFETTI_COLORS = ['#4a7c59', '#c0622e', '#1a1a1a', '#8b6c42', '#2c6e8a'];
 
@@ -429,8 +428,7 @@
 
       const panel = document.getElementById('finalPanel');
       document.getElementById('finalScore').textContent = score;
-      const msg = FINAL_MSGS.find(([n]) => n === score)?.[1]
-        || (score === questions.length ? 'Perfect score! Outstanding!' : `${score} out of ${questions.length} — well played!`);
+      const msg = getFinalMsg(score, questions.length);
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
