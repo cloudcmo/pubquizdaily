@@ -191,6 +191,13 @@
     .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
     .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
     .signup-bar-close:hover { color: white; }
+
+    .whatword-nudge { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 16px; background: white; border: 1px solid var(--border); border-radius: 10px; text-decoration: none; color: var(--ink); transition: border-color 0.12s, transform 0.08s; }
+    .whatword-nudge:hover { border-color: var(--ink-light); transform: translateY(-1px); }
+    .whatword-nudge-icon { width: 32px; height: 32px; border-radius: 7px; flex-shrink: 0; }
+    .whatword-nudge-text { flex: 1; }
+    .whatword-nudge-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 1px; }
+    .whatword-nudge-title { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
   </style>
   <script type="application/ld+json">
   {
@@ -257,6 +264,13 @@
           <div class="weekly-nudge-text">
             <p class="weekly-nudge-label">Want more?</p>
             <p class="weekly-nudge-title">Play the Weekly Best-of</p>
+          </div>
+        </a>
+        <a class="whatword-nudge" href="https://whatword.co.uk" target="_blank" rel="noopener">
+          <img class="whatword-nudge-icon" src="/whatword-icon.png" alt="WhatWord" />
+          <div class="whatword-nudge-text">
+            <p class="whatword-nudge-label">Also try</p>
+            <p class="whatword-nudge-title">WhatWord — daily word game</p>
           </div>
         </a>
         <div class="countdown-wrap">

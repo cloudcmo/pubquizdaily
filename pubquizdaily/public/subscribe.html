@@ -73,6 +73,13 @@
     .confirm-play { display: inline-block; margin-top: 20px; padding: 11px 24px; background: var(--correct); color: white; border-radius: 8px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; text-decoration: none; transition: opacity 0.15s; }
     .confirm-play:hover { opacity: 0.85; }
 
+
+    .whatword-nudge { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 16px; background: white; border: 1px solid var(--border); border-radius: 10px; text-decoration: none; color: var(--ink); transition: border-color 0.12s, transform 0.08s; }
+    .whatword-nudge:hover { border-color: var(--ink-light); transform: translateY(-1px); }
+    .whatword-nudge-icon { width: 32px; height: 32px; border-radius: 7px; flex-shrink: 0; }
+    .whatword-nudge-text { flex: 1; }
+    .whatword-nudge-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 1px; }
+    .whatword-nudge-title { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
     footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); flex-shrink: 0; }
     footer a { color: inherit; text-decoration: none; }
   </style>
@@ -123,11 +130,20 @@
     </div>
   </main>
 
+  <div style="max-width:480px;margin:0 auto;padding:0 24px 24px;">
+        <a class="whatword-nudge" href="https://whatword.co.uk" target="_blank" rel="noopener">
+          <img class="whatword-nudge-icon" src="/whatword-icon.png" alt="WhatWord" />
+          <div class="whatword-nudge-text">
+            <p class="whatword-nudge-label">Also try</p>
+            <p class="whatword-nudge-title">WhatWord — daily word game</p>
+          </div>
+        </a>
+  </div>
   <footer>
-    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="mailto:hello@pubquizdaily.com">Send feedback</a>
+    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#0d65686161624d7d786f7c786477696c646174236e6260">Send feedback</a>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     // If already subscribed, show a different state
     if (localStorage.getItem('pqd_subscribed')) {
       document.getElementById('signupCard').innerHTML = `
@@ -171,7 +187,7 @@
       document.getElementById('navMenu').classList.toggle('open');
     }
 
-    document.addEventListener('click', function(e) {
+        document.addEventListener('click', function(e) {
       if (!e.target.closest('header')) {
         document.getElementById('burgerBtn').classList.remove('open');
         document.getElementById('navMenu').classList.remove('open');
