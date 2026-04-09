@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd "/Users/carl/Dropbox/AI experiments/Pub quiz daily/pubquizdaily"
+cd "/Users/carl/Desktop/pubquizdaily/pubquizdaily"
 
 echo ""
 echo "Preparing to move tested code from staging to main..."
