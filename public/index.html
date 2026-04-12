@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pub Quiz Daily — Free Daily General Knowledge Questions</title>
+  <meta name="description" content="Multiple free pub quiz questions every day. Test your general knowledge, build a streak and share your score." />
+  <meta name="keywords" content="pub quiz, daily quiz, free quiz, general knowledge, trivia" />
+  <meta name="robots" content="index, follow" />
+  <meta property="og:title" content="Pub Quiz Daily — Free Daily General Knowledge Questions" />
+  <meta property="og:description" content="Fresh questions every day. How's your general knowledge? Play free at pubquizdaily.com" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pubquizdaily.com" />
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Pub Quiz Daily — Free Daily General Knowledge Questions" />
+  <meta name="twitter:description" content="Fresh questions every day. Play free at pubquizdaily.com" />
+  <link rel="canonical" href="https://pubquizdaily.com" />
+  <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta property="og:image" content="https://pubquizdaily.com/logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #faf9f7;
+      --ink: #1a1a1a;
+      --ink-light: #6b6b6b;
+      --ink-faint: #c8c8c8;
+      --border: #e0ddd8;
+      --correct: #4a7c59;
+      --correct-bg: #edf4ef;
+      --wrong: #3d6b8c;
+      --wrong-bg: #eaf1f7;
+      --font-serif: 'Libre Baskerville', Georgia, serif;
+      --font-sans: 'DM Sans', system-ui, sans-serif;
+    }
+
+    html { font-size: 16px; }
+    body { background: var(--cream); color: var(--ink); font-family: var(--font-sans); min-height: 100dvh; display: flex; flex-direction: column; }
+
+    header { border-bottom: 1px solid var(--border); padding: 0 24px; display: flex; align-items: center; justify-content: space-between; height: 56px; position: relative; flex-shrink: 0; }
+    .logo { font-family: var(--font-serif); font-size: 1.125rem; font-weight: 700; letter-spacing: -0.01em; color: var(--ink); text-decoration: none; }
+    .streak-badge { display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); }
+    .streak-badge .fire { font-size: 1rem; }
+    .streak-count { font-variant-numeric: tabular-nums; }
+    .burger { background: none; border: none; cursor: pointer; padding: 8px; display: flex; flex-direction: column; gap: 5px; z-index: 200; }
+    .burger span { display: block; width: 22px; height: 2px; background: var(--ink); border-radius: 2px; transition: all 0.2s; }
+    .burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .burger.open span:nth-child(2) { opacity: 0; }
+    .burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+    .nav-menu { display: none; position: absolute; top: 56px; right: 0; left: 0; background: white; border-bottom: 1px solid var(--border); z-index: 100; padding: 8px 0; }
+    .nav-menu.open { display: block; }
+    .nav-menu a { display: block; padding: 12px 24px; font-size: 0.9375rem; font-weight: 500; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--border); }
+    .nav-menu a:last-child { border-bottom: none; }
+    .nav-menu a:hover { background: var(--cream); }
+    .nav-menu a.active { color: var(--correct); }
+
+    main { flex: 1; max-width: 560px; margin: 0 auto; width: 100%; padding: 32px 24px 60px; }
+
+    .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .date-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); }
+    .score-bar { display: flex; align-items: center; gap: 8px; }
+    .score-pips { display: flex; gap: 4px; }
+    .pip { width: 9px; height: 9px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
+    .pip.correct { background: var(--correct); }
+    .pip.wrong { background: var(--wrong); }
+    .score-label { font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); }
+    .score-number { color: var(--ink); }
+
+    .questions { display: flex; flex-direction: column; gap: 16px; }
+
+    .question-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 20px; transition: border-color 0.2s; }
+    .question-card.answered-correct { border-color: var(--correct); }
+    .question-card.answered-wrong { border-color: var(--wrong); }
+
+    .q-number { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 10px; }
+    .q-image { width: 100%; border-radius: 8px; margin-bottom: 14px; display: block; max-height: 260px; object-fit: cover; }
+    .q-text { font-family: var(--font-serif); font-size: 1.0625rem; line-height: 1.5; margin-bottom: 14px; }
+
+    .options { display: flex; flex-direction: column; gap: 7px; }
+
+    .option-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 11px 14px; background: var(--cream); border: 1px solid var(--border); border-radius: 7px; cursor: pointer; text-align: left; font-family: var(--font-sans); font-size: 0.875rem; color: var(--ink); transition: border-color 0.1s, background 0.1s, transform 0.08s; -webkit-tap-highlight-color: transparent; }
+    .option-btn:hover:not(:disabled) { border-color: var(--ink); transform: translateY(-1px); }
+    .option-btn:active:not(:disabled) { transform: translateY(0); }
+    .option-btn:disabled { cursor: default; }
+
+    .option-letter { display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); font-size: 0.6875rem; font-weight: 600; flex-shrink: 0; color: var(--ink-light); transition: background 0.1s, border-color 0.1s, color 0.1s; }
+
+    .option-btn.correct { background: var(--correct-bg); border-color: var(--correct); }
+    .option-btn.correct .option-letter { background: var(--correct); border-color: var(--correct); color: white; }
+    .option-btn.correct .option-letter::after { content: '✓'; }
+    .option-btn.correct .option-text { color: var(--correct); font-weight: 500; }
+    .option-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
+    .option-btn.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: white; }
+    .option-btn.wrong .option-letter::after { content: '✗'; }
+    .option-btn.wrong .option-text { color: var(--wrong); }
+    .option-btn.correct .option-letter,
+    .option-btn.wrong .option-letter { font-size: 0; }
+    .option-btn.correct .option-letter::after,
+    .option-btn.wrong .option-letter::after { font-size: 0.75rem; }
+
+    .explainer { display: none; margin-top: 10px; font-size: 0.8125rem; color: var(--ink-light); line-height: 1.6; padding-top: 10px; border-top: 1px solid var(--border); }
+    .explainer.visible { display: block; }
+
+    .stats-text { display: none; margin-top: 8px; font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); background: white; border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; text-align: center; }
+    .stats-text.visible { display: inline-block; }
+
+    .final-panel { display: none; margin-top: 24px; text-align: center; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 32px 24px; }
+    .final-panel.visible { display: block; }
+
+    .final-score { font-family: var(--font-serif); font-size: 3.5rem; font-weight: 700; color: var(--ink); line-height: 1; }
+    .final-out-of { font-size: 1rem; color: var(--ink-light); margin-bottom: 12px; }
+    .final-message { font-family: var(--font-serif); font-style: italic; font-size: 1.125rem; color: var(--ink); margin-bottom: 24px; }
+
+    .share-btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 28px; background: #2d6a4f; color: white; border: none; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.1s; animation: share-nudge 2.5s ease 1s 2; }
+    @keyframes share-nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    .share-btn:hover { background: #1e4d38; transform: translateY(-1px); }
+
+    .weekly-nudge { margin-top: 16px; width: 100%; background: #edf4ef; border: 1.5px solid #b8d4bf; border-radius: 10px; padding: 15px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; transition: background 0.12s, border-color 0.12s, transform 0.08s; }
+    .weekly-nudge:hover { background: #ddeee2; border-color: #8ab89a; transform: translateY(-1px); }
+    .weekly-nudge-icon { font-size: 1.25rem; line-height: 1; flex-shrink: 0; }
+    .weekly-nudge-text { text-align: center; }
+    .weekly-nudge-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #4a7c59; margin-bottom: 1px; }
+    .weekly-nudge-title { font-family: var(--font-serif); font-size: 0.9375rem; color: var(--ink); }
+
+    .game-nudge { margin-top: 10px; width: 100%; background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px 20px; display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; transition: border-color 0.12s, transform 0.08s; }
+    .game-nudge:hover { border-color: var(--ink-light); transform: translateY(-1px); }
+    .game-nudge-icon { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+    .game-nudge-text { text-align: center; }
+    .game-nudge-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-light); margin-bottom: 1px; }
+    .game-nudge-title { font-family: var(--font-serif); font-size: 0.9375rem; color: var(--ink); }
+    .countdown-wrap { margin-top: 24px; text-align: center; }
+    .homescreen-nudge { margin-top: 10px; text-align: center; }
+    .homescreen-nudge a { font-size: 0.8rem; color: var(--ink-faint); text-decoration: none; border-bottom: 1px dashed var(--ink-faint); transition: color 0.12s; }
+    .homescreen-nudge a:hover { color: var(--ink-light); }
+    .next-label { font-size: 0.8125rem; color: var(--ink-faint); letter-spacing: 0.01em; }
+    .countdown { font-variant-numeric: tabular-nums; font-size: 0.9375rem; font-weight: 500; color: var(--ink-light); margin-top: 4px; }
+    .archive-back { display: none; font-size: 0.875rem; color: var(--ink-light); text-decoration: none; margin-top: 4px; }
+
+    .email-signup { margin-top: 32px; width: 100%; border-top: 1px solid var(--border); padding-top: 24px; text-align: center; }
+    .email-signup.hidden { display: none; }
+    .signup-label { font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); margin-bottom: 10px; letter-spacing: 0.01em; }
+    .signup-row { display: flex; gap: 8px; max-width: 340px; margin: 0 auto; }
+    .signup-input { flex: 1; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.875rem; border: 1px solid var(--border); border-radius: 8px; background: white; color: var(--ink); outline: none; transition: border-color 0.15s; }
+    .signup-input:focus { border-color: var(--ink); }
+    .signup-btn { padding: 10px 16px; background: var(--ink); color: white; border: none; border-radius: 8px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .signup-btn:hover { opacity: 0.8; }
+    .signup-btn:disabled { opacity: 0.5; cursor: default; }
+    .signup-confirm { font-size: 0.8125rem; color: var(--correct); font-weight: 500; display: none; }
+    .signup-confirm.visible { display: block; }
+
+    .loading, .error-state { text-align: center; padding: 64px 0; }
+    .loading-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+    .loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); animation: dot-pulse 1.2s ease-in-out infinite; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-pulse { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+    .error-title { font-family: var(--font-serif); font-size: 1.125rem; margin-bottom: 8px; }
+    .error-sub { font-size: 0.875rem; color: var(--ink-light); }
+
+    footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); letter-spacing: 0.02em; flex-shrink: 0; }
+    footer a { color: inherit; text-decoration: none; }
+
+    .confetti-burst { position: fixed; top: 50%; left: 50%; pointer-events: none; z-index: 100; }
+    .confetti-burst span { position: absolute; width: 6px; height: 6px; border-radius: 1px; opacity: 0; }
+
+    @keyframes streak-pop { 0% { transform: scale(1); } 50% { transform: scale(1.25); } 100% { transform: scale(1); } }
+    .streak-pop { animation: streak-pop 0.4s ease; }
+
+    /* ── Signup bar ── */
+    .signup-bar {
+      display: none;
+      background: #2d6a4f;
+      color: white;
+      padding: 14px 24px;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      box-shadow: 0 -2px 12px rgba(0,0,0,0.15);
+    }
+    .signup-bar.visible { display: block; }
+    .signup-bar.shown { opacity: 1; }
+    .signup-bar.fading { opacity: 0; }
+    .signup-bar-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+    .signup-bar-label { font-size: 0.875rem; font-weight: 500; white-space: nowrap; }
+    .signup-bar-input { padding: 7px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; color: var(--ink); outline: none; width: 200px; }
+    .signup-bar-btn { padding: 7px 16px; background: white; color: #2d6a4f; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .signup-bar-btn:hover { opacity: 0.85; }
+    .signup-bar-btn:disabled { opacity: 0.5; cursor: default; }
+    .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
+    .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
+    .signup-bar-close:hover { color: white; }
+  </style>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Pub Quiz Daily",
+    "url": "https://pubquizdaily.com",
+    "description": "Free pub quiz questions every day. Test your general knowledge, build a streak and share your score.",
+    "potentialAction": { "@type": "PlayAction", "target": "https://pubquizdaily.com" }
+  }
+  </script>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="/">Pub Quiz Daily</a>
+    <div style="display:flex;align-items:center;gap:16px;">
+      <div class="streak-badge" id="streakBadge">
+        <span class="fire">🔥</span>
+        <span class="streak-count" id="streakDisplay">0</span>
+        <span>day streak</span>
+      </div>
+      <button class="burger" id="burgerBtn" aria-label="Menu" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <nav class="nav-menu" id="navMenu">
+      <a href="/" class="active">Today's questions</a>
+      <a href="/weekly.html">Weekly Best-of</a>
+      <a href="/archive.html">Full archive</a>
+      <a href="/subscribe.html">Friday email</a>
+    </nav>
+  </header>
+
+  <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Pub Quiz Daily — Free daily pub quiz questions</h1>
+
+  <main id="app">
+    <div class="loading" id="loadingState">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div id="errorState" class="error-state" style="display:none;">
+      <p class="error-title">No questions today</p>
+      <p class="error-sub">Check back soon — something went wrong loading today's quiz.</p>
+    </div>
+    <div id="gameState" style="display:none;">
+      <div class="top-bar">
+        <p class="date-label" id="dateLabel"></p>
+        <div class="score-bar">
+          <div class="score-pips" id="scorePips"></div>
+          <span class="score-label"><span class="score-number" id="scoreNum">0</span> / <span id="scoreTotal">0</span></span>
+        </div>
+      </div>
+      <div class="questions" id="questionsList"></div>
+      <div class="final-panel" id="finalPanel">
+        <div class="final-score" id="finalScore">0</div>
+        <div class="final-out-of" id="finalOutOf">out of 0</div>
+        <div class="final-message" id="finalMessage"></div>
+        <button class="share-btn" onclick="shareResult()">
+          Share result
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </button>
+        <a class="weekly-nudge" id="weeklyNudge" href="/weekly.html">
+          <span class="weekly-nudge-icon">🍺</span>
+          <div class="weekly-nudge-text">
+            <p class="weekly-nudge-label">Want more?</p>
+            <p class="weekly-nudge-title">Play the Weekly Best-of</p>
+          </div>
+        </a>
+        <a class="game-nudge" href="https://whatword.co.uk" target="_blank" rel="noopener">
+          <img class="game-nudge-icon" src="/whatword-icon.png" alt="WhatWord" />
+          <div class="game-nudge-text">
+            <p class="game-nudge-label">Also try</p>
+            <p class="game-nudge-title">WhatWord — daily word game</p>
+          </div>
+        </a>
+        <div class="countdown-wrap">
+          <p class="next-label" id="nextLabel">Next questions in</p>
+          <p class="countdown" id="countdown"></p>
+          <a class="archive-back" id="archiveBack" href="/archive.html">← Back to archive</a>
+        </div>
+        <div class="homescreen-nudge">
+          <a href="/add-to-home.html">📱 Add Pub Quiz Daily to your home screen</a>
+        </div>
+      </div>
+      <div class="email-signup" id="emailSignup">
+        <p class="signup-label">Never miss a question — get the <a href="/weekly.html" style="color:inherit;text-decoration:underline;">Weekly Best-of</a></p>
+        <div class="signup-row">
+          <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" />
+          <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up</button>
+        </div>
+        <p class="signup-confirm" id="signupConfirm">You're in! See you Friday. 🍺</p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#224a474e4e4d6252574053574b5846434b4e5b0c414d4f">Send feedback</a>
+  </footer>
+
+  <div class="confetti-burst" id="confetti" aria-hidden="true"></div>
+
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+  <script data-cfasync="false">
+    const STORAGE_KEY = 'pqd_multi_state';
+    const ARCHIVE_KEY = 'pqd_archive_multi';
+    const SIGNUP_KEY  = 'pqd_subscribed';
+    const DISMISSED_KEY = 'pqd_bar_dismissed';
+    const LETTERS     = ['A','B','C','D'];
+
+    function getFinalMsg(score, total) {
+      const pct = total > 0 ? Math.round((score / total) * 100) : 0;
+      if (score === 0)    return "Unlucky — come back stronger tomorrow!";
+      if (score === total) return "Full house! Buy yourself a pint. 🍺";
+      if (pct >= 80)     return `${score} out of ${total} — sharp stuff!`;
+      if (pct >= 60)     return `${score} out of ${total} — not bad at all!`;
+      if (pct >= 40)     return `${score} out of ${total} — room to grow!`;
+      return `${score} out of ${total} — better luck tomorrow!`;
+    }
+
+    const CONFETTI_COLORS = ['#4a7c59', '#c0622e', '#1a1a1a', '#8b6c42', '#2c6e8a'];
+
+    const realTodayISO  = new Date().toISOString().slice(0, 10);
+    const urlDate       = new URLSearchParams(location.search).get('date');
+    const isArchiveMode = !!(urlDate && urlDate !== realTodayISO);
+    const todayISO      = urlDate || realTodayISO;
+
+    let questions   = [];
+    let answered    = {};
+    let score       = 0;
+    let playerState = loadState();
+
+    updateStreakDisplay();
+    if (isArchiveMode) {
+      const badge = document.getElementById('streakBadge');
+      if (badge) badge.style.display = 'none';
+    }
+    fetchQuestions();
+
+    async function fetchQuestions() {
+      try {
+        const res = await fetch(`/.netlify/functions/question?date=${todayISO}`);
+        if (!res.ok) throw new Error('no questions');
+        const data = await res.json();
+        questions = data.questions || [];
+        if (questions.length === 0) throw new Error('empty');
+        renderGame();
+      } catch (err) {
+        console.error(err);
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('errorState').style.display = 'block';
+      }
+    }
+
+    function renderGame() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('dateLabel').textContent = formatDate(todayISO);
+      document.getElementById('scoreTotal').textContent = questions.length;
+      document.getElementById('finalOutOf').textContent = `out of ${questions.length}`;
+
+      const pipsEl = document.getElementById('scorePips');
+      pipsEl.innerHTML = questions.map((_, i) => `<span class="pip" id="pip-${i}"></span>`).join('');
+
+      const list = document.getElementById('questionsList');
+      list.innerHTML = '';
+      questions.forEach((q, i) => {
+        const card = document.createElement('div');
+        card.className = 'question-card';
+        card.id = `card-${i}`;
+
+        const optionsHtml = q.options.map((text, oi) => `
+          <button class="option-btn" data-qi="${i}" data-letter="${LETTERS[oi]}" onclick="handleAnswer(${i}, '${LETTERS[oi]}')">
+            <span class="option-letter">${LETTERS[oi]}</span>
+            <span class="option-text">${text}</span>
+          </button>
+        `).join('');
+
+        card.innerHTML = `
+          <div class="q-number">Q${i + 1}</div>
+          ${q.image ? `<img class="q-image" src="/.netlify/images?url=/pictures/${encodeURIComponent(q.image)}&w=600&fit=cover" alt="${q.question}" />` : ''}
+          <div class="q-text">${q.question}</div>
+          <div class="options">${optionsHtml}</div>
+          ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
+          <div class="stats-text" id="stats-${i}"></div>
+        `;
+        list.appendChild(card);
+      });
+
+      document.getElementById('gameState').style.display = 'block';
+      restoreProgress();
+    }
+
+    function handleAnswer(qi, chosen) {
+      if (answered[qi] !== undefined) return;
+
+      const q = questions[qi];
+      const isCorrect = chosen === q.correct;
+      answered[qi] = isCorrect ? 'correct' : 'wrong';
+      if (isCorrect) {
+        score++;
+        triggerConfetti();
+        const badge = document.querySelector('.streak-badge');
+        if (badge) { badge.classList.add('streak-pop'); setTimeout(() => badge.classList.remove('streak-pop'), 500); }
+      }
+
+      applyAnswerUI(qi, chosen, q.correct, isCorrect);
+      saveProgress();
+
+      if (!isArchiveMode) recordStat(qi, isCorrect);
+      fetchStat(qi, isCorrect);
+
+      if (Object.keys(answered).length === questions.length) onAllAnswered();
+    }
+
+    function applyAnswerUI(qi, chosen, correct, isCorrect) {
+      const card = document.getElementById(`card-${qi}`);
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+      card.querySelectorAll('.option-btn').forEach(btn => {
+        btn.disabled = true;
+        const l = btn.dataset.letter;
+        if (l === correct) btn.classList.add('correct');
+        else if (l === chosen && !isCorrect) btn.classList.add('wrong');
+        else btn.classList.add('muted');
+      });
+
+      const exp = document.getElementById(`explainer-${qi}`);
+      if (exp) exp.classList.add('visible');
+
+      const pip = document.getElementById(`pip-${qi}`);
+      if (pip) pip.classList.add(isCorrect ? 'correct' : 'wrong');
+
+      document.getElementById('scoreNum').textContent = score;
+    }
+
+    function onAllAnswered() {
+      if (!isArchiveMode) {
+        const yesterday = getYesterdayISO();
+        let streak = playerState.streak || 0;
+        if (playerState.date === yesterday) streak += 1;
+        else if (playerState.date !== todayISO) streak = 1;
+        playerState = { date: todayISO, streak, score, total: questions.length, answered };
+        saveState(playerState);
+        updateStreakDisplay();
+      }
+
+      const panel = document.getElementById('finalPanel');
+      document.getElementById('finalScore').textContent = score;
+      const msg = getFinalMsg(score, questions.length);
+      document.getElementById('finalMessage').textContent = msg;
+      panel.classList.add('visible');
+      setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+
+      startCountdown();
+      initSignup();
+    }
+
+    function restoreProgress() {
+      let savedAnswered = {};
+
+      if (isArchiveMode) {
+        try { savedAnswered = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '{}')[todayISO] || {}; } catch {}
+      } else {
+        if (playerState.date === todayISO && playerState.answered) {
+          savedAnswered = playerState.answered;
+        }
+      }
+
+      Object.entries(savedAnswered).forEach(([qi, result]) => {
+        const i = parseInt(qi);
+        const q = questions[i];
+        if (!q) return;
+        answered[i] = result;
+        if (result === 'correct') score++;
+        applyAnswerUI(i, null, q.correct, result === 'correct');
+        fetchStat(i, result === 'correct');
+      });
+
+      document.getElementById('scoreNum').textContent = score;
+
+      if (Object.keys(answered).length === questions.length) {
+        onAllAnswered();
+      } else {
+        startCountdown();
+      }
+    }
+
+    function saveProgress() {
+      if (isArchiveMode) {
+        try {
+          const all = JSON.parse(localStorage.getItem(ARCHIVE_KEY) || '{}');
+          all[todayISO] = answered;
+          localStorage.setItem(ARCHIVE_KEY, JSON.stringify(all));
+        } catch {}
+      }
+    }
+
+    function loadState() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {}; }
+      catch { return {}; }
+    }
+
+    function saveState(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+
+    async function recordStat(qi, isCorrect) {
+      try {
+        await fetch('/.netlify/functions/record-answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ date: todayISO, index: qi, correct: isCorrect }),
+        });
+      } catch {}
+    }
+
+    async function fetchStat(qi, isCorrect) {
+      try {
+        const res = await fetch(`/.netlify/functions/record-answer?date=${todayISO}&index=${qi}`);
+        if (!res.ok) return;
+        const { total, correctCount } = await res.json();
+        if (!total || total < 2) return;
+        const pct = Math.round((correctCount / total) * 100);
+        const el = document.getElementById(`stats-${qi}`);
+        if (!el) return;
+        if (isCorrect) {
+          el.textContent = pct >= 70 ? `Most players got this — ${pct}% correct`
+            : pct >= 40 ? `${pct}% of players got this right`
+            : `Sharp! Only ${pct}% got this one`;
+        } else {
+          el.textContent = pct >= 70 ? `Tricky — ${100 - pct}% also got this wrong`
+            : pct >= 40 ? `${pct}% of players got this right`
+            : `Tough one — only ${pct}% got it right`;
+        }
+        el.classList.add('visible');
+      } catch {}
+    }
+
+    function startCountdown() {
+      if (isArchiveMode) {
+        const nl = document.getElementById('nextLabel');
+        const cd = document.getElementById('countdown');
+        const ab = document.getElementById('archiveBack');
+        const wn = document.getElementById('weeklyNudge');
+        if (nl) nl.style.display = 'none';
+        if (cd) cd.style.display = 'none';
+        if (ab) ab.style.display = 'inline';
+        if (wn) wn.style.display = 'none';
+        return;
+      }
+      const el = document.getElementById('countdown');
+      if (!el) return;
+      function tick() {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(24, 0, 0, 0);
+        const diff = midnight - now;
+        const h = String(Math.floor(diff / 3600000)).padStart(2, '0');
+        const m = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+        const s = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        el.textContent = `${h}:${m}:${s}`;
+      }
+      tick();
+      setInterval(tick, 1000);
+    }
+
+    function shareResult() {
+      fetch('/.netlify/functions/record-share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'daily', date: todayISO }),
+      }).catch(() => {});
+
+      const emojiRow = questions.map((_, i) => answered[i] === 'correct' ? '🟢' : '🔴').join('');
+      const streak = playerState.streak || 0;
+      const streakStr = streak > 1 ? `\n🔥 ${streak}-day streak` : '';
+      const total = questions.length;
+      const pct = Math.round((score / total) * 100);
+
+      let taunt;
+      if (score === total) {
+        taunt = `Full marks. Think you can match it?`;
+      } else if (pct >= 75) {
+        taunt = `${score}/${total} — not bad. Reckon you can do better?`;
+      } else if (pct >= 50) {
+        taunt = `${score}/${total} today. The bar is set. Over to you.`;
+      } else if (score === 1) {
+        taunt = `1/${total}. At least one stuck. Can you beat that?`;
+      } else if (score === 0) {
+        taunt = `0/${total}. A masterclass in wrong answers. Your turn.`;
+      } else {
+        taunt = `${score}/${total} — there's room at the top. Have a go.`;
+      }
+
+      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}${streakStr}\n\n${taunt}\npubquizdaily.com`;
+      if (navigator.share) {
+        navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text).then(() => {
+          const btn = document.querySelector('.share-btn');
+          btn.textContent = 'Copied!';
+          setTimeout(() => {
+            btn.innerHTML = 'Share result <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+          }, 2000);
+        });
+      }
+    }
+
+    function initSignup() {
+      const alreadySubscribed = localStorage.getItem(SIGNUP_KEY);
+      const dismissed = localStorage.getItem(DISMISSED_KEY);
+      if (isArchiveMode || alreadySubscribed) {
+        const el = document.getElementById('emailSignup');
+        if (el) el.classList.add('hidden');
+      }
+      if (!isArchiveMode && !alreadySubscribed && !dismissed) {
+        const bar = document.getElementById('signupBar');
+        bar.classList.add('visible');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => bar.classList.add('shown'));
+        });
+      }
+    }
+
+    function closeSignupBar() {
+      localStorage.setItem(DISMISSED_KEY, '1');
+      const bar = document.getElementById('signupBar');
+      bar.classList.add('fading');
+      setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
+    }
+
+    async function submitBarSignup() {
+      const input = document.getElementById('barEmail');
+      const btn = document.getElementById('barBtn');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          // Hide inline signup too
+          const el = document.getElementById('emailSignup');
+          if (el) el.classList.add('hidden');
+          // Show thanks, then fade out
+          document.getElementById('signupBarInner').style.display = 'none';
+          document.getElementById('signupBarThanks').style.display = 'block';
+          setTimeout(() => {
+            const bar = document.getElementById('signupBar');
+            bar.classList.add('fading');
+            setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
+          }, 2000);
+        } else {
+          btn.disabled = false;
+          btn.textContent = 'Sign up free';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Sign up free';
+      }
+    }
+
+    async function submitSignup() {
+      const input = document.getElementById('signupEmail');
+      const btn = document.getElementById('signupBtn');
+      const confirm = document.getElementById('signupConfirm');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem(SIGNUP_KEY, '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          confirm.classList.add('visible');
+          const label = document.querySelector('#emailSignup .signup-label');
+          if (label) label.textContent = "You're on the list!";
+        } else {
+          btn.disabled = false; btn.textContent = 'Sign up';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false; btn.textContent = 'Sign up';
+      }
+    }
+
+    function triggerConfetti() {
+      const container = document.getElementById('confetti');
+      container.innerHTML = '';
+      for (let i = 0; i < 28; i++) {
+        const el = document.createElement('span');
+        const angle = (360 / 28) * i;
+        const distance = 60 + Math.random() * 60;
+        const color = CONFETTI_COLORS[i % CONFETTI_COLORS.length];
+        const size = 5 + Math.random() * 5;
+        el.style.cssText = `background:${color};width:${size}px;height:${size}px;border-radius:${Math.random()>.5?'50%':'1px'};animation:confetti-${i} 0.7s ease-out forwards;`;
+        const rad = (angle * Math.PI) / 180;
+        const x = Math.cos(rad) * distance;
+        const y = Math.sin(rad) * distance;
+        const style = document.createElement('style');
+        style.textContent = `@keyframes confetti-${i}{0%{opacity:1;transform:translate(0,0) rotate(0deg)}100%{opacity:0;transform:translate(${x}px,${y}px) rotate(${360*(Math.random()>.5?1:-1)}deg)}}`;
+        document.head.appendChild(style);
+        container.appendChild(el);
+      }
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function getYesterdayISO() {
+      const d = new Date();
+      d.setDate(d.getDate() - 1);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function updateStreakDisplay() {
+      const streak = playerState ? (playerState.streak || 0) : 0;
+      const el = document.getElementById('streakDisplay');
+      if (el) el.textContent = streak;
+    }
+
+    function toggleMenu() {
+      document.getElementById('burgerBtn').classList.toggle('open');
+      document.getElementById('navMenu').classList.toggle('open');
+    }
+
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('header')) {
+        document.getElementById('burgerBtn').classList.remove('open');
+        document.getElementById('navMenu').classList.remove('open');
+      }
+    });
+  </script>
+  <div class="signup-bar" id="signupBar">
+    <div class="signup-bar-inner" id="signupBarInner">
+      <span class="signup-bar-label">🍺 Get the Friday Best-of in your inbox</span>
+      <input class="signup-bar-input" type="email" id="barEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitBarSignup()" />
+      <button class="signup-bar-btn" id="barBtn" onclick="submitBarSignup()">Sign up free</button>
+    </div>
+    <div class="signup-bar-thanks" id="signupBarThanks" style="display:none;">You're in! See you Friday. 🍺</div>
+    <button class="signup-bar-close" onclick="closeSignupBar()" aria-label="Close">✕</button>
+  </div>
+
+</body>
+</html>
