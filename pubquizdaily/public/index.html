@@ -135,9 +135,16 @@
     .game-nudge-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-light); margin-bottom: 1px; }
     .game-nudge-title { font-family: var(--font-serif); font-size: 0.9375rem; color: var(--ink); }
     .countdown-wrap { margin-top: 24px; text-align: center; }
-    .homescreen-nudge { margin-top: 10px; text-align: center; }
-    .homescreen-nudge a { font-size: 0.8rem; color: var(--ink-faint); text-decoration: none; border-bottom: 1px dashed var(--ink-faint); transition: color 0.12s; }
-    .homescreen-nudge a:hover { color: var(--ink-light); }
+    .homescreen-nudge { margin-top: 12px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px; display: flex; align-items: center; gap: 14px; }
+    .homescreen-nudge-icon { width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0; }
+    .homescreen-nudge-body { flex: 1; text-align: left; }
+    .homescreen-nudge-title { font-weight: 700; font-size: 0.9375rem; color: var(--ink); margin-bottom: 2px; }
+    .homescreen-nudge-sub { font-size: 0.8125rem; color: var(--ink-light); margin-bottom: 10px; }
+    .homescreen-nudge-btn { display: inline-block; background: var(--ink); color: white; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; padding: 8px 18px; border-radius: 8px; text-decoration: none; transition: opacity 0.15s; }
+    .homescreen-nudge-btn:hover { opacity: 0.8; }
+    .homescreen-nudge-dismiss { display: block; margin-top: 8px; font-size: 0.75rem; color: var(--ink-faint); background: none; border: none; cursor: pointer; font-family: var(--font-sans); padding: 0; }
+    .homescreen-nudge-dismiss:hover { color: var(--ink-light); }
+    .homescreen-nudge.hidden { display: none; }
     .next-label { font-size: 0.8125rem; color: var(--ink-faint); letter-spacing: 0.01em; }
     .countdown { font-variant-numeric: tabular-nums; font-size: 0.9375rem; font-weight: 500; color: var(--ink-light); margin-top: 4px; }
     .archive-back { display: none; font-size: 0.875rem; color: var(--ink-light); text-decoration: none; margin-top: 4px; }
@@ -280,8 +287,14 @@
           <p class="countdown" id="countdown"></p>
           <a class="archive-back" id="archiveBack" href="/archive.html">← Back to archive</a>
         </div>
-        <div class="homescreen-nudge">
-          <a href="/add-to-home.html">📱 Add Pub Quiz Daily to your home screen</a>
+        <div class="homescreen-nudge" id="homescreenNudge">
+          <img class="homescreen-nudge-icon" src="/apple-touch-icon.png" alt="Pub Quiz Daily" />
+          <div class="homescreen-nudge-body">
+            <p class="homescreen-nudge-title">Add Pub Quiz Daily to your home screen</p>
+            <p class="homescreen-nudge-sub">✨ One tap away — no app store needed</p>
+            <a class="homescreen-nudge-btn" href="/add-to-home.html">Show me how →</a>
+            <button class="homescreen-nudge-dismiss" onclick="dismissHomescreenNudge()">Dismiss</button>
+          </div>
         </div>
       </div>
       <div class="email-signup" id="emailSignup">
@@ -738,6 +751,20 @@
       const el = document.getElementById('streakDisplay');
       if (el) el.textContent = streak;
     }
+
+    function dismissHomescreenNudge() {
+      localStorage.setItem('pqd_homescreen_dismissed', '1');
+      const el = document.getElementById('homescreenNudge');
+      if (el) el.classList.add('hidden');
+    }
+
+    // Hide homescreen nudge if already dismissed or on standalone (already installed)
+    (function() {
+      if (localStorage.getItem('pqd_homescreen_dismissed') || window.navigator.standalone) {
+        const el = document.getElementById('homescreenNudge');
+        if (el) el.classList.add('hidden');
+      }
+    })();
 
     function toggleMenu() {
       document.getElementById('burgerBtn').classList.toggle('open');
