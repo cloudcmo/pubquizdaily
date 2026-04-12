@@ -303,9 +303,10 @@
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
   <script data-cfasync="false">
-    function imageUrl(val) {
+        function imageUrl(val) {
       if (!val) return null;
       if (val.startsWith('http')) {
+        // Dropbox shared link — swap dl=0 to raw=1 for direct image access
         return val.replace(/[?&]dl=0$/, match => match[0] + 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       }
       return `/.netlify/images?url=/pictures/${encodeURIComponent(val)}&w=600&fit=cover`;
