@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-cd "/Users/carl/Desktop/pubquizdaily/pubquizdaily"
+cd "/Users/carl/code/pubquizdaily/pubquizdaily"
 
 echo ""
 echo "⚠️  This will DISCARD local staging changes and reset staging to match main."

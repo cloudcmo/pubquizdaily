@@ -1,0 +1,18 @@
+{
+  "name": "pubquizdaily",
+  "version": "1.0.0",
+  "description": "Daily pub quiz — one question, every day.",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}

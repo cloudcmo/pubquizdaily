@@ -128,7 +128,16 @@
     .weekly-nudge-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: #4a7c59; margin-bottom: 1px; }
     .weekly-nudge-title { font-family: var(--font-serif); font-size: 0.9375rem; color: var(--ink); }
 
+    .game-nudge { margin-top: 10px; width: 100%; background: white; border: 1.5px solid var(--border); border-radius: 10px; padding: 13px 20px; display: flex; align-items: center; justify-content: center; gap: 12px; text-decoration: none; transition: border-color 0.12s, transform 0.08s; }
+    .game-nudge:hover { border-color: var(--ink-light); transform: translateY(-1px); }
+    .game-nudge-icon { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+    .game-nudge-text { text-align: center; }
+    .game-nudge-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-light); margin-bottom: 1px; }
+    .game-nudge-title { font-family: var(--font-serif); font-size: 0.9375rem; color: var(--ink); }
     .countdown-wrap { margin-top: 24px; text-align: center; }
+    .homescreen-nudge { margin-top: 10px; text-align: center; }
+    .homescreen-nudge a { font-size: 0.8rem; color: var(--ink-faint); text-decoration: none; border-bottom: 1px dashed var(--ink-faint); transition: color 0.12s; }
+    .homescreen-nudge a:hover { color: var(--ink-light); }
     .next-label { font-size: 0.8125rem; color: var(--ink-faint); letter-spacing: 0.01em; }
     .countdown { font-variant-numeric: tabular-nums; font-size: 0.9375rem; font-weight: 500; color: var(--ink-light); margin-top: 4px; }
     .archive-back { display: none; font-size: 0.875rem; color: var(--ink-light); text-decoration: none; margin-top: 4px; }
@@ -191,13 +200,6 @@
     .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
     .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
     .signup-bar-close:hover { color: white; }
-
-    .whatword-nudge { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 12px 16px; background: white; border: 1px solid var(--border); border-radius: 10px; text-decoration: none; color: var(--ink); transition: border-color 0.12s, transform 0.08s; }
-    .whatword-nudge:hover { border-color: var(--ink-light); transform: translateY(-1px); }
-    .whatword-nudge-icon { width: 32px; height: 32px; border-radius: 7px; flex-shrink: 0; }
-    .whatword-nudge-text { flex: 1; }
-    .whatword-nudge-label { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-faint); margin-bottom: 1px; }
-    .whatword-nudge-title { font-size: 0.875rem; font-weight: 500; color: var(--ink); }
   </style>
   <script type="application/ld+json">
   {
@@ -266,17 +268,20 @@
             <p class="weekly-nudge-title">Play the Weekly Best-of</p>
           </div>
         </a>
-        <a class="whatword-nudge" href="https://whatword.co.uk" target="_blank" rel="noopener">
-          <img class="whatword-nudge-icon" src="/whatword-icon.png" alt="WhatWord" />
-          <div class="whatword-nudge-text">
-            <p class="whatword-nudge-label">Also try</p>
-            <p class="whatword-nudge-title">WhatWord — daily word game</p>
+        <a class="game-nudge" href="https://whatword.co.uk" target="_blank" rel="noopener">
+          <img class="game-nudge-icon" src="/whatword-icon.png" alt="WhatWord" />
+          <div class="game-nudge-text">
+            <p class="game-nudge-label">Also try</p>
+            <p class="game-nudge-title">WhatWord — daily word game</p>
           </div>
         </a>
         <div class="countdown-wrap">
           <p class="next-label" id="nextLabel">Next questions in</p>
           <p class="countdown" id="countdown"></p>
           <a class="archive-back" id="archiveBack" href="/archive.html">← Back to archive</a>
+        </div>
+        <div class="homescreen-nudge">
+          <a href="/add-to-home.html">📱 Add Pub Quiz Daily to your home screen</a>
         </div>
       </div>
       <div class="email-signup" id="emailSignup">
@@ -301,7 +306,6 @@
     function imageUrl(val) {
       if (!val) return null;
       if (val.startsWith('http')) {
-        // Dropbox shared link — swap dl=0 to raw=1 for direct image access
         return val.replace(/[?&]dl=0$/, match => match[0] + 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       }
       return `/.netlify/images?url=/pictures/${encodeURIComponent(val)}&w=600&fit=cover`;
@@ -381,7 +385,7 @@
 
         card.innerHTML = `
           <div class="q-number">Q${i + 1}</div>
-          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" />` : ''}
+          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
