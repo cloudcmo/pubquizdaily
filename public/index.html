@@ -303,6 +303,13 @@
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
   <script data-cfasync="false">
+    function imageUrl(val) {
+      if (!val) return null;
+      if (val.startsWith('http')) {
+        return val.replace(/[?&]dl=0$/, match => match[0] + 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
+      }
+      return `/.netlify/images?url=/pictures/${encodeURIComponent(val)}&w=600&fit=cover`;
+    }
     const STORAGE_KEY = 'pqd_multi_state';
     const ARCHIVE_KEY = 'pqd_archive_multi';
     const SIGNUP_KEY  = 'pqd_subscribed';
@@ -378,7 +385,7 @@
 
         card.innerHTML = `
           <div class="q-number">Q${i + 1}</div>
-          ${q.image ? `<img class="q-image" src="/.netlify/images?url=/pictures/${encodeURIComponent(q.image)}&w=600&fit=cover" alt="${q.question}" />` : ''}
+          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
