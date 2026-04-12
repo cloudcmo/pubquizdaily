@@ -303,10 +303,9 @@
 
   <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
   <script data-cfasync="false">
-        function imageUrl(val) {
+    function imageUrl(val) {
       if (!val) return null;
       if (val.startsWith('http')) {
-        // Dropbox shared link — swap dl=0 to raw=1 for direct image access
         return val.replace(/[?&]dl=0$/, match => match[0] + 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       }
       return `/.netlify/images?url=/pictures/${encodeURIComponent(val)}&w=600&fit=cover`;
@@ -386,7 +385,7 @@
 
         card.innerHTML = `
           <div class="q-number">Q${i + 1}</div>
-          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" />` : ''}
+          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
