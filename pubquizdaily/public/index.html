@@ -119,7 +119,9 @@
 
     .share-btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 28px; background: #2d6a4f; color: white; border: none; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s, transform 0.1s; animation: share-nudge 2.5s ease 1s 2; }
     @keyframes share-nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.04); } }
+    .share-sub { margin-top: 8px; font-size: 0.8125rem; color: var(--ink-light); }
     .share-btn:hover { background: #1e4d38; transform: translateY(-1px); }
+    .share-sub { margin-top: 8px; font-size: 0.8125rem; color: var(--ink-light); }
 
     .weekly-nudge { margin-top: 16px; width: 100%; background: #edf4ef; border: 1.5px solid #b8d4bf; border-radius: 10px; padding: 15px 20px; display: flex; align-items: center; justify-content: center; gap: 10px; text-decoration: none; transition: background 0.12s, border-color 0.12s, transform 0.08s; }
     .weekly-nudge:hover { background: #ddeee2; border-color: #8ab89a; transform: translateY(-1px); }
@@ -266,9 +268,10 @@
         <div class="final-out-of" id="finalOutOf">out of 0</div>
         <div class="final-message" id="finalMessage"></div>
         <button class="share-btn" onclick="shareResult()">
-          Share result
+          Share with friends
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
         </button>
+        <p class="share-sub">More players means more quizzes 🍺</p>
         <a class="weekly-nudge" id="weeklyNudge" href="/weekly.html">
           <span class="weekly-nudge-icon">🍺</span>
           <div class="weekly-nudge-text">
@@ -620,7 +623,7 @@
           const btn = document.querySelector('.share-btn');
           btn.textContent = 'Copied!';
           setTimeout(() => {
-            btn.innerHTML = 'Share result <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
+            btn.innerHTML = 'Share with friends <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>';
           }, 2000);
         });
       }
