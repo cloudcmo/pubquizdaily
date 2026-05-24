@@ -2,22 +2,62 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://pubquizdaily.com/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url>
-    <loc>https://pubquizdaily.com/groupie.html</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://pubquizdaily.com/weekly.html</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <lastmod>2026-05-24</lastmod>
   </url>
   <url>
     <loc>https://pubquizdaily.com/archive.html</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
+    <lastmod>2026-05-24</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/weekly.html</loc>
+    <lastmod>2026-05-24</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/subscribe.html</loc>
+    <lastmod>2026-05-24</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-05-15.html</loc>
+    <lastmod>2026-05-15</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-05-08.html</loc>
+    <lastmod>2026-05-08</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-05-01.html</loc>
+    <lastmod>2026-05-01</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-04-24.html</loc>
+    <lastmod>2026-04-24</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-04-17.html</loc>
+    <lastmod>2026-04-17</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-04-10.html</loc>
+    <lastmod>2026-04-10</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-04-03.html</loc>
+    <lastmod>2026-04-03</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-03-27.html</loc>
+    <lastmod>2026-03-27</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-03-20.html</loc>
+    <lastmod>2026-03-20</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-03-13.html</loc>
+    <lastmod>2026-03-13</lastmod>
+  </url>
+  <url>
+    <loc>https://pubquizdaily.com/quiz/week-2026-03-06.html</loc>
+    <lastmod>2026-03-06</lastmod>
   </url>
 </urlset>
