@@ -1,0 +1,11 @@
+# Pub Quiz Daily — robots.txt
+# Lives at the site root, served from public/robots.txt
+
+User-agent: *
+Allow: /
+
+# Don't waste crawl budget on serverless function endpoints — they return
+# JSON/transactional responses, not indexable pages.
+Disallow: /.netlify/
+
+Sitemap: https://pubquizdaily.com/sitemap.xml

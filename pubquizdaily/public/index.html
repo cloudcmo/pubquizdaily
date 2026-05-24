@@ -64,6 +64,7 @@
 
     .top-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
     .date-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); }
+    .tagline { font-family: var(--font-serif); font-style: italic; font-size: 1rem; color: var(--ink-light); text-align: center; max-width: 480px; margin: 20px auto 0; padding: 0 24px; }
     .score-bar { display: flex; align-items: center; gap: 8px; }
     .score-pips { display: flex; gap: 4px; }
     .pip { width: 9px; height: 9px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
@@ -238,6 +239,8 @@
   </header>
 
   <h1 style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">Pub Quiz Daily — Free daily pub quiz questions</h1>
+
+  <p class="tagline">Make each day questionable.</p>
 
   <main id="app">
     <div class="loading" id="loadingState">
