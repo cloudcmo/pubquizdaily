@@ -305,7 +305,9 @@ ${JSON.stringify(buildJsonLd(fridayISO, daysWithQuestions, canonical), null, 2)}
       <a href="/">Today's questions</a>
       <a href="/weekly.html">Weekly Best-of</a>
       <a href="/archive.html" class="active">Full archive</a>
+      <a href="/articles.html">Articles</a>
       <a href="/subscribe.html">Friday email</a>
+      <a href="https://tomcobleypubquiz.co.uk" target="_blank" rel="noopener">Tom Cobley quiz ↗</a>
     </nav>
   </header>
 
@@ -464,7 +466,9 @@ function renderArchiveIndex(weeks) {
       <a href="/">Today's questions</a>
       <a href="/weekly.html">Weekly Best-of</a>
       <a href="/archive.html" class="active">Full archive</a>
+      <a href="/articles.html">Articles</a>
       <a href="/subscribe.html">Friday email</a>
+      <a href="https://tomcobleypubquiz.co.uk" target="_blank" rel="noopener">Tom Cobley quiz ↗</a>
     </nav>
   </header>
 

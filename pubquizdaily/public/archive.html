@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Archive — Pub Quiz Daily</title>
-  <meta name="description" content="Browse every Pub Quiz Daily question, organised by week. Hundreds of free pub quiz questions with answers — replay any past week." />
+  <meta name="description" content="Play past Pub Quiz Daily questions. Browse the full archive and test yourself on previous daily questions." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="https://pubquizdaily.com/archive.html" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -34,21 +34,44 @@
     .nav-menu a { display: block; padding: 12px 24px; font-size: 0.9375rem; font-weight: 500; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--border); }
     .nav-menu a:last-child { border-bottom: none; }
     .nav-menu a:hover { background: var(--cream); }
-    .nav-menu a.active { color: var(--correct); }
+    .nav-menu a.active { color: #4a7c59; }
     main { flex: 1; max-width: 480px; margin: 0 auto; width: 100%; padding: 40px 24px; }
     .page-title { font-family: var(--font-serif); font-size: 1.5rem; margin-bottom: 6px; }
-    .tagline { font-family: var(--font-serif); font-style: italic; font-size: 1rem; color: var(--ink-light); margin: 4px 0 14px; }
     .page-subtitle { font-size: 0.875rem; color: var(--ink-light); margin-bottom: 32px; }
     .archive-list { display: flex; flex-direction: column; gap: 8px; }
     .archive-item { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: white; border: 1px solid var(--border); border-radius: 8px; text-decoration: none; color: var(--ink); transition: border-color 0.12s, transform 0.08s; }
     .archive-item:hover { border-color: var(--ink); transform: translateY(-1px); }
-    .archive-week { font-size: 0.9375rem; font-weight: 600; }
-    .archive-meta { display: flex; align-items: center; gap: 10px; }
-    .archive-count { font-size: 0.8125rem; color: var(--ink-light); text-align: right; }
+    .archive-item.played { background: var(--correct-bg); border-color: var(--correct); }
+    .archive-date { font-size: 0.9375rem; font-weight: 500; }
+    .archive-meta { display: flex; align-items: center; gap: 8px; }
+    .played-tick { font-size: 0.875rem; color: var(--correct); display: none; }
+    .archive-item.played .played-tick { display: block; }
     .archive-chevron { color: var(--ink-faint); font-size: 1rem; }
-    .empty { color: var(--ink-light); font-size: 0.875rem; }
+    .loading { text-align: center; padding: 48px 0; color: var(--ink-light); font-size: 0.875rem; }
+    .loading-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
+    .loading-dots span { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint); animation: dot-pulse 1.2s ease-in-out infinite; }
+    .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dot-pulse { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
+
     footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); }
     footer a { color: inherit; text-decoration: none; }
+    .share-row { margin-bottom: 24px; }
+
+    /* ── Sticky top bar ── */
+    .sticky-bar { position: fixed; top: 0; left: 0; right: 0; z-index: 500; background: var(--ink); color: white; padding: 10px 24px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; transform: translateY(-100%); transition: transform 0.3s ease; box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+    .sticky-bar.visible { transform: translateY(0); }
+    .sticky-bar-label { font-size: 0.8125rem; color: rgba(255,255,255,0.75); white-space: nowrap; }
+    .sticky-bar-input { padding: 6px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.8125rem; color: var(--ink); outline: none; width: 180px; }
+    .sticky-bar-btn { padding: 6px 14px; background: #4a7c59; color: white; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.8125rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
+    .sticky-bar-btn:hover { opacity: 0.85; }
+    .sticky-bar-btn:disabled { opacity: 0.5; cursor: default; }
+    .sticky-bar-thanks { font-size: 0.8125rem; color: rgba(255,255,255,0.9); display: none; }
+    .sticky-bar-close { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 1rem; cursor: pointer; padding: 0 4px; line-height: 1; margin-left: 4px; }
+    .sticky-bar-close:hover { color: white; }
+    .share-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: #2d6a4f; color: white; border: none; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+    .share-btn:hover { background: #1e4d38; }
+    .share-sub { margin-top: 8px; font-size: 0.8rem; color: var(--ink-faint); }
   </style>
 </head>
 <body>
@@ -61,110 +84,172 @@
       <a href="/">Today's questions</a>
       <a href="/weekly.html">Weekly Best-of</a>
       <a href="/archive.html" class="active">Full archive</a>
+      <a href="/articles.html">Articles</a>
       <a href="/subscribe.html">Friday email</a>
+      <a href="https://tomcobleypubquiz.co.uk" target="_blank" rel="noopener">Tom Cobley quiz ↗</a>
     </nav>
   </header>
 
+  <div class="sticky-bar" id="stickyBar">
+    <span class="sticky-bar-label">🍺 Get the Friday Best-of in your inbox</span>
+    <input class="sticky-bar-input" type="email" id="stickyEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitStickySignup()" />
+    <button class="sticky-bar-btn" id="stickyBtn" onclick="submitStickySignup()">Sign up free</button>
+    <span class="sticky-bar-thanks" id="stickyThanks">You're in! See you Friday. 🍺</span>
+    <button class="sticky-bar-close" onclick="closeStickyBar()" aria-label="Close">✕</button>
+  </div>
+
   <main>
     <h1 class="page-title">Archive</h1>
-    <p class="tagline">Make each day questionable.</p>
-    <p class="page-subtitle">Every question we've ever asked, organised by week. Replay any of them.</p>
-    <div class="archive-list">
-        <a class="archive-item" href="/quiz/week-2026-05-15.html">
-          <span class="archive-week">Week of 15 May 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">9 questions · 9 May 2026 – 15 May 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-05-08.html">
-          <span class="archive-week">Week of 8 May 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">21 questions · 2 May 2026 – 8 May 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-05-01.html">
-          <span class="archive-week">Week of 1 May 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">21 questions · 25 Apr 2026 – 1 May 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-04-24.html">
-          <span class="archive-week">Week of 24 Apr 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">21 questions · 18 Apr 2026 – 24 Apr 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-04-17.html">
-          <span class="archive-week">Week of 17 Apr 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">21 questions · 11 Apr 2026 – 17 Apr 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-04-10.html">
-          <span class="archive-week">Week of 10 Apr 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">24 questions · 4 Apr 2026 – 10 Apr 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-04-03.html">
-          <span class="archive-week">Week of 3 Apr 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">29 questions · 28 Mar 2026 – 3 Apr 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-03-27.html">
-          <span class="archive-week">Week of 27 Mar 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">7 questions · 21 Mar 2026 – 27 Mar 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-03-20.html">
-          <span class="archive-week">Week of 20 Mar 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">7 questions · 14 Mar 2026 – 20 Mar 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-03-13.html">
-          <span class="archive-week">Week of 13 Mar 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">7 questions · 7 Mar 2026 – 13 Mar 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
-        <a class="archive-item" href="/quiz/week-2026-03-06.html">
-          <span class="archive-week">Week of 6 Mar 2026</span>
-          <span class="archive-meta">
-            <span class="archive-count">1 questions · 6 Mar 2026 – 6 Mar 2026</span>
-            <span class="archive-chevron">›</span>
-          </span>
-        </a>
+    <p class="page-subtitle">Every question we've ever asked — including today's.</p>
+    <div class="share-row">
+      <button class="share-btn" onclick="shareArchive()">
+        Share Pub Quiz Daily
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+      </button>
+      <p class="share-sub">Tell a friend about Pub Quiz Daily</p>
+    </div>
+    <div id="archiveList">
+      <div class="loading">
+        <div class="loading-dots"><span></span><span></span><span></span></div>
+        Loading past questions…
+      </div>
     </div>
   </main>
 
   <footer>
-    Fresh questions. Every day. &nbsp;·&nbsp; <a href="/">Pub Quiz Daily</a>
+    Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#8fa9acbebfbbb4a9acbebfbeb4a9acbebfb7b4a9acbebfb7b4a9acbebebeb4a9acb9bbb4a9acbebebdb4a9acbebeb8b4a9acb6b7b4a9acbebebcb4a9acbebeb8b4a9acbebfbab4a9acbebdbdb4a9acbebfbfb4a9acb6b8b4a9acbebfbab4a9acbebfb7b4a9acbebdbeb4a9acbbb9b4a9acb6b6b4a9acbebebeb4a9acbebfb6b4">Send feedback</a>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false">
+    const FIRST_DATE = '2026-03-06';
+
+    function loadPlayed() {
+      try { return JSON.parse(localStorage.getItem('pqd_archive_played')) || {}; }
+      catch { return {}; }
+    }
+
+    function loadMainState() {
+      try { return JSON.parse(localStorage.getItem('pqd_multi_state')) || {}; }
+      catch { return {}; }
+    }
+
+    function formatDate(iso) {
+      const d = new Date(iso + 'T12:00:00');
+      return d.toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    }
+
+    function getPastDates() {
+      const dates = [];
+      const today = new Date().toISOString().slice(0, 10);
+      const start = new Date(FIRST_DATE + 'T12:00:00');
+      const cur = new Date(today + 'T12:00:00');
+      while (cur >= start) {
+        dates.push(cur.toISOString().slice(0, 10));
+        cur.setDate(cur.getDate() - 1);
+      }
+      return dates;
+    }
+
+    function render() {
+      const dates = getPastDates();
+      const played = loadPlayed();
+      const mainState = loadMainState();
+      if (mainState.date && mainState.answered) {
+        const allCorrect = Object.values(mainState.answered).every(v => v === 'correct');
+        played[mainState.date] = allCorrect ? 'correct' : 'wrong';
+      }
+      const today = new Date().toISOString().slice(0, 10);
+      const list = document.getElementById('archiveList');
+      if (dates.length === 0) {
+        list.innerHTML = '<p style="color:var(--ink-light);font-size:0.875rem;">No questions yet — check back soon!</p>';
+        return;
+      }
+      list.innerHTML = '<div class="archive-list">' + dates.map(date => {
+        const isToday = date === today;
+        const wasPlayed = played[date];
+        const playedClass = wasPlayed ? ' played' : '';
+        const tick = wasPlayed === 'correct' ? '✓ Correct' : wasPlayed === 'wrong' ? '✗ Played' : '';
+        const label = isToday ? `Today — ${formatDate(date)}` : formatDate(date);
+        return `<a class="archive-item${playedClass}" href="/?date=${date}">
+          <span class="archive-date">${label}</span>
+          <span class="archive-meta">
+            <span class="played-tick">${tick}</span>
+            <span class="archive-chevron">›</span>
+          </span>
+        </a>`;
+      }).join('') + '</div>';
+    }
+
+    function shareArchive() {
+      const text = `Pub Quiz Daily — a new quiz every day 🍺\n\nFree daily pub quiz questions at pubquizdaily.com`;
+      if (navigator.share) {
+        navigator.share({ title: 'Pub Quiz Daily', text, url: 'https://pubquizdaily.com' }).catch(() => {});
+      } else {
+        navigator.clipboard.writeText(text + '\nhttps://pubquizdaily.com').then(() => {
+          const btn = document.querySelector('.share-btn');
+          const orig = btn.innerHTML;
+          btn.textContent = 'Copied!';
+          setTimeout(() => btn.innerHTML = orig, 2000);
+        });
+      }
+    }
+
+    render();
+
     function toggleMenu() {
       document.getElementById('burgerBtn').classList.toggle('open');
       document.getElementById('navMenu').classList.toggle('open');
     }
+
     document.addEventListener('click', function(e) {
       if (!e.target.closest('header')) {
         document.getElementById('burgerBtn').classList.remove('open');
         document.getElementById('navMenu').classList.remove('open');
       }
     });
+
+    // ── Sticky top bar ──
+    (function() {
+      if (localStorage.getItem('pqd_subscribed') || localStorage.getItem('pqd_bar_dismissed')) return;
+      const bar = document.getElementById('stickyBar');
+      const header = document.querySelector('header');
+      const obs = new IntersectionObserver(([e]) => bar.classList.toggle('visible', !e.isIntersecting), { threshold: 0 });
+      obs.observe(header);
+    })();
+
+    function closeStickyBar() {
+      localStorage.setItem('pqd_bar_dismissed', '1');
+      document.getElementById('stickyBar').classList.remove('visible');
+    }
+
+    async function submitStickySignup() {
+      const input = document.getElementById('stickyEmail');
+      const btn = document.getElementById('stickyBtn');
+      const thanks = document.getElementById('stickyThanks');
+      const email = input.value.trim();
+      if (!email || !email.includes('@')) { input.focus(); return; }
+      btn.disabled = true;
+      btn.textContent = 'Signing up…';
+      try {
+        const res = await fetch('/.netlify/functions/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email }),
+        });
+        if (res.ok) {
+          localStorage.setItem('pqd_subscribed', '1');
+          input.style.display = 'none';
+          btn.style.display = 'none';
+          thanks.style.display = 'inline';
+          setTimeout(() => document.getElementById('stickyBar').classList.remove('visible'), 2500);
+        } else {
+          btn.disabled = false; btn.textContent = 'Sign up free';
+          input.placeholder = 'Something went wrong — try again';
+        }
+      } catch {
+        btn.disabled = false; btn.textContent = 'Sign up free';
+      }
+    }
   </script>
 </body>
 </html>
