@@ -204,6 +204,20 @@
     .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
     .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
     .signup-bar-close:hover { color: white; }
+
+    /* ── Add-to-home + share CTA ── */
+    .cta-block { margin: 36px auto 0; max-width: 560px; text-align: center; border-top: 1px solid var(--border); padding-top: 28px; }
+    .cta-home { display: inline-flex; align-items: center; gap: 13px; background: var(--ink); color: white; text-decoration: none; padding: 14px 22px; border-radius: 12px; transition: opacity 0.15s, transform 0.08s; }
+    .cta-home:hover { opacity: 0.9; transform: translateY(-1px); }
+    .cta-home-icon { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+    .cta-home-text { text-align: left; line-height: 1.25; }
+    .cta-home-title { font-size: 0.9375rem; font-weight: 600; }
+    .cta-home-sub { font-size: 0.75rem; font-weight: 400; color: rgba(255,255,255,0.65); }
+    .cta-share-line { margin-top: 14px; font-size: 0.875rem; color: var(--ink-light); }
+    .cta-share-link { color: var(--correct); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+    .cta-share-link:hover { color: #2d6a4f; }
+    .cta-block.home-installed .cta-home { display: none; }
+    .cta-block.home-installed { padding-top: 0; border-top: none; }
   </style>
   <script type="application/ld+json">
   {
@@ -282,15 +296,6 @@
           <p class="countdown" id="countdown"></p>
           <a class="archive-back" id="archiveBack" href="/archive.html">← Back to archive</a>
         </div>
-        <div class="homescreen-nudge" id="homescreenNudge">
-          <img class="homescreen-nudge-icon" src="/apple-touch-icon.png" alt="Pub Quiz Daily" />
-          <div class="homescreen-nudge-body">
-            <p class="homescreen-nudge-title">Add Pub Quiz Daily to your home screen</p>
-            <p class="homescreen-nudge-sub">✨ One tap away — no app store needed</p>
-            <a class="homescreen-nudge-btn" href="/add-to-home.html">Show me how →</a>
-            <button class="homescreen-nudge-dismiss" onclick="dismissHomescreenNudge()">Dismiss</button>
-          </div>
-        </div>
       </div>
       <div class="email-signup" id="emailSignup">
         <p class="signup-label">Never miss a question — get the <a href="/weekly.html" style="color:inherit;text-decoration:underline;">Weekly Best-of</a></p>
@@ -300,6 +305,17 @@
         </div>
         <p class="signup-confirm" id="signupConfirm">You're in! See you Friday. 🍺</p>
       </div>
+    </div>
+
+    <div class="cta-block" id="ctaBlock">
+      <a class="cta-home" href="/add-to-home.html">
+        <img class="cta-home-icon" src="/apple-touch-icon.png" alt="" />
+        <span class="cta-home-text">
+          <span class="cta-home-title">Add to home screen</span><br />
+          <span class="cta-home-sub">(you know, like an app)</span>
+        </span>
+      </a>
+      <p class="cta-share-line"><a class="cta-share-link" href="#" onclick="ctaShare(event)">More players means more Pub Quiz Daily</a> 🍺</p>
     </div>
   </main>
 
@@ -747,19 +763,36 @@
       if (el) el.textContent = streak;
     }
 
-    function dismissHomescreenNudge() {
-      localStorage.setItem('pqd_homescreen_dismissed', '1');
-      const el = document.getElementById('homescreenNudge');
-      if (el) el.classList.add('hidden');
+    // ── Add-to-home + share CTA ──
+    function isStandalone() {
+      return window.navigator.standalone === true ||
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
     }
 
-    // Hide homescreen nudge if already dismissed or on standalone (already installed)
+    // Hide the "add to home screen" prompt if the app is already installed
     (function() {
-      if (localStorage.getItem('pqd_homescreen_dismissed') || window.navigator.standalone) {
-        const el = document.getElementById('homescreenNudge');
-        if (el) el.classList.add('hidden');
+      if (isStandalone()) {
+        const el = document.getElementById('ctaBlock');
+        if (el) el.classList.add('home-installed');
       }
     })();
+
+    function ctaShare(e) {
+      if (e) e.preventDefault();
+      fetch('/.netlify/functions/record-share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cta', date: realTodayISO }),
+      }).catch(() => {});
+
+      const shareText = 'Pub Quiz Daily — a free pub quiz, every day. Make each day questionable. 🍺';
+      const shareUrl = 'https://pubquizdaily.com';
+      if (navigator.share) {
+        navigator.share({ title: 'Pub Quiz Daily', text: shareText, url: shareUrl }).catch(() => {});
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
+      }
+    }
 
     function toggleMenu() {
       document.getElementById('burgerBtn').classList.toggle('open');

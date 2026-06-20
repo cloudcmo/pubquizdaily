@@ -72,6 +72,20 @@
     .share-btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 24px; background: #2d6a4f; color: white; border: none; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
     .share-btn:hover { background: #1e4d38; }
     .share-sub { margin-top: 8px; font-size: 0.8rem; color: var(--ink-faint); }
+
+    /* ── Add-to-home + share CTA ── */
+    .cta-block { margin: 40px auto 0; max-width: 480px; text-align: center; border-top: 1px solid var(--border); padding-top: 28px; }
+    .cta-home { display: inline-flex; align-items: center; gap: 13px; background: var(--ink); color: white; text-decoration: none; padding: 14px 22px; border-radius: 12px; transition: opacity 0.15s, transform 0.08s; }
+    .cta-home:hover { opacity: 0.9; transform: translateY(-1px); }
+    .cta-home-icon { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
+    .cta-home-text { text-align: left; line-height: 1.25; }
+    .cta-home-title { font-size: 0.9375rem; font-weight: 600; }
+    .cta-home-sub { font-size: 0.75rem; font-weight: 400; color: rgba(255,255,255,0.65); }
+    .cta-share-line { margin-top: 14px; font-size: 0.875rem; color: var(--ink-light); }
+    .cta-share-link { color: var(--correct); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+    .cta-share-link:hover { color: #2d6a4f; }
+    .cta-block.home-installed .cta-home { display: none; }
+    .cta-block.home-installed { padding-top: 0; border-top: none; }
   </style>
 </head>
 <body>
@@ -113,6 +127,17 @@
         <div class="loading-dots"><span></span><span></span><span></span></div>
         Loading past questions…
       </div>
+    </div>
+
+    <div class="cta-block" id="ctaBlock">
+      <a class="cta-home" href="/add-to-home.html">
+        <img class="cta-home-icon" src="/apple-touch-icon.png" alt="" />
+        <span class="cta-home-text">
+          <span class="cta-home-title">Add to home screen</span><br />
+          <span class="cta-home-sub">(you know, like an app)</span>
+        </span>
+      </a>
+      <p class="cta-share-line"><a class="cta-share-link" href="#" onclick="ctaShare(event)">More players means more Pub Quiz Daily</a> 🍺</p>
     </div>
   </main>
 
@@ -195,6 +220,35 @@
     }
 
     render();
+
+    // ── Add-to-home + share CTA ──
+    function isStandalone() {
+      return window.navigator.standalone === true ||
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    }
+    (function() {
+      if (isStandalone()) {
+        const el = document.getElementById('ctaBlock');
+        if (el) el.classList.add('home-installed');
+      }
+    })();
+
+    function ctaShare(e) {
+      if (e) e.preventDefault();
+      fetch('/.netlify/functions/record-share', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cta-archive', date: new Date().toISOString().slice(0, 10) }),
+      }).catch(() => {});
+
+      const shareText = 'Pub Quiz Daily — a free pub quiz, every day. Make each day questionable. 🍺';
+      const shareUrl = 'https://pubquizdaily.com';
+      if (navigator.share) {
+        navigator.share({ title: 'Pub Quiz Daily', text: shareText, url: shareUrl }).catch(() => {});
+      } else {
+        window.open('https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
+      }
+    }
 
     function toggleMenu() {
       document.getElementById('burgerBtn').classList.toggle('open');
