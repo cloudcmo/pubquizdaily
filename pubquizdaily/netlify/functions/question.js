@@ -4,11 +4,11 @@
 //
 // Retention window (added 2026-07-07, Carl's request): to limit copyright
 // exposure from internet-sourced images used to illustrate questions, this
-// endpoint only serves dates within the last CUTOFF_DAYS days. This mirrors
-// the cutoff enforced in build-archive.js for the static weekly pages — it's
-// enforced here too because this dynamic route (/?date=YYYY-MM-DD) can be
-// hit directly for ANY historical date, bypassing the archive/sitemap
-// entirely. Keep both cutoffs in sync (same CUTOFF_DAYS env var / default).
+// endpoint only serves dates within the last CUTOFF_DAYS days. There is no
+// static archive any more (archive.html and the pre-rendered weekly pages
+// were removed 2026-07-07) — this dynamic route is now the ONLY way to view
+// a past date, so this cutoff is the sole enforcement point for the
+// retention window.
 const CUTOFF_DAYS = parseInt(process.env.CUTOFF_DAYS || '10', 10);
 
 exports.handler = async function(event) {

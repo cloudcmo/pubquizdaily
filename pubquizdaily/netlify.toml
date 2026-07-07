@@ -8,19 +8,6 @@
 [functions."daily-report"]
   schedule = "0 5 * * *"
 
-# Daily archive rebuild — pings the build hook so the weekly pages, archive.html
-# and sitemap.xml regenerate. Runs 04:30 UTC, before the 5:00 daily-report.
-# Requires env var BUILD_HOOK_URL (Netlify → Build & deploy → Build hooks).
-[functions."rebuild-archive"]
-  schedule = "30 4 * * *"
-
-# Local build plugin: regenerates the static archive into public/ on every build.
-# Path is RELATIVE (./) so it resolves from this netlify.toml's folder, which is
-# the build root (/opt/build/repo/pubquizdaily). A leading slash would wrongly
-# resolve from the repo root, one level too high — that's why it wasn't loading.
-[[plugins]]
-  package = "./netlify/plugins/generate-archive"
-
 [[headers]]
   for = "/*"
   [headers.values]
