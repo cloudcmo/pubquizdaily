@@ -1,6 +1,15 @@
 // netlify/functions/question.js
 // Fetches all quiz questions for a given date from the 'multi' tab of the Google Sheet
 // Sheet columns: date | question | A | B | C | D | correct | explainer | weekly | image
+//
+// Retention window (added 2026-07-07, Carl's request): to limit copyright
+// exposure from internet-sourced images used to illustrate questions, this
+// endpoint only serves dates within the last CUTOFF_DAYS days. This mirrors
+// the cutoff enforced in build-archive.js for the static weekly pages — it's
+// enforced here too because this dynamic route (/?date=YYYY-MM-DD) can be
+// hit directly for ANY historical date, bypassing the archive/sitemap
+// entirely. Keep both cutoffs in sync (same CUTOFF_DAYS env var / default).
+const CUTOFF_DAYS = parseInt(process.env.CUTOFF_DAYS || '10', 10);
 
 exports.handler = async function(event) {
   const headers = {
@@ -17,6 +26,12 @@ exports.handler = async function(event) {
   }
 
   const requestedDate = event.queryStringParameters?.date || todayISO();
+
+  // Reject dates outside the retention window before touching the sheet at
+  // all — old images/questions should be unreachable, not just unlinked.
+  if (requestedDate < cutoffDateISO(CUTOFF_DAYS)) {
+    return { statusCode: 404, headers, body: JSON.stringify({ error: 'This date is no longer available' }) };
+  }
 
   try {
     const range = encodeURIComponent('multi!A:J');
@@ -77,6 +92,13 @@ exports.handler = async function(event) {
 
 function todayISO() {
   return new Date().toISOString().slice(0, 10);
+}
+
+// Oldest ISO date (inclusive) still within the retention window.
+function cutoffDateISO(days) {
+  const d = new Date();
+  d.setUTCDate(d.getUTCDate() - days);
+  return d.toISOString().slice(0, 10);
 }
 
 function parseFlexDate(str) {
