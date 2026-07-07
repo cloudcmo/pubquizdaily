@@ -24,9 +24,20 @@
  * Data source: the existing /.netlify/functions/question?date=X endpoint, so
  * there is ONE source of truth and no duplicated Google Sheets logic here.
  *
+ * Retention window (added 2026-07-07, Carl's request):
+ *   To limit copyright exposure from internet-sourced images used to
+ *   illustrate questions, the site only keeps a ROLLING window of the most
+ *   recent CUTOFF_DAYS days publicly available. Older weekly pages are
+ *   deleted from the publish dir on every build, and FIRST_DATE is computed
+ *   from the cutoff rather than a fixed launch date. The live dynamic route
+ *   (/.netlify/functions/question) enforces the same cutoff independently —
+ *   see netlify/functions/question.js — so direct date URLs can't be used to
+ *   bypass this.
+ *
  * Usage:
  *   SITE_URL=https://pubquizdaily.com PUBLISH_DIR=. node build-archive.js
- *   (FIRST_DATE defaults to 2026-03-06, matching archive.html)
+ *   CUTOFF_DAYS=10 (default) controls the retention window.
+ *   FIRST_DATE can still be set explicitly to override the computed cutoff.
  * ---------------------------------------------------------------------------
  */
 
@@ -36,7 +47,11 @@ const path = require('path');
 // ── Config ──────────────────────────────────────────────────────────────────
 const SITE_URL    = (process.env.SITE_URL    || 'https://pubquizdaily.com').replace(/\/$/, '');
 const PUBLISH_DIR = process.env.PUBLISH_DIR || '.';
-const FIRST_DATE  = process.env.FIRST_DATE  || '2026-03-06';
+const CUTOFF_DAYS = parseInt(process.env.CUTOFF_DAYS || '10', 10);
+// FIRST_DATE now defaults to a rolling window (today - CUTOFF_DAYS) instead of
+// a fixed launch date, so the archive never grows without bound. addDays/
+// todayISO are function declarations so they're hoisted and safe to call here.
+const FIRST_DATE  = process.env.FIRST_DATE  || addDays(todayISO(), -CUTOFF_DAYS);
 // Where to fetch questions from. In a Netlify build this is the deploy preview /
 // production URL; locally you can point it at production.
 const API_BASE    = (process.env.API_BASE   || SITE_URL).replace(/\/$/, '');
@@ -409,7 +424,7 @@ function renderArchiveIndex(weeks) {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Archive — Pub Quiz Daily</title>
-  <meta name="description" content="Browse every Pub Quiz Daily question, organised by week. Hundreds of free pub quiz questions with answers — replay any past week." />
+  <meta name="description" content="Browse the last ${CUTOFF_DAYS} days of Pub Quiz Daily questions, organised by week. Free pub quiz questions with answers you can replay." />
   <meta name="robots" content="index, follow" />
   <link rel="canonical" href="${SITE_URL}/archive.html" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
@@ -475,7 +490,7 @@ function renderArchiveIndex(weeks) {
   <main>
     <h1 class="page-title">Archive</h1>
     <p class="tagline">Make each day questionable.</p>
-    <p class="page-subtitle">Every question we've ever asked, organised by week. Replay any of them.</p>
+    <p class="page-subtitle">The last ${CUTOFF_DAYS} days of questions, organised by week. Replay any of them — older weeks roll off automatically.</p>
     <div class="archive-list">
 ${items || '      <p class="empty">No questions yet — check back soon!</p>'}
     </div>
@@ -519,7 +534,7 @@ async function main() {
   const today = todayISO();
   console.log(`Pub Quiz Daily archive build`);
   console.log(`  API_BASE=${API_BASE}  SITE_URL=${SITE_URL}  PUBLISH_DIR=${PUBLISH_DIR}`);
-  console.log(`  range ${FIRST_DATE} .. ${today}\n`);
+  console.log(`  range ${FIRST_DATE} .. ${today}  (CUTOFF_DAYS=${CUTOFF_DAYS})\n`);
 
   // Group every date from FIRST_DATE..today into weeks (by week-ending Friday).
   // We DON'T pre-generate the current (incomplete) week's page if its Friday is
@@ -564,13 +579,30 @@ async function main() {
     console.log(`  ✓ quiz/week-${w.friday}.html  (${w.days.length} days, ${n} questions)`);
   });
 
+  // Delete any previously-generated weekly pages that have fallen outside the
+  // retention window. Without this, old pages (and the images they embed)
+  // would stay live indefinitely even though they're no longer linked from
+  // archive.html or the sitemap — still crawlable/guessable by URL.
+  const keepFilenames = new Set(weeks.map(w => `week-${w.friday}.html`));
+  let removed = 0;
+  if (fs.existsSync(QUIZ_DIR)) {
+    for (const name of fs.readdirSync(QUIZ_DIR)) {
+      if (!/^week-\d{4}-\d{2}-\d{2}\.html$/.test(name)) continue; // leave other files alone
+      if (!keepFilenames.has(name)) {
+        fs.unlinkSync(path.join(QUIZ_DIR, name));
+        console.log(`  ✗ removed stale quiz/${name} (outside ${CUTOFF_DAYS}-day window)`);
+        removed++;
+      }
+    }
+  }
+
   fs.writeFileSync(path.join(PUBLISH_DIR, 'archive.html'), renderArchiveIndex(weeksDesc), 'utf8');
   console.log(`  ✓ archive.html  (${weeks.length} weeks)`);
 
   fs.writeFileSync(path.join(PUBLISH_DIR, 'sitemap.xml'), renderSitemap(weeksDesc), 'utf8');
   console.log(`  ✓ sitemap.xml`);
 
-  console.log(`\nDone — ${weeks.length} weekly pages generated.`);
+  console.log(`\nDone — ${weeks.length} weekly pages generated, ${removed} stale page(s) removed.`);
 }
 
 main().catch(err => { console.error('BUILD FAILED:', err); process.exit(1); });
