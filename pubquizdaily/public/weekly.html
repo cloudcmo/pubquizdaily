@@ -311,7 +311,7 @@
 
         card.innerHTML = `
           <div class="q-meta">Q${i + 1} · ${formatDateShort(q.date)}</div>
-          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" />` : ''}
+          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" onerror="this.remove()" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
