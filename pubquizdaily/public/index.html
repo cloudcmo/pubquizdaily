@@ -408,7 +408,7 @@
 
         card.innerHTML = `
           <div class="q-number">Q${i + 1}</div>
-          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" />` : ''}
+          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" onerror="this.remove()" />` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
