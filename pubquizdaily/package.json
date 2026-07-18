@@ -7,7 +7,9 @@
     "node": ">=18"
   },
   "scripts": {
-    "dev": "netlify dev"
+    "dev": "netlify dev",
+    "add-images": "node scripts/add-images.js",
+    "assign-weekly": "node scripts/assign-weekly.js"
   },
   "dependencies": {
     "@netlify/blobs": "^8.1.0"

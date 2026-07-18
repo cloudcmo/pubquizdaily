@@ -3,10 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Weekly Round-up — Pub Quiz Daily</title>
-  <meta name="description" content="The best questions from the past week, hand-picked for the weekly round-up. How many can you get right?" />
-  <meta name="robots" content="index, follow" />
-  <link rel="canonical" href="https://pubquizdaily.com/weekly.html" />
+  <title>Archive — Pub Quiz Daily</title>
+  <meta name="description" content="Play a past week of Pub Quiz Daily and see how you score." />
+  <meta name="robots" content="noindex, follow" />
   <link rel="icon" type="image/x-icon" href="/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -40,14 +39,17 @@
     .nav-menu a:hover { background: var(--cream); }
     .nav-menu a.active { color: var(--correct); }
 
-    main { flex: 1; max-width: 560px; margin: 0 auto; width: 100%; padding: 40px 24px 60px; }
+    main { flex: 1; max-width: 560px; margin: 0 auto; width: 100%; padding: 32px 24px 60px; }
 
-    .page-header { margin-bottom: 36px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--ink-light); text-decoration: none; margin-bottom: 20px; }
+    .back-link:hover { color: var(--ink); }
+
+    .page-header { margin-bottom: 28px; }
     .week-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); margin-bottom: 8px; }
-    .page-title { font-family: var(--font-serif); font-size: 1.75rem; margin-bottom: 8px; }
+    .page-title { font-family: var(--font-serif); font-size: 1.625rem; margin-bottom: 8px; }
     .page-subtitle { font-size: 0.9375rem; color: var(--ink-light); }
 
-    .score-bar { display: flex; align-items: center; gap: 12px; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 32px; position: sticky; top: 12px; z-index: 10; }
+    .score-bar { display: flex; align-items: center; gap: 12px; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 28px; position: sticky; top: 12px; z-index: 10; }
     .score-pips { display: flex; gap: 5px; flex-wrap: wrap; }
     .pip { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
     .pip.correct { background: var(--correct); }
@@ -99,10 +101,10 @@
     .final-message { font-family: var(--font-serif); font-style: italic; font-size: 1.125rem; margin-bottom: 20px; }
     .share-nudge { font-family: var(--font-serif); font-style: italic; font-size: 1rem; color: var(--ink); margin-bottom: 14px; }
     .share-sub { margin-top: 10px; font-size: 0.8125rem; color: var(--ink-faint); }
-    .archive-nudge { display: inline-block; margin-top: 16px; font-size: 0.8125rem; color: var(--ink-light); text-decoration: none; }
-    .archive-nudge:hover { color: var(--ink); }
     .share-btn { display: inline-flex; align-items: center; gap: 10px; padding: 13px 28px; background: #2d6a4f; color: white; border: none; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
     .share-btn:hover { background: #1e4d38; }
+    .archive-nudge { display: inline-block; margin-top: 16px; font-size: 0.8125rem; color: var(--ink-light); text-decoration: none; }
+    .archive-nudge:hover { color: var(--ink); }
 
     .loading { text-align: center; padding: 48px 0; color: var(--ink-light); font-size: 0.875rem; }
     .loading-dots { display: flex; gap: 6px; justify-content: center; margin-bottom: 12px; }
@@ -111,49 +113,10 @@
     .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
     @keyframes dot-pulse { 0%, 80%, 100% { transform: scale(0.7); opacity: 0.5; } 40% { transform: scale(1); opacity: 1; } }
 
-    .email-signup { margin-top: 48px; border-top: 1px solid var(--border); padding-top: 28px; text-align: center; }
-    .email-signup.hidden { display: none; }
-    .signup-label { font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); margin-bottom: 10px; }
-    .signup-row { display: flex; gap: 8px; max-width: 340px; margin: 0 auto; }
-    .signup-input { flex: 1; padding: 10px 14px; font-family: var(--font-sans); font-size: 0.875rem; border: 1px solid var(--border); border-radius: 8px; background: white; color: var(--ink); outline: none; transition: border-color 0.15s; }
-    .signup-input:focus { border-color: var(--ink); }
-    .signup-btn { padding: 10px 16px; background: var(--ink); color: white; border: none; border-radius: 8px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
-    .signup-btn:hover { opacity: 0.8; }
-    .signup-btn:disabled { opacity: 0.5; cursor: default; }
-    .signup-confirm { font-size: 0.8125rem; color: var(--correct); font-weight: 500; display: none; margin-top: 8px; }
-    .signup-confirm.visible { display: block; }
-
+    .empty-state { text-align: center; padding: 48px 24px; color: var(--ink-light); font-size: 0.9rem; line-height: 1.6; }
 
     footer { border-top: 1px solid var(--border); text-align: center; padding: 16px 24px; font-size: 0.75rem; color: var(--ink-faint); }
     footer a { color: inherit; text-decoration: none; }
-
-    .signup-bar { display: none; background: #2d6a4f; color: white; padding: 14px 24px; text-align: center; opacity: 0; transition: opacity 0.4s ease; position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; box-shadow: 0 -2px 12px rgba(0,0,0,0.15); }
-    .signup-bar.visible { display: block; }
-    .signup-bar.shown { opacity: 1; }
-    .signup-bar.fading { opacity: 0; }
-    .signup-bar-inner { max-width: 560px; margin: 0 auto; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
-    .signup-bar-label { font-size: 0.875rem; font-weight: 500; white-space: nowrap; }
-    .signup-bar-input { padding: 7px 12px; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; color: var(--ink); outline: none; width: 200px; }
-    .signup-bar-btn { padding: 7px 16px; background: white; color: #2d6a4f; border: none; border-radius: 6px; font-family: var(--font-sans); font-size: 0.875rem; font-weight: 600; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
-    .signup-bar-btn:hover { opacity: 0.85; }
-    .signup-bar-btn:disabled { opacity: 0.5; cursor: default; }
-    .signup-bar-thanks { font-size: 0.875rem; font-weight: 500; }
-    .signup-bar-close { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; color: rgba(255,255,255,0.7); font-size: 1rem; cursor: pointer; padding: 4px 8px; line-height: 1; }
-    .signup-bar-close:hover { color: white; }
-
-    /* ── Add-to-home + share CTA ── */
-    .cta-block { margin: 40px auto 0; max-width: 560px; text-align: center; border-top: 1px solid var(--border); padding-top: 28px; }
-    .cta-home { display: inline-flex; align-items: center; gap: 13px; background: var(--ink); color: white; text-decoration: none; padding: 14px 22px; border-radius: 12px; transition: opacity 0.15s, transform 0.08s; }
-    .cta-home:hover { opacity: 0.9; transform: translateY(-1px); }
-    .cta-home-icon { width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0; }
-    .cta-home-text { text-align: left; line-height: 1.25; }
-    .cta-home-title { font-size: 0.9375rem; font-weight: 600; }
-    .cta-home-sub { font-size: 0.75rem; font-weight: 400; color: rgba(255,255,255,0.65); }
-    .cta-share-line { margin-top: 14px; font-size: 0.875rem; color: var(--ink-light); }
-    .cta-share-link { color: var(--correct); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
-    .cta-share-link:hover { color: #2d6a4f; }
-    .cta-block.home-installed .cta-home { display: none; }
-    .cta-block.home-installed { padding-top: 0; border-top: none; }
   </style>
 </head>
 <body>
@@ -165,8 +128,8 @@
     </button>
     <nav class="nav-menu" id="navMenu">
       <a href="/">Today's questions</a>
-      <a href="/weekly.html" class="active">Weekly Best-of</a>
-      <a href="/archive.html">Archive</a>
+      <a href="/weekly.html">Weekly Best-of</a>
+      <a href="/archive.html" class="active">Archive</a>
       <a href="/articles.html">Articles</a>
       <a href="/subscribe.html">Friday email</a>
       <a href="https://tomcobleypubquiz.co.uk" target="_blank" rel="noopener">Tom Cobley quiz ↗</a>
@@ -174,10 +137,12 @@
   </header>
 
   <main>
+    <a class="back-link" href="/archive.html">← Back to the archive</a>
+
     <div class="page-header">
-      <p class="week-label" id="weekLabel">Weekly Round-up</p>
-      <h1 class="page-title">The best of the week.</h1>
-      <p class="page-subtitle">Hand-picked questions from the past seven days.</p>
+      <p class="week-label" id="weekLabel">Archive</p>
+      <h1 class="page-title">Play this week.</h1>
+      <p class="page-subtitle">Hand-picked questions from the archive.</p>
     </div>
 
     <div id="app">
@@ -186,87 +151,65 @@
         Loading this week's questions…
       </div>
     </div>
-
-    <div class="email-signup" id="emailSignup">
-      <p class="signup-label">Get this in your inbox every Friday</p>
-      <div class="signup-row">
-        <input class="signup-input" type="email" id="signupEmail" placeholder="your@email.com" />
-        <button class="signup-btn" id="signupBtn" onclick="submitSignup()">Sign up</button>
-      </div>
-      <p class="signup-confirm" id="signupConfirm">You're in! See you next Friday. 🍺</p>
-    </div>
-
-    <div class="cta-block" id="ctaBlock">
-      <a class="cta-home" href="/add-to-home.html">
-        <img class="cta-home-icon" src="/apple-touch-icon.png" alt="" />
-        <span class="cta-home-text">
-          <span class="cta-home-title">Add to home screen</span><br />
-          <span class="cta-home-sub">(you know, like an app)</span>
-        </span>
-      </a>
-      <p class="cta-share-line"><a class="cta-share-link" href="#" onclick="ctaShare(event)">More players means more Pub Quiz Daily</a> 🍺</p>
-      <a class="archive-nudge" href="/archive.html">📚 Play the complete archive →</a>
-    </div>
   </main>
 
-  <footer>Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection#4028252c2c2f003035223135293a2421292c396e232f2d">Send feedback</a></footer>
+  <footer>Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection">Send feedback</a></footer>
 
-  <div class="signup-bar" id="signupBar">
-    <div class="signup-bar-inner" id="signupBarInner">
-      <span class="signup-bar-label">🍺 Get the Friday Best-of in your inbox</span>
-      <input class="signup-bar-input" type="email" id="barEmail" placeholder="your@email.com" onkeydown="if(event.key==='Enter')submitBarSignup()" />
-      <button class="signup-bar-btn" id="barBtn" onclick="submitBarSignup()">Sign up free</button>
-    </div>
-    <div class="signup-bar-thanks" id="signupBarThanks" style="display:none;">You're in! See you Friday. 🍺</div>
-    <button class="signup-bar-close" onclick="closeSignupBar()" aria-label="Close">✕</button>
-  </div>
-
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script data-cfasync="false">
+  <script data-cfasync="false">
     function imageUrl(val) {
       if (!val) return null;
       if (val.startsWith('http')) {
-        // Dropbox shared link — swap dl=0 to raw=1 for direct image access
         return val.replace(/[?&]dl=0$/, match => match[0] + 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
       }
       return `/.netlify/images?url=/pictures/${encodeURIComponent(val)}&w=600&fit=cover`;
     }
-    const LETTERS = ['A','B','C','D'];
-    function weeklyMessage(score, total) {
+    const LETTERS = ['A', 'B', 'C', 'D'];
+
+    function scoreMessage(score, total) {
       const pct = total > 0 ? Math.round((score / total) * 100) : 0;
-      if (score === 0)    return "Zero out of the lot — were you even trying? 😄";
+      if (score === 0)     return "Zero out of the lot — were you even trying? 😄";
       if (score === total) return "Full marks — pub quiz royalty. 👑";
-      if (pct >= 80)     return `${score}/${total} — outstanding effort.`;
-      if (pct >= 60)     return `${score}/${total} — solid pub quizzer.`;
-      if (pct >= 40)     return `${score}/${total} — respectable. Room to grow.`;
-      return `${score}/${total} — better luck next week.`;
+      if (pct >= 80)      return `${score}/${total} — outstanding effort.`;
+      if (pct >= 60)      return `${score}/${total} — solid pub quizzer.`;
+      if (pct >= 40)      return `${score}/${total} — respectable. Room to grow.`;
+      return `${score}/${total} — better luck next time.`;
     }
 
+    const weekParam = new URLSearchParams(location.search).get('week');
     let questions = [];
     let answered  = {};
     let score     = 0;
+    let weekStart = null;
+    let weekEnd   = null;
 
-    async function loadQuestions() {
+    async function loadWeek() {
+      if (!weekParam) { showEmpty(); return; }
       try {
-        const res = await fetch('/.netlify/functions/weekly');
-        if (!res.ok) throw new Error('no weekly questions');
+        const res = await fetch(`/.netlify/functions/archive?week=${encodeURIComponent(weekParam)}`);
+        if (!res.ok) throw new Error('no questions for this week');
         const data = await res.json();
         questions = data.questions || [];
+        weekStart = data.weekStart;
+        weekEnd = data.weekEnd;
         if (questions.length === 0) throw new Error('empty');
 
-        // Week label from date range
-        const dates = questions.map(q => q.date).sort();
-        const oldest = new Date(dates[0] + 'T12:00:00');
-        const newest = new Date(dates[dates.length - 1] + 'T12:00:00');
         const opts = { day: 'numeric', month: 'long' };
-        document.getElementById('weekLabel').textContent =
-          `Weekly Round-up · ${oldest.toLocaleDateString('en-GB', opts)} – ${newest.toLocaleDateString('en-GB', opts)}`;
+        const start = new Date(weekStart + 'T12:00:00');
+        const end = new Date(weekEnd + 'T12:00:00');
+        const rangeText = `${start.toLocaleDateString('en-GB', opts)} – ${end.toLocaleDateString('en-GB', opts)}`;
+        document.getElementById('weekLabel').textContent = `Archive · ${rangeText}`;
+        document.title = `Week of ${rangeText} — Pub Quiz Daily Archive`;
 
         renderAll();
       } catch (err) {
         console.error(err);
-        document.getElementById('app').innerHTML =
-          '<p style="color:var(--ink-light);text-align:center;padding:48px 0">No weekly questions yet — check back soon.</p>';
+        showEmpty();
       }
+    }
+
+    function showEmpty() {
+      document.getElementById('app').innerHTML =
+        '<div class="empty-state">Couldn\'t find that week. <a href="/archive.html">Head back to the archive</a> and pick another.</div>';
     }
 
     function formatDateShort(iso) {
@@ -276,7 +219,6 @@
 
     function renderAll() {
       const app = document.getElementById('app');
-
       const pips = questions.map((_, i) => `<span class="pip" id="pip-${i}"></span>`).join('');
 
       app.innerHTML = `
@@ -295,6 +237,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           </button>
           <p class="share-sub">Sharing includes your score and a link — no spoilers.</p>
+          <a class="archive-nudge" href="/archive.html">📚 Play another week →</a>
         </div>
       `;
 
@@ -350,7 +293,7 @@
 
       document.getElementById('scoreNum').textContent = score;
 
-      fetchWeeklyStat(qi, q.date, q.index, isCorrect);
+      fetchStat(qi, q.date, q.index, isCorrect);
 
       if (Object.keys(answered).length === questions.length) showFinal();
     }
@@ -358,13 +301,12 @@
     function showFinal() {
       const panel = document.getElementById('finalPanel');
       document.getElementById('finalScore').textContent = score;
-      const msg = weeklyMessage(score, questions.length);
-      document.getElementById('finalMessage').textContent = msg;
+      document.getElementById('finalMessage').textContent = scoreMessage(score, questions.length);
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     }
 
-    async function fetchWeeklyStat(qi, date, index, isCorrect) {
+    async function fetchStat(qi, date, index, isCorrect) {
       try {
         const res = await fetch(`/.netlify/functions/record-answer?date=${date}&index=${index}`);
         if (!res.ok) return;
@@ -373,24 +315,21 @@
         const pct = Math.round((correctCount / total) * 100);
         const el = document.getElementById(`stats-${qi}`);
         if (!el) return;
-        if (isCorrect) {
-          el.textContent = pct >= 70 ? `Most people got this — ${pct}% answered correctly`
-            : pct >= 40 ? `${pct}% of daily players got this right`
-            : `Sharp! Only ${pct}% got this one`;
-        } else {
-          el.textContent = pct >= 70 ? `Tricky — ${100 - pct}% also got this wrong`
-            : pct >= 40 ? `${pct}% of daily players got this right`
-            : `Tough one — only ${pct}% got it right`;
-        }
+        el.textContent = isCorrect
+          ? (pct >= 70 ? `Most people got this — ${pct}% answered correctly` : `${pct}% of players got this right`)
+          : (pct >= 70 ? `Tricky — ${100 - pct}% also got this wrong` : `${pct}% of players got this right`);
         el.classList.add('visible');
       } catch {}
     }
 
+    // Sharing a score from a past week should never drop a new visitor
+    // into that specific archived week — link back to the home page so
+    // they land on today's live quiz instead.
     function shareResult() {
       fetch('/.netlify/functions/record-share', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'weekly', date: new Date().toISOString().slice(0, 10) }),
+        body: JSON.stringify({ type: 'archive', date: weekStart || new Date().toISOString().slice(0, 10) }),
       }).catch(() => {});
 
       const emojiRow = questions.map((_, i) => answered[i] === 'correct' ? '🟢' : '🔴').join('');
@@ -398,13 +337,13 @@
       const pct = total > 0 ? Math.round((score / total) * 100) : 0;
 
       let taunt;
-      if (score === total)  taunt = `Full marks on the Weekly Best-of. Can you match it?`;
-      else if (pct >= 80)   taunt = `${score}/${total} on the Weekly Best-of. Reckon you can do better?`;
-      else if (pct >= 60)   taunt = `${score}/${total} this week. The bar is set.`;
+      if (score === total)  taunt = `Full marks on a Pub Quiz Daily archive round. Can you match it?`;
+      else if (pct >= 80)   taunt = `${score}/${total} on a Pub Quiz Daily archive round. Reckon you can do better?`;
+      else if (pct >= 60)   taunt = `${score}/${total}. The bar is set.`;
       else if (score === 0) taunt = `0/${total}. A heroic performance in wrongness. Your go.`;
-      else                  taunt = `${score}/${total} this week. Room at the top.`;
+      else                  taunt = `${score}/${total}. Room at the top.`;
 
-      const text = `🍺 Pub Quiz Daily\n\n${emojiRow}\n\n${taunt}\npubquizdaily.com/weekly`;
+      const text = `🍺 Pub Quiz Daily\n\n${emojiRow}\n\n${taunt}\npubquizdaily.com`;
 
       if (navigator.share) {
         navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
@@ -417,93 +356,10 @@
       }
     }
 
-    const SIGNUP_KEY = 'pqd_subscribed';
-    const DISMISSED_KEY = 'pqd_bar_dismissed';
-
-    function initSignup() {
-      if (localStorage.getItem(SIGNUP_KEY)) {
-        document.getElementById('emailSignup').classList.add('hidden');
-      }
-      if (!localStorage.getItem(SIGNUP_KEY) && !localStorage.getItem(DISMISSED_KEY)) {
-        const bar = document.getElementById('signupBar');
-        bar.classList.add('visible');
-        requestAnimationFrame(() => requestAnimationFrame(() => bar.classList.add('shown')));
-      }
-    }
-
-    function closeSignupBar() {
-      localStorage.setItem(DISMISSED_KEY, '1');
-      const bar = document.getElementById('signupBar');
-      bar.classList.add('fading');
-      setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
-    }
-
-    async function submitBarSignup() {
-      const input = document.getElementById('barEmail');
-      const btn = document.getElementById('barBtn');
-      const email = input.value.trim();
-      if (!email || !email.includes('@')) { input.focus(); return; }
-      btn.disabled = true;
-      btn.textContent = 'Signing up…';
-      try {
-        const res = await fetch('/.netlify/functions/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        if (res.ok) {
-          localStorage.setItem(SIGNUP_KEY, '1');
-          document.getElementById('emailSignup').classList.add('hidden');
-          document.getElementById('signupBarInner').style.display = 'none';
-          document.getElementById('signupBarThanks').style.display = 'block';
-          setTimeout(() => {
-            const bar = document.getElementById('signupBar');
-            bar.classList.add('fading');
-            setTimeout(() => bar.classList.remove('visible', 'shown', 'fading'), 400);
-          }, 2000);
-        } else {
-          btn.disabled = false; btn.textContent = 'Sign up free';
-          input.placeholder = 'Something went wrong — try again';
-        }
-      } catch {
-        btn.disabled = false; btn.textContent = 'Sign up free';
-      }
-    }
-
-    async function submitSignup() {
-      const input = document.getElementById('signupEmail');
-      const btn = document.getElementById('signupBtn');
-      const confirm = document.getElementById('signupConfirm');
-      const email = input.value.trim();
-      if (!email || !email.includes('@')) { input.focus(); return; }
-      btn.disabled = true;
-      btn.textContent = 'Signing up…';
-      try {
-        const res = await fetch('/.netlify/functions/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email }),
-        });
-        if (res.ok) {
-          localStorage.setItem(SIGNUP_KEY, '1');
-          input.style.display = 'none';
-          btn.style.display = 'none';
-          confirm.classList.add('visible');
-          document.querySelector('#emailSignup .signup-label').textContent = "You're on the list!";
-        } else {
-          btn.disabled = false; btn.textContent = 'Sign up';
-          input.placeholder = 'Something went wrong — try again';
-        }
-      } catch {
-        btn.disabled = false; btn.textContent = 'Sign up';
-      }
-    }
-
     function toggleMenu() {
       document.getElementById('burgerBtn').classList.toggle('open');
       document.getElementById('navMenu').classList.toggle('open');
     }
-
     document.addEventListener('click', function(e) {
       if (!e.target.closest('header')) {
         document.getElementById('burgerBtn').classList.remove('open');
@@ -511,37 +367,7 @@
       }
     });
 
-    // ── Add-to-home + share CTA ──
-    function isStandalone() {
-      return window.navigator.standalone === true ||
-        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
-    }
-    (function() {
-      if (isStandalone()) {
-        const el = document.getElementById('ctaBlock');
-        if (el) el.classList.add('home-installed');
-      }
-    })();
-
-    function ctaShare(e) {
-      if (e) e.preventDefault();
-      fetch('/.netlify/functions/record-share', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'cta-weekly', date: new Date().toISOString().slice(0, 10) }),
-      }).catch(() => {});
-
-      const shareText = 'Pub Quiz Daily — the Weekly Best-of. A free pub quiz, every day. 🍺';
-      const shareUrl = 'https://pubquizdaily.com/weekly';
-      if (navigator.share) {
-        navigator.share({ title: 'Pub Quiz Daily', text: shareText, url: shareUrl }).catch(() => {});
-      } else {
-        window.open('https://wa.me/?text=' + encodeURIComponent(shareText + ' ' + shareUrl), '_blank');
-      }
-    }
-
-    loadQuestions();
-    initSignup();
+    loadWeek();
   </script>
 </body>
 </html>
