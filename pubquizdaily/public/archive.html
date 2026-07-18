@@ -55,50 +55,12 @@
 
     .weeks { display: flex; flex-direction: column; gap: 10px; }
 
-    .week-item { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
-    .week-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 18px; background: none; border: none; cursor: pointer; text-align: left; font-family: var(--font-sans); }
-    .week-toggle-text { display: flex; flex-direction: column; gap: 3px; }
+    .week-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: white; border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; text-decoration: none; color: inherit; transition: border-color 0.15s, transform 0.08s; }
+    .week-item:hover { border-color: var(--ink); transform: translateY(-1px); }
+    .week-item-text { display: flex; flex-direction: column; gap: 3px; }
     .week-range { font-family: var(--font-serif); font-size: 1.0625rem; color: var(--ink); }
     .week-count { font-size: 0.75rem; color: var(--ink-light); }
-    .week-chevron { flex-shrink: 0; transition: transform 0.2s; color: var(--ink-light); }
-    .week-item.open .week-chevron { transform: rotate(180deg); }
-
-    .week-panel { display: none; padding: 0 18px 18px; }
-    .week-item.open .week-panel { display: block; }
-
-    .questions { display: flex; flex-direction: column; gap: 14px; padding-top: 4px; }
-
-    .question-card { background: var(--cream); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
-    .question-card.answered-correct { border-color: var(--correct); }
-    .question-card.answered-wrong { border-color: var(--wrong); }
-
-    .q-meta { font-size: 0.7rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-faint); margin-bottom: 8px; }
-    .q-image { width: 100%; border-radius: 8px; margin-bottom: 12px; display: block; max-height: 220px; object-fit: cover; }
-    .q-text { font-family: var(--font-serif); font-size: 1rem; line-height: 1.45; margin-bottom: 12px; }
-
-    .options { display: flex; flex-direction: column; gap: 6px; }
-    .option-btn { display: flex; align-items: center; gap: 12px; width: 100%; padding: 10px 13px; background: white; border: 1px solid var(--border); border-radius: 7px; cursor: pointer; text-align: left; font-family: var(--font-sans); font-size: 0.8437rem; color: var(--ink); transition: border-color 0.1s, background 0.1s; -webkit-tap-highlight-color: transparent; }
-    .option-btn:hover:not(:disabled) { border-color: var(--ink); }
-    .option-btn:disabled { cursor: default; }
-
-    .option-letter { display: flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--border); font-size: 0.65rem; font-weight: 600; flex-shrink: 0; color: var(--ink-light); transition: background 0.1s, border-color 0.1s, color 0.1s; }
-
-    .option-btn.correct { background: var(--correct-bg); border-color: var(--correct); }
-    .option-btn.correct .option-letter { background: var(--correct); border-color: var(--correct); color: white; }
-    .option-btn.correct .option-letter::after { content: '✓'; }
-    .option-btn.correct .option-text { color: var(--correct); font-weight: 500; }
-    .option-btn.wrong { background: var(--wrong-bg); border-color: var(--wrong); }
-    .option-btn.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: white; }
-    .option-btn.wrong .option-letter::after { content: '✗'; }
-    .option-btn.wrong .option-text { color: var(--wrong); }
-    .option-btn.correct .option-letter,
-    .option-btn.wrong .option-letter { font-size: 0; }
-    .option-btn.correct .option-letter::after,
-    .option-btn.wrong .option-letter::after { font-size: 0.65rem; }
-    .option-btn.muted { opacity: 0.38; }
-
-    .explainer { margin-top: 10px; font-size: 0.8rem; color: var(--ink-light); line-height: 1.5; display: none; padding-top: 10px; border-top: 1px solid var(--border); }
-    .explainer.visible { display: block; }
+    .week-arrow { flex-shrink: 0; color: var(--ink-light); }
 
     .empty-state { text-align: center; padding: 48px 24px; color: var(--ink-light); font-size: 0.9rem; line-height: 1.6; }
 
@@ -140,25 +102,14 @@
   <footer>Fresh questions. Every day. &nbsp;·&nbsp; Pub Quiz Daily &nbsp;·&nbsp; <a href="/cdn-cgi/l/email-protection">Send feedback</a></footer>
 
   <script data-cfasync="false">
-    function imageUrl(val) {
-      if (!val) return null;
-      if (val.startsWith('http')) {
-        return val.replace(/[?&]dl=0$/, match => match[0] + 'raw=1').replace('www.dropbox.com', 'dl.dropboxusercontent.com');
-      }
-      return `/.netlify/images?url=/pictures/${encodeURIComponent(val)}&w=600&fit=cover`;
-    }
-    const LETTERS = ['A', 'B', 'C', 'D'];
-
-    let weeks = [];
-
     async function loadArchive() {
       try {
         const res = await fetch('/.netlify/functions/archive');
         if (!res.ok) throw new Error('no archive data');
         const data = await res.json();
-        weeks = data.weeks || [];
+        const weeks = data.weeks || [];
         if (weeks.length === 0) throw new Error('empty');
-        renderWeeks();
+        renderWeeks(weeks);
       } catch (err) {
         console.error(err);
         document.getElementById('app').innerHTML =
@@ -173,93 +124,24 @@
       return `${start.toLocaleDateString('en-GB', opts)} – ${end.toLocaleDateString('en-GB', opts)}`;
     }
 
-    function renderWeeks() {
+    function renderWeeks(weeks) {
       const app = document.getElementById('app');
       app.innerHTML = `<div class="weeks" id="weeksList"></div>`;
       const list = document.getElementById('weeksList');
 
-      weeks.forEach((week, wi) => {
-        const item = document.createElement('div');
+      weeks.forEach(week => {
+        const item = document.createElement('a');
         item.className = 'week-item';
-        item.id = `week-${wi}`;
+        item.href = `/archive-week.html?week=${encodeURIComponent(week.weekStart)}`;
         item.innerHTML = `
-          <button class="week-toggle" onclick="toggleWeek(${wi})">
-            <span class="week-toggle-text">
-              <span class="week-range">${formatRange(week.weekStart, week.weekEnd)}</span>
-              <span class="week-count">${week.questions.length} question${week.questions.length === 1 ? '' : 's'}</span>
-            </span>
-            <svg class="week-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="week-panel">
-            <div class="questions" id="questions-${wi}"></div>
-          </div>
+          <span class="week-item-text">
+            <span class="week-range">${formatRange(week.weekStart, week.weekEnd)}</span>
+            <span class="week-count">${week.count} question${week.count === 1 ? '' : 's'}</span>
+          </span>
+          <svg class="week-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         `;
         list.appendChild(item);
       });
-    }
-
-    function toggleWeek(wi) {
-      const item = document.getElementById(`week-${wi}`);
-      const wasOpen = item.classList.contains('open');
-      item.classList.toggle('open');
-
-      // Render the questions the first time this week is opened.
-      const container = document.getElementById(`questions-${wi}`);
-      if (!wasOpen && !container.dataset.rendered) {
-        container.dataset.rendered = '1';
-        renderQuestions(wi, container);
-      }
-    }
-
-    function renderQuestions(wi, container) {
-      const week = weeks[wi];
-      week.questions.forEach((q, qi) => {
-        const card = document.createElement('div');
-        card.className = 'question-card';
-        card.id = `card-${wi}-${qi}`;
-
-        const optionsHtml = q.options.map((text, oi) => `
-          <button class="option-btn" data-letter="${LETTERS[oi]}" onclick="handleAnswer(${wi}, ${qi}, '${LETTERS[oi]}')">
-            <span class="option-letter">${LETTERS[oi]}</span>
-            <span class="option-text">${text}</span>
-          </button>
-        `).join('');
-
-        card.innerHTML = `
-          <div class="q-meta">${formatDateShort(q.date)}</div>
-          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" loading="lazy" onerror="this.remove()" />` : ''}
-          <div class="q-text">${q.question}</div>
-          <div class="options">${optionsHtml}</div>
-          ${q.explainer ? `<div class="explainer" id="explainer-${wi}-${qi}">${q.explainer}</div>` : ''}
-        `;
-        container.appendChild(card);
-      });
-    }
-
-    function formatDateShort(iso) {
-      const d = new Date(iso + 'T12:00:00');
-      return d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
-    }
-
-    function handleAnswer(wi, qi, chosen) {
-      const card = document.getElementById(`card-${wi}-${qi}`);
-      if (card.dataset.answered) return;
-      card.dataset.answered = '1';
-
-      const q = weeks[wi].questions[qi];
-      const isCorrect = chosen === q.correct;
-      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
-
-      card.querySelectorAll('.option-btn').forEach(btn => {
-        btn.disabled = true;
-        const l = btn.dataset.letter;
-        if (l === q.correct) btn.classList.add('correct');
-        else if (l === chosen && !isCorrect) btn.classList.add('wrong');
-        else btn.classList.add('muted');
-      });
-
-      const exp = document.getElementById(`explainer-${wi}-${qi}`);
-      if (exp) exp.classList.add('visible');
     }
 
     function toggleMenu() {

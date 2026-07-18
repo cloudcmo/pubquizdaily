@@ -1,8 +1,13 @@
 // netlify/functions/archive.js
 // Groups every question in the sheet into calendar weeks (Monday–Sunday)
-// and returns, for each week, the questions marked 'W' in column I —
-// the same weekly round-up picks used by weekly.js, just for every past
-// week instead of only the last 7 days.
+// and returns the questions marked 'W' in column I — the same weekly
+// round-up picks used by weekly.js, just for every past week instead of
+// only the last 7 days.
+//
+// GET /archive              -> lightweight list of every week (no question
+//                               content, just counts) — used by archive.html
+// GET /archive?week=YYYY-MM-DD -> full question detail for one week —
+//                               used by archive-week.html to actually play it
 //
 // Weeks with no 'W' rows yet simply don't appear. Run
 // scripts/assign-weekly.js to backfill a consistent round-up for every
@@ -22,6 +27,7 @@ exports.handler = async function(event) {
 
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
   const API_KEY  = process.env.GOOGLE_API_KEY;
+  const weekParam = event.queryStringParameters?.week || null;
 
   if (!SHEET_ID || !API_KEY) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing environment variables' }) };
@@ -66,15 +72,28 @@ exports.handler = async function(event) {
       });
     });
 
+    // Single-week detail — full question content for archive-week.html
+    if (weekParam) {
+      const questions = weeksMap.get(weekParam);
+      if (!questions) {
+        return { statusCode: 404, headers, body: JSON.stringify({ error: 'No questions for this week' }) };
+      }
+      questions.sort((a, b) => a.date.localeCompare(b.date));
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ weekStart: weekParam, weekEnd: addDays(weekParam, 6), questions }),
+      };
+    }
+
+    // Index listing — lightweight, no question content, just used to
+    // render the list of weeks on archive.html.
     const weeks = Array.from(weeksMap.entries())
-      .map(([weekStart, questions]) => {
-        questions.sort((a, b) => a.date.localeCompare(b.date));
-        return {
-          weekStart,
-          weekEnd: addDays(weekStart, 6),
-          questions,
-        };
-      })
+      .map(([weekStart, questions]) => ({
+        weekStart,
+        weekEnd: addDays(weekStart, 6),
+        count: questions.length,
+      }))
       .sort((a, b) => b.weekStart.localeCompare(a.weekStart)); // most recent first
 
     return {
