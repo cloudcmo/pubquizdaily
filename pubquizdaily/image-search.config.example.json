@@ -1,0 +1,7 @@
+{
+  "sheetId": "your Google Sheet ID — same one used for GOOGLE_SHEET_ID in Netlify",
+  "pexelsApiKey": "your free Pexels API key from https://www.pexels.com/api/",
+  "googleServiceAccount": {
+    "paste the entire contents of your downloaded service account JSON key here": "including client_email and private_key"
+  }
+}
