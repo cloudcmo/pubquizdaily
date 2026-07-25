@@ -8,6 +8,15 @@
 [functions."daily-report"]
   schedule = "0 5 * * *"
 
+# Weekly Best-of — DST-proof. Each fires at two UTC times; the function only
+# proceeds at the correct Europe/London hour, so it stays 18:30 / 06:30 UK
+# whether it's BST or GMT.
+[functions."weekly-preview"]
+  schedule = "30 17,18 * * 4"
+
+[functions."weekly-broadcast"]
+  schedule = "30 5,6 * * 5"
+
 [[headers]]
   for = "/*"
   [headers.values]

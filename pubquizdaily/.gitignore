@@ -1,4 +1,7 @@
 .DS_Store
-.DS_Store
 image-search.config.json
 image-search-results.json
+
+# Contact list exports — contain subscriber emails, never commit
+audience_export_*/
+_to_delete/
