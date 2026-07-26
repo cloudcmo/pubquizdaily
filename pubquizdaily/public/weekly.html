@@ -154,6 +154,17 @@
     .cta-share-link:hover { color: #2d6a4f; }
     .cta-block.home-installed .cta-home { display: none; }
     .cta-block.home-installed { padding-top: 0; border-top: none; }
+    /* ── "Give me another" endless bonus round ── */
+    .bonus-round { margin-top: 28px; }
+    .bonus-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .bonus-header-line { flex: 1; height: 1px; background: var(--border); }
+    .bonus-header-text { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+    .bonus-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #b07a2e; margin-bottom: 10px; }
+    .bonus-round .questions { margin-bottom: 16px; }
+    .bonus-btn { display: block; width: 100%; padding: 14px 20px; background: white; color: var(--ink); border: 1.5px solid var(--border); border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.08s; }
+    .bonus-btn:hover:not(:disabled) { border-color: var(--correct); background: var(--correct-bg); transform: translateY(-1px); }
+    .bonus-btn:disabled { opacity: 0.6; cursor: default; }
+    .bonus-sub { margin-top: 10px; text-align: center; font-size: 0.8125rem; color: var(--ink-light); }
   </style>
 </head>
 <body>
@@ -296,6 +307,16 @@
           </button>
           <p class="share-sub">Sharing includes your score and a link — no spoilers.</p>
         </div>
+        <div class="bonus-round" id="bonusRound" style="display:none;">
+          <div class="bonus-header">
+            <span class="bonus-header-line"></span>
+            <span class="bonus-header-text">Keep going</span>
+            <span class="bonus-header-line"></span>
+          </div>
+          <div class="questions" id="bonusList"></div>
+          <button class="bonus-btn" id="bonusBtn" onclick="serveBonusQuestion()">Give me another →</button>
+          <p class="bonus-sub" id="bonusSub">Random questions from the archive. Just for fun — won't affect your score or streak.</p>
+        </div>
       `;
 
       const list = document.getElementById('questionsList');
@@ -362,6 +383,7 @@
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      showBonusRound();
     }
 
     async function fetchWeeklyStat(qi, date, index, isCorrect) {
@@ -510,6 +532,115 @@
         document.getElementById('navMenu').classList.remove('open');
       }
     });
+
+
+    // ── "Give me another" endless bonus round ──
+    // Pulls random PAST questions from /more and lets the player keep going
+    // forever. Deliberately kept separate from the real game: it never touches
+    // score, pips, streak, stats, the final panel or the share buttons.
+    let __bonusPool = null;
+    let __bonusOrder = [];
+    let __bonusPtr = 0;
+    let __bonusN = 0;
+    const __bonusSeen = new Set();
+
+    function showBonusRound() {
+      const el = document.getElementById('bonusRound');
+      if (el) el.style.display = 'block';
+    }
+
+    function __bonusShuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function __bonusEsc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    async function __ensureBonusPool() {
+      if (__bonusPool) return __bonusPool;
+      const res = await fetch('/.netlify/functions/more');
+      if (!res.ok) throw new Error('no bonus pool');
+      const data = await res.json();
+      __bonusPool = (data.questions || []).filter(q => q && Array.isArray(q.options) && q.options.length === 4 && q.correct);
+      __bonusOrder = __bonusShuffle([...__bonusPool.keys()]);
+      __bonusPtr = 0;
+      return __bonusPool;
+    }
+
+    async function serveBonusQuestion() {
+      const btn = document.getElementById('bonusBtn');
+      const sub = document.getElementById('bonusSub');
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Finding one…';
+      try {
+        const pool = await __ensureBonusPool();
+        if (!pool.length) { btn.style.display = 'none'; if (sub) sub.textContent = 'No archive questions available right now.'; return; }
+        let q = null;
+        for (let tries = 0; tries < pool.length + 1; tries++) {
+          if (__bonusPtr >= __bonusOrder.length) { __bonusOrder = __bonusShuffle([...pool.keys()]); __bonusPtr = 0; __bonusSeen.clear(); }
+          const cand = pool[__bonusOrder[__bonusPtr++]];
+          if (!__bonusSeen.has(cand.question)) { q = cand; break; }
+        }
+        if (!q) q = pool[Math.floor(Math.random() * pool.length)];
+        __bonusSeen.add(q.question);
+        __renderBonusCard(q, __bonusN++);
+        if (sub) sub.style.display = 'none';
+        btn.style.display = 'none'; // reappears once they answer
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    }
+
+    function __renderBonusCard(q, n) {
+      const list = document.getElementById('bonusList');
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `bonus-card-${n}`;
+      card.dataset.correct = (q.correct || '').toUpperCase();
+      const optionsHtml = q.options.map((text, oi) => `
+        <button class="option-btn" data-letter="${LETTERS[oi]}" onclick="handleBonusAnswer(${n}, '${LETTERS[oi]}')">
+          <span class="option-letter">${LETTERS[oi]}</span>
+          <span class="option-text">${__bonusEsc(text)}</span>
+        </button>
+      `).join('');
+      card.innerHTML = `
+        <div class="bonus-tag">Bonus</div>
+        ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()" />` : ''}
+        <div class="q-text">${__bonusEsc(q.question)}</div>
+        <div class="options">${optionsHtml}</div>
+        ${q.explainer ? `<div class="explainer" id="bonus-exp-${n}">${__bonusEsc(q.explainer)}</div>` : ''}
+      `;
+      list.appendChild(card);
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+    }
+
+    function handleBonusAnswer(n, chosen) {
+      const card = document.getElementById(`bonus-card-${n}`);
+      if (!card || card.dataset.answered) return;
+      card.dataset.answered = '1';
+      const correct = card.dataset.correct;
+      const isCorrect = chosen === correct;
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+      card.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        const l = b.dataset.letter;
+        if (l === correct) b.classList.add('correct');
+        else if (l === chosen && !isCorrect) b.classList.add('wrong');
+        else b.classList.add('muted');
+      });
+      const exp = document.getElementById(`bonus-exp-${n}`);
+      if (exp) exp.classList.add('visible');
+      if (isCorrect && typeof triggerConfetti === 'function') triggerConfetti();
+      const btn = document.getElementById('bonusBtn');
+      if (btn) { btn.disabled = false; btn.textContent = 'Give me another →'; btn.style.display = ''; }
+    }
 
     // ── Add-to-home + share CTA ──
     function isStandalone() {
