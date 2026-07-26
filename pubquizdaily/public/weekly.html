@@ -155,14 +155,14 @@
     .cta-block.home-installed .cta-home { display: none; }
     .cta-block.home-installed { padding-top: 0; border-top: none; }
     /* ── "Give me another" endless bonus round ── */
-    .bonus-round { margin-top: 28px; }
+    .bonus-round { margin: 0 0 26px; }
     .bonus-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
     .bonus-header-line { flex: 1; height: 1px; background: var(--border); }
     .bonus-header-text { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
-    .bonus-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #b07a2e; margin-bottom: 10px; }
+    .bonus-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #b5560d; margin-bottom: 10px; }
     .bonus-round .questions { margin-bottom: 16px; }
-    .bonus-btn { display: block; width: 100%; padding: 14px 20px; background: white; color: var(--ink); border: 1.5px solid var(--border); border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 600; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.08s; }
-    .bonus-btn:hover:not(:disabled) { border-color: var(--correct); background: var(--correct-bg); transform: translateY(-1px); }
+    .bonus-btn { display: block; width: 100%; padding: 15px 22px; background: #fce6d2; color: #a24e0c; border: 1.5px solid #f0c197; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.01em; cursor: pointer; box-shadow: 0 1px 2px rgba(180,100,30,0.10); transition: background 0.12s, border-color 0.12s, transform 0.08s; }
+    .bonus-btn:hover:not(:disabled) { background: #f9d7b8; border-color: #e6a86f; transform: translateY(-1px); }
     .bonus-btn:disabled { opacity: 0.6; cursor: default; }
     .bonus-sub { margin-top: 10px; text-align: center; font-size: 0.8125rem; color: var(--ink-light); }
   </style>
@@ -291,6 +291,16 @@
       const pips = questions.map((_, i) => `<span class="pip" id="pip-${i}"></span>`).join('');
 
       app.innerHTML = `
+        <div class="bonus-round" id="bonusRound" style="display:none;">
+          <div class="bonus-header">
+            <span class="bonus-header-line"></span>
+            <span class="bonus-header-text">Keep going</span>
+            <span class="bonus-header-line"></span>
+          </div>
+          <div class="questions" id="bonusList"></div>
+          <button class="bonus-btn" id="bonusBtn" onclick="serveBonusQuestion()">NEW: Give Me Another →</button>
+          <p class="bonus-sub" id="bonusSub">Random questions from the archive. Just for fun — won't affect your score or streak.</p>
+        </div>
         <div class="score-bar">
           <div class="score-pips">${pips}</div>
           <span class="score-label"><span class="score-number" id="scoreNum">0</span> / ${questions.length}</span>
@@ -306,16 +316,6 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
           </button>
           <p class="share-sub">Sharing includes your score and a link — no spoilers.</p>
-        </div>
-        <div class="bonus-round" id="bonusRound" style="display:none;">
-          <div class="bonus-header">
-            <span class="bonus-header-line"></span>
-            <span class="bonus-header-text">Keep going</span>
-            <span class="bonus-header-line"></span>
-          </div>
-          <div class="questions" id="bonusList"></div>
-          <button class="bonus-btn" id="bonusBtn" onclick="serveBonusQuestion()">Give me another →</button>
-          <p class="bonus-sub" id="bonusSub">Random questions from the archive. Just for fun — won't affect your score or streak.</p>
         </div>
       `;
 
@@ -639,7 +639,7 @@
       if (exp) exp.classList.add('visible');
       if (isCorrect && typeof triggerConfetti === 'function') triggerConfetti();
       const btn = document.getElementById('bonusBtn');
-      if (btn) { btn.disabled = false; btn.textContent = 'Give me another →'; btn.style.display = ''; }
+      if (btn) { btn.disabled = false; btn.textContent = 'NEW: Give Me Another →'; btn.style.display = ''; }
     }
 
     // ── Add-to-home + share CTA ──
