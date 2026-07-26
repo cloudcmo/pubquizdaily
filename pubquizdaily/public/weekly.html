@@ -154,6 +154,27 @@
     .cta-share-link:hover { color: #2d6a4f; }
     .cta-block.home-installed .cta-home { display: none; }
     .cta-block.home-installed { padding-top: 0; border-top: none; }
+    /* ── "Give me another" endless bonus round ── */
+    .bonus-round { margin: 16px 0 0; }
+    .bonus-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+    .bonus-header-line { flex: 1; height: 1px; background: var(--border); }
+    .bonus-header-text { font-size: 0.7rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-faint); }
+    .bonus-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: #b5560d; margin-bottom: 10px; }
+    .bonus-round .questions { margin-bottom: 16px; }
+    .bonus-btn { display: block; width: 100%; padding: 15px 22px; background: #fce6d2; color: #a24e0c; border: 1.5px solid #f0c197; border-radius: 10px; font-family: var(--font-sans); font-size: 0.9375rem; font-weight: 700; letter-spacing: 0.01em; cursor: pointer; box-shadow: 0 1px 2px rgba(180,100,30,0.10); transition: background 0.12s, border-color 0.12s, transform 0.08s; }
+    .bonus-btn:hover:not(:disabled) { background: #f9d7b8; border-color: #e6a86f; transform: translateY(-1px); }
+    .bonus-btn { animation: bonus-glow 2.8s ease-in-out infinite; }
+    @keyframes bonus-glow { 0%, 100% { box-shadow: 0 1px 2px rgba(180,100,30,0.10); } 50% { box-shadow: 0 3px 16px rgba(232,134,46,0.38); } }
+    .bonus-cta { position: relative; }
+    .bstar { position: absolute; pointer-events: none; line-height: 1; opacity: 0; text-shadow: 0 0 6px rgba(240,161,84,0.6); animation: bonus-twinkle 2.4s ease-in-out infinite; }
+    @keyframes bonus-twinkle { 0%, 100% { opacity: 0.15; transform: scale(0.7) rotate(0deg); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
+    .bstar1 { top: -9px; left: 7%; font-size: 14px; color: #f2a154; animation-delay: 0s; }
+    .bstar2 { top: -13px; right: 13%; font-size: 19px; color: #e8862e; animation-delay: 0.6s; }
+    .bstar3 { bottom: -10px; left: 15%; font-size: 12px; color: #f4b56b; animation-delay: 1.1s; }
+    .bstar4 { bottom: -12px; right: 8%; font-size: 17px; color: #e79b3f; animation-delay: 1.7s; }
+    @media (prefers-reduced-motion: reduce) { .bstar, .bonus-btn { animation: none; } .bstar { opacity: 0.7; } }
+    .bonus-btn:disabled { opacity: 0.6; cursor: default; }
+    .bonus-sub { margin-top: 10px; text-align: center; font-size: 0.8125rem; color: var(--ink-light); }
   </style>
 </head>
 <body>
@@ -285,6 +306,16 @@
           <span class="score-label"><span class="score-number" id="scoreNum">0</span> / ${questions.length}</span>
         </div>
         <div class="questions" id="questionsList"></div>
+        <div class="bonus-round" id="bonusRound" style="display:none;">
+          <div class="bonus-header">
+            <span class="bonus-header-line"></span>
+            <span class="bonus-header-text">Keep going</span>
+            <span class="bonus-header-line"></span>
+          </div>
+          <div class="questions" id="bonusList"></div>
+          <div class="bonus-cta" id="bonusCta"><span class="bstar bstar1">✦</span><span class="bstar bstar2">✦</span><span class="bstar bstar3">✦</span><span class="bstar bstar4">✦</span><button class="bonus-btn" id="bonusBtn" onclick="serveBonusQuestion()">NEW: Give Me Another →</button></div>
+          <p class="bonus-sub" id="bonusSub">Infinite pub quizzing!</p>
+        </div>
         <div class="final-panel" id="finalPanel">
           <div class="final-score" id="finalScore">0</div>
           <div class="final-out-of">out of ${questions.length}</div>
@@ -362,6 +393,7 @@
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+      showBonusRound();
     }
 
     async function fetchWeeklyStat(qi, date, index, isCorrect) {
@@ -510,6 +542,115 @@
         document.getElementById('navMenu').classList.remove('open');
       }
     });
+
+
+    // ── "Give me another" endless bonus round ──
+    // Pulls random PAST questions from /more and lets the player keep going
+    // forever. Deliberately kept separate from the real game: it never touches
+    // score, pips, streak, stats, the final panel or the share buttons.
+    let __bonusPool = null;
+    let __bonusOrder = [];
+    let __bonusPtr = 0;
+    let __bonusN = 0;
+    const __bonusSeen = new Set();
+
+    function showBonusRound() {
+      const el = document.getElementById('bonusRound');
+      if (el) el.style.display = 'block';
+    }
+
+    function __bonusShuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function __bonusEsc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    }
+
+    async function __ensureBonusPool() {
+      if (__bonusPool) return __bonusPool;
+      const res = await fetch('/.netlify/functions/more');
+      if (!res.ok) throw new Error('no bonus pool');
+      const data = await res.json();
+      __bonusPool = (data.questions || []).filter(q => q && Array.isArray(q.options) && q.options.length === 4 && q.correct);
+      __bonusOrder = __bonusShuffle([...__bonusPool.keys()]);
+      __bonusPtr = 0;
+      return __bonusPool;
+    }
+
+    async function serveBonusQuestion() {
+      const btn = document.getElementById('bonusBtn');
+      const sub = document.getElementById('bonusSub');
+      btn.disabled = true;
+      const orig = btn.textContent;
+      btn.textContent = 'Finding one…';
+      try {
+        const pool = await __ensureBonusPool();
+        if (!pool.length) { const cta = document.getElementById('bonusCta'); if (cta) cta.style.display = 'none'; if (sub) sub.textContent = 'No archive questions available right now.'; return; }
+        let q = null;
+        for (let tries = 0; tries < pool.length + 1; tries++) {
+          if (__bonusPtr >= __bonusOrder.length) { __bonusOrder = __bonusShuffle([...pool.keys()]); __bonusPtr = 0; __bonusSeen.clear(); }
+          const cand = pool[__bonusOrder[__bonusPtr++]];
+          if (!__bonusSeen.has(cand.question)) { q = cand; break; }
+        }
+        if (!q) q = pool[Math.floor(Math.random() * pool.length)];
+        __bonusSeen.add(q.question);
+        __renderBonusCard(q, __bonusN++);
+        if (sub) sub.style.display = 'none';
+        { const cta = document.getElementById('bonusCta'); if (cta) cta.style.display = 'none'; } // star button hides until answered
+      } catch (e) {
+        btn.disabled = false;
+        btn.textContent = orig;
+      }
+    }
+
+    function __renderBonusCard(q, n) {
+      const list = document.getElementById('bonusList');
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `bonus-card-${n}`;
+      card.dataset.correct = (q.correct || '').toUpperCase();
+      const optionsHtml = q.options.map((text, oi) => `
+        <button class="option-btn" data-letter="${LETTERS[oi]}" onclick="handleBonusAnswer(${n}, '${LETTERS[oi]}')">
+          <span class="option-letter">${LETTERS[oi]}</span>
+          <span class="option-text">${__bonusEsc(text)}</span>
+        </button>
+      `).join('');
+      card.innerHTML = `
+        <div class="bonus-tag">Bonus</div>
+        ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()" />` : ''}
+        <div class="q-text">${__bonusEsc(q.question)}</div>
+        <div class="options">${optionsHtml}</div>
+        ${q.explainer ? `<div class="explainer" id="bonus-exp-${n}">${__bonusEsc(q.explainer)}</div>` : ''}
+      `;
+      list.appendChild(card);
+      setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+    }
+
+    function handleBonusAnswer(n, chosen) {
+      const card = document.getElementById(`bonus-card-${n}`);
+      if (!card || card.dataset.answered) return;
+      card.dataset.answered = '1';
+      const correct = card.dataset.correct;
+      const isCorrect = chosen === correct;
+      card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+      card.querySelectorAll('.option-btn').forEach(b => {
+        b.disabled = true;
+        const l = b.dataset.letter;
+        if (l === correct) b.classList.add('correct');
+        else if (l === chosen && !isCorrect) b.classList.add('wrong');
+        else b.classList.add('muted');
+      });
+      const exp = document.getElementById(`bonus-exp-${n}`);
+      if (exp) exp.classList.add('visible');
+      if (isCorrect && typeof triggerConfetti === 'function') triggerConfetti();
+      const btn = document.getElementById('bonusBtn');
+      if (btn) { btn.disabled = false; btn.textContent = 'NEW: Give Me Another →'; const cta = document.getElementById('bonusCta'); if (cta) cta.style.display = ''; }
+    }
 
     // ── Add-to-home + share CTA ──
     function isStandalone() {
