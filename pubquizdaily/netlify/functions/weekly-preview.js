@@ -26,7 +26,9 @@ const MIN_SAMPLE = 4;                 // hide a % until at least this many answe
 // models in turn. Old model names get retired by Google (gemini-1.5-flash is
 // gone), so we never hard-depend on a single one — and if all fail we fall back
 // to templated copy and say why in the admin preview.
-const GEMINI_MODELS = [process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'].filter(Boolean);
+// Preferred models tried first (fast path). If all fail, callGemini discovers
+// what the key can actually use via ListModels. GEMINI_MODEL env overrides.
+const GEMINI_MODELS = [process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'].filter(Boolean);
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -176,47 +178,101 @@ function pickSubjectQuestion(questions, fridayISO) {
   return pool[week % pool.length];
 }
 
-// Calls Gemini, trying each model in GEMINI_MODELS until one answers. Returns
-// { text, model }. Throws with a readable reason (surfaced in the admin preview
-// so a missing key, a retired model, or truncation is obvious, not silent).
-//
-// Current Flash models "think" by default and burn the whole output budget on
-// internal reasoning, returning empty/truncated text. We disable thinking
-// (thinkingBudget: 0) so the budget goes to the actual copy. If a model rejects
-// that field (400), we retry that same model without it.
+// Ask the API which models THIS key can actually call for generateContent.
+// Model availability varies by project/account (new projects get 404
+// "no longer available to new users" for older names), so we discover rather
+// than hard-depend on a list.
+async function listGenerateModels(key) {
+  try {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=1000`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.models || [])
+      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
+      .map(m => (m.name || '').replace(/^models\//, ''))
+      .filter(Boolean);
+  } catch { return []; }
+}
+
+// Prefer newer, general Flash models; avoid preview/experimental and non-text.
+function rankModel(a, b) {
+  const score = n => {
+    let s = 0;
+    if (/latest/.test(n)) s += 1000;
+    if (/flash/.test(n)) s += 500;
+    if (/lite/.test(n)) s -= 40;
+    if (/preview|exp|thinking|image|tts|audio|embedding|vision/.test(n)) s -= 300;
+    const m = n.match(/gemini-(\d+(?:\.\d+)?)/);
+    if (m) s += parseFloat(m[1]) * 10;
+    return s;
+  };
+  return score(b) - score(a);
+}
+
+// Try one model. Disables "thinking" (thinkingBudget:0) so the token budget goes
+// to the answer, not hidden reasoning — current Flash models otherwise return
+// truncated/empty text. Uses a generous ceiling. If a model rejects thinkingConfig
+// (400), retries it without that field. Returns { ok, text } or { ok:false, err }.
+async function tryModel(model, prompt, generationConfig, key) {
+  const big = Math.max(generationConfig.maxOutputTokens || 0, 2048);
+  const configs = [
+    { ...generationConfig, maxOutputTokens: big, thinkingConfig: { thinkingBudget: 0 } },
+    { ...generationConfig, maxOutputTokens: big },
+  ];
+  let err = 'not tried';
+  for (const cfg of configs) {
+    let res;
+    try {
+      res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+        { method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: cfg }) }
+      );
+    } catch (e) { err = e.message; break; }
+    if (!res.ok) {
+      err = `${res.status} ${(await res.text()).replace(/\s+/g, ' ').slice(0, 90)}`;
+      if (res.status === 400 && cfg.thinkingConfig) continue; // maybe the thinking field; retry without it
+      break;
+    }
+    const cand = (await res.json())?.candidates?.[0];
+    const text = (cand?.content?.parts?.map(p => p.text).filter(Boolean).join('') || '').trim();
+    if (text) return { ok: true, text };
+    err = `empty (finishReason ${cand?.finishReason || '?'})`;
+    if (cfg.thinkingConfig) continue; // truncated by thinking; the no-think retry may help
+    break;
+  }
+  return { ok: false, err };
+}
+
+// Calls Gemini for `prompt`. Tries the preferred models first, then whatever the
+// key reports it can use (Flash preferred). Returns { text, model }. On total
+// failure, throws with every attempt AND the list of models the key can use, so
+// the admin preview names exactly what to switch to.
+let _workingModel = null; // remembered across calls so the 2nd call skips discovery
+
 async function callGemini(prompt, generationConfig) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY is not set');
-  if (!GEMINI_MODELS.length) throw new Error('no Gemini models configured');
-  const noThink = { ...generationConfig, thinkingConfig: { thinkingBudget: 0 } };
-  let lastErr = 'no models tried';
-  for (const model of GEMINI_MODELS) {
-    for (const cfg of [noThink, generationConfig]) {
-      try {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-          {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: cfg }),
-          }
-        );
-        if (!res.ok) {
-          const body = (await res.text()).slice(0, 140);
-          lastErr = `${model}: ${res.status} ${body}`;
-          // A 400 may be the thinkingConfig field — retry this model without it.
-          if (res.status === 400 && cfg.thinkingConfig) continue;
-          break; // otherwise move on to the next model
-        }
-        const data = await res.json();
-        const cand = data?.candidates?.[0];
-        const text = (cand?.content?.parts?.map(p => p.text).filter(Boolean).join('') || '').trim();
-        if (!text) { lastErr = `${model}: empty text (finishReason ${cand?.finishReason || '?'})`; break; }
-        return { text, model };
-      } catch (e) { lastErr = `${model}: ${e.message}`; break; }
-    }
+  const tried = new Set();
+  const attempts = [];
+  // Fast path: the last-known-good model first, then the preferred list.
+  for (const model of [_workingModel, ...GEMINI_MODELS]) {
+    if (!model || tried.has(model)) continue;
+    tried.add(model);
+    const r = await tryModel(model, prompt, generationConfig, key);
+    if (r.ok) { _workingModel = model; return { text: r.text, model }; }
+    attempts.push(`${model} -> ${r.err}`);
   }
-  throw new Error(lastErr);
+  // Discovery: whatever this key can actually use (Flash preferred).
+  const avail = await listGenerateModels(key);
+  for (const model of avail.filter(n => !tried.has(n)).sort(rankModel).slice(0, 6)) {
+    tried.add(model);
+    const r = await tryModel(model, prompt, generationConfig, key);
+    if (r.ok) { _workingModel = model; return { text: r.text, model }; }
+    attempts.push(`${model} -> ${r.err}`);
+  }
+  const availNote = avail.length ? ` | key can use: ${avail.slice(0, 14).join(', ')}` : ' | ListModels returned nothing';
+  throw new Error(attempts.join(' ; ') + availNote);
 }
 
 async function generateCopy(questions) {
