@@ -26,7 +26,7 @@ const MIN_SAMPLE = 4;                 // hide a % until at least this many answe
 // models in turn. Old model names get retired by Google (gemini-1.5-flash is
 // gone), so we never hard-depend on a single one — and if all fail we fall back
 // to templated copy and say why in the admin preview.
-const GEMINI_MODELS = [process.env.GEMINI_MODEL, 'gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-flash-latest'].filter(Boolean);
+const GEMINI_MODELS = [process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-2.5-flash', 'gemini-2.5-flash-lite'].filter(Boolean);
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -178,28 +178,43 @@ function pickSubjectQuestion(questions, fridayISO) {
 
 // Calls Gemini, trying each model in GEMINI_MODELS until one answers. Returns
 // { text, model }. Throws with a readable reason (surfaced in the admin preview
-// so a missing key or a retired model is obvious, not a silent fallback).
+// so a missing key, a retired model, or truncation is obvious, not silent).
+//
+// Current Flash models "think" by default and burn the whole output budget on
+// internal reasoning, returning empty/truncated text. We disable thinking
+// (thinkingBudget: 0) so the budget goes to the actual copy. If a model rejects
+// that field (400), we retry that same model without it.
 async function callGemini(prompt, generationConfig) {
   const key = process.env.GEMINI_API_KEY;
   if (!key) throw new Error('GEMINI_API_KEY is not set');
   if (!GEMINI_MODELS.length) throw new Error('no Gemini models configured');
+  const noThink = { ...generationConfig, thinkingConfig: { thinkingBudget: 0 } };
   let lastErr = 'no models tried';
   for (const model of GEMINI_MODELS) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig }),
+    for (const cfg of [noThink, generationConfig]) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: cfg }),
+          }
+        );
+        if (!res.ok) {
+          const body = (await res.text()).slice(0, 140);
+          lastErr = `${model}: ${res.status} ${body}`;
+          // A 400 may be the thinkingConfig field — retry this model without it.
+          if (res.status === 400 && cfg.thinkingConfig) continue;
+          break; // otherwise move on to the next model
         }
-      );
-      if (!res.ok) { lastErr = `${model}: ${res.status} ${(await res.text()).slice(0, 120)}`; continue; }
-      const data = await res.json();
-      const text = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
-      if (!text) { lastErr = `${model}: empty response`; continue; }
-      return { text, model };
-    } catch (e) { lastErr = `${model}: ${e.message}`; }
+        const data = await res.json();
+        const cand = data?.candidates?.[0];
+        const text = (cand?.content?.parts?.map(p => p.text).filter(Boolean).join('') || '').trim();
+        if (!text) { lastErr = `${model}: empty text (finishReason ${cand?.finishReason || '?'})`; break; }
+        return { text, model };
+      } catch (e) { lastErr = `${model}: ${e.message}`; break; }
+    }
   }
   throw new Error(lastErr);
 }
@@ -217,7 +232,7 @@ Return ONLY minified JSON (no markdown) with keys:
 Questions:
 ${list}`;
 
-  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 300 });
+  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 800 });
   let text = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
   const parsed = JSON.parse(text);
   if (!parsed.kicker || !parsed.headline || !parsed.intro) throw new Error('AI copy missing fields');
@@ -310,9 +325,12 @@ STRICT RULES:
 Today's questions:
 ${list}`;
 
-  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 120 });
+  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 400 });
   let text = noEmDash(raw.replace(/```/g, '').replace(/^["']|["']$/g, '').trim());
   if (!text) throw new Error('empty Whenly teaser');
+  // Reject implausibly short/truncated output (e.g. "From the") so we use the
+  // clean template instead of rendering a fragment.
+  if (text.length < 25) throw new Error(`Whenly teaser too short: ${JSON.stringify(text)}`);
   // Belt-and-braces: if the model leaks a 3-4 digit year anywhere, fall back to
   // the year-free template rather than spoil the game.
   if (/\b\d{3,4}\b/.test(text)) throw new Error('Whenly teaser leaked a year');
