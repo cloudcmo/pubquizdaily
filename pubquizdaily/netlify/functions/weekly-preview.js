@@ -12,11 +12,24 @@
 // Intro copy is written by an AI model from the week's questions (with a
 // templated fallback). Subject line is one of the actual questions. Stats are
 // percentages only.
+//
+// It also carries a small "New game" promo for Whenly (the daily guess-the-year
+// game). The promo looks at the questions live on Whenly for the SEND day (the
+// Friday), teases 2-3 of them without revealing any years, and links out to
+// whenly.co.uk. Everything Whenly is best-effort: any failure just drops the
+// promo block — it must never hold up the Pub Quiz Daily email.
 
 const BASE = 'https://pubquizdaily.com';
 const WEEKLY_URL = `${BASE}/weekly.html`;
 const MIN_SAMPLE = 4;                 // hide a % until at least this many answers
 const GEMINI_MODEL = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+
+// ── Whenly promo (best-effort; never blocks the main email) ──
+const WHENLY_URL = 'https://whenly.co.uk';
+// The same published Google Sheet CSV the Whenly site reads live. Overridable
+// via env in case the publish URL ever changes.
+const WHENLY_CSV_URL = process.env.WHENLY_CSV_URL ||
+  'https://docs.google.com/spreadsheets/d/e/2PACX-1vRKuWEwG1PTSq_Dw__0dwml7T-1tyo7803kRMp_-SMlyxflp1x4MjUZw9HNUKfUysfwoPtOAjLrIwHn/pub?output=csv';
 
 exports.handler = async function() {
   // ── DST-proof gate: only the ~18:xx UK firing proceeds ──
@@ -55,7 +68,7 @@ exports.handler = async function() {
     }
 
     const avgPct = weeklyAvgPct(questions);
-    const statText = avgPct !== null ? `Players are averaging <strong>${avgPct}%</strong> on these — how would you do?` : null;
+    const statText = avgPct !== null ? `Players are averaging <strong>${avgPct}%</strong> on these. How would you do?` : null;
 
     const subjectQ = pickSubjectQuestion(questions, fridayISO);
     const hero = (subjectQ && subjectQ.image) || (questions.find(q => q.image) || {}).image || null;
@@ -65,10 +78,17 @@ exports.handler = async function() {
       return fallbackCopy(questions);
     });
 
+    // Whenly cross-promo — teases the SEND day's live Whenly questions. Fully
+    // best-effort: on any error we get null and the block is simply omitted.
+    const whenlyPromo = await buildWhenlyPromo(fridayISO).catch(err => {
+      console.error('Whenly promo failed, omitting block:', err);
+      return null;
+    });
+
     // Clean email that Friday will send (unsubscribe placeholder swapped at send time).
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
-      hero, statText, fridayISO,
+      hero, statText, fridayISO, whenlyPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -82,7 +102,7 @@ exports.handler = async function() {
     const previewHtml = buildPreviewWrapper(cleanHtml.replace('%%UNSUB%%', '#'), { subject, fridayISO, cancelUrl });
 
     await sendEmail(RESEND_API_KEY, REPORT_EMAIL,
-      `[Preview] ${subject}  —  sends 06:30 tomorrow`,
+      `[Preview] ${subject}  (sends 06:30 tomorrow)`,
       `Preview of tomorrow's Weekly Best-of (sends 06:30 UK).\nSubject: ${subject}\nTo cancel this week's send, open: ${cancelUrl}`,
       previewHtml);
 
@@ -153,7 +173,7 @@ async function generateCopy(questions) {
 
   const list = questions.map((q, i) => `${i + 1}. ${q.question}`).join('\n');
   const prompt =
-`You write short, witty teaser emails for "Pub Quiz Daily", a fun British daily pub quiz. Below are this week's Best-of questions. Write playful copy that entices readers to click through and play — WITHOUT revealing any answers.
+`You write short, witty teaser emails for "Pub Quiz Daily", a fun British daily pub quiz. Below are this week's Best-of questions. Write lean, punchy copy that entices readers to click through and play, WITHOUT revealing any answers. Never use em dashes ("—"); use short sentences, commas or full stops instead.
 
 Return ONLY minified JSON (no markdown) with keys:
 "kicker": <=6 words, may include one tasteful emoji;
@@ -181,9 +201,9 @@ ${list}`;
   const parsed = JSON.parse(text);
   if (!parsed.kicker || !parsed.headline || !parsed.intro) throw new Error('AI copy missing fields');
   return {
-    kicker: String(parsed.kicker).slice(0, 40),
-    headline: String(parsed.headline).slice(0, 80),
-    intro: String(parsed.intro).slice(0, 300),
+    kicker: noEmDash(String(parsed.kicker)).slice(0, 40),
+    headline: noEmDash(String(parsed.headline)).slice(0, 80),
+    intro: noEmDash(String(parsed.intro)).slice(0, 300),
   };
 }
 
@@ -195,9 +215,117 @@ function fallbackCopy(questions) {
   };
 }
 
+// ── Whenly cross-promo ───────────────────────────────────────────────────────
+
+// Returns { teaser } for the send day's Whenly questions, or null if there's
+// nothing to show / anything goes wrong. `teaser` is one short sentence that
+// name-drops 2-3 of the day's topics and never reveals a year.
+async function buildWhenlyPromo(fridayISO) {
+  const questions = await fetchWhenlyQuestions(fridayISO);
+  if (!questions.length) {
+    console.log('weekly-preview: no Whenly questions for', fridayISO, '— omitting promo.');
+    return null;
+  }
+  const teaser = await generateWhenlyTeaser(questions).catch(err => {
+    console.error('Whenly AI teaser failed, using fallback:', err);
+    return fallbackWhenlyTeaser(questions);
+  });
+  if (!teaser) return null;
+  return { teaser };
+}
+
+// Reads the same published CSV the Whenly site reads live, and returns the rows
+// dated for the given day (the day the reader will actually play). Shape:
+// { category, question }.
+async function fetchWhenlyQuestions(dayISO) {
+  const res = await fetch(WHENLY_CSV_URL);
+  if (!res.ok) throw new Error(`Whenly CSV ${res.status}`);
+  const rows = parseCsv(await res.text());
+  return rows
+    .filter(r => (r.date || '').trim() === dayISO && (r.question || '').trim())
+    .map(r => ({ category: (r.category || '').trim(), question: r.question.trim() }));
+}
+
+// Minimal CSV parser matching the one on the Whenly site (quoted fields, no
+// embedded newlines). Handles \r\n line endings from Google's published CSV.
+function parseCsv(text) {
+  const lines = text.replace(/\r\n/g, '\n').trim().split('\n');
+  if (lines.length < 2) return [];
+  const splitLine = line => {
+    const vals = []; let cur = '', inQ = false;
+    for (let i = 0; i < line.length; i++) {
+      const c = line[i];
+      if (c === '"') inQ = !inQ;
+      else if (c === ',' && !inQ) { vals.push(cur); cur = ''; }
+      else cur += c;
+    }
+    vals.push(cur);
+    return vals;
+  };
+  const headers = splitLine(lines[0]).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+  return lines.slice(1).map(line => {
+    const vals = splitLine(line);
+    const obj = {};
+    headers.forEach((h, i) => obj[h] = (vals[i] || '').trim().replace(/^"|"$/g, ''));
+    return obj;
+  });
+}
+
+async function generateWhenlyTeaser(questions) {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) return fallbackWhenlyTeaser(questions);
+
+  const list = questions.map((q, i) => `${i + 1}. ${q.question}`).join('\n');
+  const prompt =
+`"Whenly" is a fast, addictive British daily "guess the year" game: you're shown a historical event and you pin the year. Below are TODAY's Whenly questions. Write punchy promo copy that SELLS the game and makes people want to play right now.
+
+Aim for 2 short, punchy sentences (<=35 words total). Name-drop 2-3 of today's most intriguing events, then throw down a challenge (e.g. "How sharp is your timeline?", "Think you can place them?").
+
+STRICT RULES:
+- NEVER state or hint at any year, decade or date. The whole game is guessing the year.
+- Never use em dashes ("—"). Use full stops and commas.
+- Refer to the events themselves (e.g. "the Falklands task force", "the ZX Spectrum", "Charles and Diana's wedding").
+- Lean and forward, not passive. No preamble, no quotes, no markdown. Return ONLY the copy itself.
+
+Today's questions:
+${list}`;
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.9, maxOutputTokens: 120 },
+      }),
+    }
+  );
+  if (!res.ok) throw new Error(`Gemini ${res.status}: ${await res.text()}`);
+  const data = await res.json();
+  let text = (data?.candidates?.[0]?.content?.parts?.[0]?.text || '').trim();
+  text = noEmDash(text.replace(/```/g, '').replace(/^["']|["']$/g, '').trim());
+  if (!text) throw new Error('empty Whenly teaser');
+  // Belt-and-braces: if the model leaks a 3-4 digit year anywhere, fall back to
+  // the year-free template rather than spoil the game.
+  if (/\b\d{3,4}\b/.test(text)) throw new Error('Whenly teaser leaked a year');
+  return text.slice(0, 240);
+}
+
+// Year-free fallback, used only if the AI teaser is unavailable. Deliberately
+// generic: naming the events well is exactly what the AI does, and a clumsy
+// half-parsed sentence would be worse than a clean one. Never leaks a year.
+function fallbackWhenlyTeaser(questions) {
+  const n = questions.length;
+  const word = num => ({ 1: 'One', 2: 'Two', 3: 'Three' }[num] || String(num));
+  const events = `${word(n)} event${n === 1 ? '' : 's'} today.`;
+  const years = `${word(n)} year${n === 1 ? '' : 's'} to pin down.`;
+  return `${events} ${years} Think you can place them?`;
+}
+
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo }) {
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
       <img src="${escapeAttr(hero)}" width="600" height="300" alt="This week's quiz" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
@@ -207,9 +335,21 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO })
         <td bgcolor="#edf4ef" style="background-color:#edf4ef;border-radius:8px;padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#3f6b4c;">${statText}</td>
       </tr></table>` : '';
   const label = weekLabel(fridayISO);
+  const promoBlock = (whenlyPromo && whenlyPromo.teaser) ? `
+  <tr><td style="padding:18px 8px 4px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3efe7;border:1px solid #e7e3dc;border-radius:14px;"><tr><td style="padding:22px 26px;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:10px;"><span style="color:#c9772f;">New:</span> Whenly - The Daily Guess the Year Game</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${escapeHtml(whenlyPromo.teaser)}</div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" bgcolor="#c9772f" style="background-color:#c9772f;border-radius:9px;">
+          <a href="${WHENLY_URL}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">Give it a go →</a>
+        </td>
+      </tr></table>
+    </td></tr></table>
+  </td></tr>` : '';
 
   return `<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pub Quiz Daily — Weekly Best-of</title></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pub Quiz Daily: Weekly Best-of</title></head>
 <body style="margin:0;padding:0;background-color:#faf9f7;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#faf9f7;"><tr><td align="center" style="padding:32px 16px;">
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;">
@@ -234,6 +374,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO })
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#a49f97;padding-top:14px;">Free · No login · One email a week</div>
     </td></tr></table>
   </td></tr>
+  ${promoBlock}
   <tr><td style="padding:24px 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#b3aea6;" align="center">
     Pub Quiz Daily · pubquizdaily.com<br>
     You're getting this because you signed up for the Friday Best-of. <a href="%%UNSUB%%" style="color:#b3aea6;text-decoration:underline;">Unsubscribe</a>
@@ -247,7 +388,7 @@ function buildPreviewWrapper(innerHtml, { subject, fridayISO, cancelUrl }) {
   const banner = `
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#1a1a1a;"><tr><td align="center" style="padding:18px 16px;">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:600px;max-width:600px;"><tr><td style="font-family:Arial,Helvetica,sans-serif;color:#ffffff;">
-    <div style="font-size:13px;font-weight:700;letter-spacing:0.04em;">PREVIEW — this goes out to subscribers at 06:30 tomorrow (${weekLabel(fridayISO)})</div>
+    <div style="font-size:13px;font-weight:700;letter-spacing:0.04em;">PREVIEW: this goes out to subscribers at 06:30 tomorrow (${weekLabel(fridayISO)})</div>
     <div style="font-size:13px;color:#c9c4bc;padding:6px 0 14px;">Subject line: "${escapeHtml(subject)}". Happy? Do nothing. Something wrong?</div>
     <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr><td bgcolor="#c0503a" style="background-color:#c0503a;border-radius:8px;">
       <a href="${escapeAttr(cancelUrl)}" style="display:inline-block;padding:11px 22px;font-family:Arial,Helvetica,sans-serif;font-size:14px;font-weight:700;color:#ffffff;text-decoration:none;">Cancel this week's send</a>
@@ -320,3 +461,14 @@ function escapeHtml(s) {
   return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
 function escapeAttr(s) { return escapeHtml(s); }
+
+// House rule: no em dashes anywhere in our copy. Backstop for AI-written text.
+// Replaces em dashes with a comma and tidies the resulting punctuation/spacing.
+function noEmDash(s) {
+  return String(s)
+    .replace(/\s*—\s*/g, ', ')       // em dash -> comma
+    .replace(/,\s*,/g, ',')           // collapse doubled commas
+    .replace(/\s+([.,;:!?])/g, '$1')  // no space before punctuation
+    .replace(/\s{2,}/g, ' ')          // collapse runs of spaces
+    .trim();
+}
