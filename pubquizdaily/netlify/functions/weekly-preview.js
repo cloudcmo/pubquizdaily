@@ -474,6 +474,26 @@ function escapeHtml(s) {
 }
 function escapeAttr(s) { return escapeHtml(s); }
 
+// ── Shared with the on-demand rebuild endpoint (weekly-rebuild.js) ──
+// weekly-rebuild reuses these exact functions so its output can never drift
+// from the scheduled Thursday build. Requiring this file does not run the
+// scheduled handler (no top-level side effects).
+module.exports.BASE = BASE;
+module.exports.fetchWeeklyQuestions = fetchWeeklyQuestions;
+module.exports.weeklyAvgPct = weeklyAvgPct;
+module.exports.pickSubjectQuestion = pickSubjectQuestion;
+module.exports.generateCopy = generateCopy;
+module.exports.fallbackCopy = fallbackCopy;
+module.exports.buildWhenlyPromo = buildWhenlyPromo;
+module.exports.buildTeaserHtml = buildTeaserHtml;
+module.exports.buildPreviewWrapper = buildPreviewWrapper;
+module.exports.putBlob = putBlob;
+module.exports.deleteBlob = deleteBlob;
+module.exports.sendEmail = sendEmail;
+module.exports.addDaysISO = addDaysISO;
+module.exports.londonDateISO = londonDateISO;
+module.exports.escapeHtml = escapeHtml;
+
 // House rule: no em dashes anywhere in our copy. Backstop for AI-written text.
 // Replaces em dashes with a comma and tidies the resulting punctuation/spacing.
 function noEmDash(s) {
