@@ -20,6 +20,7 @@
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <meta property="og:image" content="https://pubquizdaily.com/logo.png" />
+  <script src="https://guff.carl-b82.workers.dev/guff-duty.js" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -510,6 +511,9 @@
       startCountdown();
       initSignup();
       showBonusRound();
+
+      // GUFFBOT: if this play was an assigned duty, stamp the papers (no-op otherwise)
+      if (!isArchiveMode && window.GuffDuty) GuffDuty.discharge({ score: score, max: questions.length });
     }
 
     function restoreProgress() {
