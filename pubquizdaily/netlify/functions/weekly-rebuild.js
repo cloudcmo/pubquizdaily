@@ -62,9 +62,15 @@ exports.handler = async function(event) {
     });
     const aiWhenlyNote = whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
 
+    const whatwordPromo = await wp.buildWhatWordPromo(fridayISO).catch(err => {
+      console.error('rebuild: What Word promo failed, omitting block:', err.message);
+      return null;
+    });
+    const aiWhatWordNote = whatwordPromo ? whatwordPromo.note : 'no What Word promo this week';
+
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
-      hero, statText, fridayISO, whenlyPromo,
+      hero, statText, fridayISO, whenlyPromo, whatwordPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -73,7 +79,7 @@ exports.handler = async function(event) {
     await wp.deleteBlob(env.SITE_ID, env.TOKEN, `weekly-cancel-${fridayISO}`);
 
     const cancelUrl = `${wp.BASE}/.netlify/functions/weekly-cancel?token=${encodeURIComponent(env.CANCEL_TOKEN)}&week=${fridayISO}`;
-    const previewHtml = wp.buildPreviewWrapper(cleanHtml.replace('%%UNSUB%%', '#'), { subject, fridayISO, cancelUrl, aiIntroNote, aiWhenlyNote });
+    const previewHtml = wp.buildPreviewWrapper(cleanHtml.replace('%%UNSUB%%', '#'), { subject, fridayISO, cancelUrl, aiIntroNote, aiWhenlyNote, aiWhatWordNote });
 
     await wp.sendEmail(env.RESEND_API_KEY, env.REPORT_EMAIL,
       `[Rebuilt] ${subject}  (sends 06:30 tomorrow)`,
@@ -83,7 +89,7 @@ exports.handler = async function(event) {
     console.log(`weekly-rebuild: rebuilt + previewed for ${fridayISO} (${questions.length} questions)`);
     return htmlResp(200, 'Rebuilt ✓',
       `Tomorrow's email (${questions.length} questions) has been regenerated and the preview re-sent to your inbox. Friday's 06:30 send will now use this version.` +
-      `<br><br><b>AI intro:</b> ${wp.escapeHtml(aiIntroNote || '')}<br><b>Whenly:</b> ${wp.escapeHtml(aiWhenlyNote || '')}`);
+      `<br><br><b>AI intro:</b> ${wp.escapeHtml(aiIntroNote || '')}<br><b>Whenly:</b> ${wp.escapeHtml(aiWhenlyNote || '')}<br><b>What Word:</b> ${wp.escapeHtml(aiWhatWordNote || '')}`);
   } catch (e) {
     console.error('weekly-rebuild error:', e);
     return htmlResp(500, 'Rebuild failed', wp.escapeHtml(String((e && e.message) || e)));
