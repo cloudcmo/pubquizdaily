@@ -34,6 +34,22 @@ exports.handler = async function(event) {
 
   // Same target as the scheduled build: tomorrow (UK time) = the Friday send day.
   const fridayISO = wp.addDaysISO(wp.londonDateISO(), 1);
+  const targetDay = new Date(`${fridayISO}T12:00:00Z`).toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' });
+  const isFriday = targetDay === 'Friday';
+
+  // A bare GET only shows a confirmation page — the rebuild itself requires
+  // the button press below (a POST). Email link scanners follow GET links but
+  // don't submit forms, so a scanned admin email can no longer trigger a
+  // rebuild by itself.
+  if (event.httpMethod !== 'POST') {
+    const warning = isFriday
+      ? `This regenerates tomorrow's (<b>${targetDay} ${fridayISO}</b>) email and re-sends you the preview. Friday's 06:30 broadcast will then send the regenerated version.`
+      : `<b>Tomorrow is ${targetDay}, not Friday.</b> A rebuild now would be stored under ${fridayISO} and the Friday-only broadcast will never send it. This is almost certainly not what you want — the rebuild is meant to be used on a Thursday, after the evening preview. You can still proceed if you're experimenting.`;
+    return htmlResp(200, 'Rebuild tomorrow’s email?', `${warning}
+      <form method="POST" action="?token=${encodeURIComponent(params.token)}" style="margin-top:18px;">
+        <button type="submit" style="background:#4a7c59;color:#fff;border:none;border-radius:8px;padding:12px 24px;font-size:15px;font-weight:700;cursor:pointer;">Yes, rebuild for ${fridayISO}</button>
+      </form>`);
+  }
 
   try {
     const questions = await wp.fetchWeeklyQuestions({ SHEET_ID: env.SHEET_ID, API_KEY: env.API_KEY, fridayISO, SITE_ID: env.SITE_ID, TOKEN: env.TOKEN });
@@ -68,15 +84,9 @@ exports.handler = async function(event) {
     });
     const aiWhatWordNote = whatwordPromo ? whatwordPromo.note : 'no What Word promo this week';
 
-    const groupiePromo = await wp.buildGroupiePromo(fridayISO).catch(err => {
-      console.error('rebuild: Groupie promo failed, omitting block:', err.message);
-      return null;
-    });
-    const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
-
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
-      hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
+      hero, statText, fridayISO, whenlyPromo, whatwordPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -85,17 +95,20 @@ exports.handler = async function(event) {
     await wp.deleteBlob(env.SITE_ID, env.TOKEN, `weekly-cancel-${fridayISO}`);
 
     const cancelUrl = `${wp.BASE}/.netlify/functions/weekly-cancel?token=${encodeURIComponent(env.CANCEL_TOKEN)}&week=${fridayISO}`;
-    const previewHtml = wp.buildPreviewWrapper(cleanHtml.replace('%%UNSUB%%', '#'), { subject, fridayISO, cancelUrl, aiIntroNote, aiWhenlyNote, aiWhatWordNote, aiGroupieNote });
+    const previewHtml = wp.buildPreviewWrapper(cleanHtml.replace('%%UNSUB%%', '#'), { subject, fridayISO, cancelUrl, aiIntroNote, aiWhenlyNote, aiWhatWordNote });
 
+    const sendNote = isFriday
+      ? 'sends 06:30 tomorrow'
+      : `will NOT send: tomorrow is ${targetDay}, and the broadcast only fires on Fridays`;
     await wp.sendEmail(env.RESEND_API_KEY, env.REPORT_EMAIL,
-      `[Rebuilt] ${subject}  (sends 06:30 tomorrow)`,
-      `Rebuilt preview of tomorrow's Weekly Best-of (sends 06:30 UK).\nSubject: ${subject}\nTo cancel this week's send, open: ${cancelUrl}`,
+      `[Rebuilt] ${subject}  (${sendNote})`,
+      `Rebuilt preview of the Weekly Best-of for ${fridayISO} (${sendNote}).\nSubject: ${subject}\nTo cancel this week's send, open: ${cancelUrl}`,
       previewHtml);
 
     console.log(`weekly-rebuild: rebuilt + previewed for ${fridayISO} (${questions.length} questions)`);
     return htmlResp(200, 'Rebuilt ✓',
       `Tomorrow's email (${questions.length} questions) has been regenerated and the preview re-sent to your inbox. Friday's 06:30 send will now use this version.` +
-      `<br><br><b>AI intro:</b> ${wp.escapeHtml(aiIntroNote || '')}<br><b>Whenly:</b> ${wp.escapeHtml(aiWhenlyNote || '')}<br><b>What Word:</b> ${wp.escapeHtml(aiWhatWordNote || '')}<br><b>Groupie:</b> ${wp.escapeHtml(aiGroupieNote || '')}`);
+      `<br><br><b>AI intro:</b> ${wp.escapeHtml(aiIntroNote || '')}<br><b>Whenly:</b> ${wp.escapeHtml(aiWhenlyNote || '')}<br><b>What Word:</b> ${wp.escapeHtml(aiWhatWordNote || '')}`);
   } catch (e) {
     console.error('weekly-rebuild error:', e);
     return htmlResp(500, 'Rebuild failed', wp.escapeHtml(String((e && e.message) || e)));
