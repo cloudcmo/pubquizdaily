@@ -23,8 +23,27 @@
   <script src="https://guff.carl-b82.workers.dev/guff-duty.js" defer></script>
   <script src="https://guff.carl-b82.workers.dev/guff-bar.js" data-game="pqd" defer></script>
   <style>
-    /* "More daily guff" cross-sell bar — PQD skin */
-    #guff-crossbar { --gxb-done: #4a7c59; --gxb-line: #c9c4bc; --gxb-muted: 0.6; }
+    /* "More daily guff" cross-sell bar — PQD skin. A proper card, not a
+       whisper: green panel, white pill buttons, full-strength labels. */
+    #guff-crossbar {
+      --gxb-done: #4a7c59;
+      --gxb-done-fg: #ffffff;
+      --gxb-line: #4a7c59;
+      --gxb-muted: 1;
+      background: #edf4ef;
+      border: 1px solid #d5e3d9;
+      border-radius: 12px;
+      padding: 18px 14px 20px;
+    }
+    #guff-crossbar .gxb-title { color: #3f6b4c; opacity: 1; font-weight: 700; }
+    #guff-crossbar .gxb-loz { background: #ffffff; color: #1a1a1a; }
+    #guff-crossbar .gxb-loz.gxb-done {
+      background: var(--gxb-done);
+      color: var(--gxb-done-fg);
+      border-color: var(--gxb-done);
+      box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
+    }
+    #guff-crossbar a.gxb-loz:hover { background: #4a7c59; color: #ffffff; }
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
