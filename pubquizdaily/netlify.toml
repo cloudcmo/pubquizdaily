@@ -17,6 +17,12 @@
 [functions."weekly-broadcast"]
   schedule = "30 5,6 * * 5"
 
+# Safety net: if the 06:30 send was missed (e.g. Netlify skipped the cron
+# invocation, as on 2026-08-07), this sends it at ~08:00 UK and emails the
+# admin. Does nothing on a healthy Friday.
+[functions."weekly-watchdog"]
+  schedule = "0 7,8 * * 5"
+
 [[headers]]
   for = "/*"
   [headers.values]
