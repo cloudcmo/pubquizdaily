@@ -147,7 +147,11 @@ function londonDateISO() {
   return new Intl.DateTimeFormat('en-CA', { timeZone: 'Europe/London', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 }
 
-// Shared with weekly-send-now.js (requiring this file does not run the handler).
+// Shared with weekly-send-now.js and weekly-watchdog.js (requiring this file
+// does not run the handler).
 module.exports.runBroadcast = runBroadcast;
 module.exports.readEnv = readEnv;
 module.exports.londonDateISO = londonDateISO;
+module.exports.londonHour = londonHour;
+module.exports.sendEmail = sendEmail;
+module.exports.blobExists = blobExists;
