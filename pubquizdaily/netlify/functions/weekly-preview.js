@@ -19,9 +19,15 @@
 // whenly.co.uk. Everything Whenly is best-effort: any failure just drops the
 // promo block — it must never hold up the Pub Quiz Daily email.
 
+const crypto = require('crypto');
+
 const BASE = 'https://pubquizdaily.com';
 const WEEKLY_URL = `${BASE}/weekly.html`;
 const MIN_SAMPLE = 4;                 // hide a % until at least this many answers
+// How many questions to auto-pick for the week when nobody flagged any "W"
+// in the sheet (Carl's manual weekly-picking step is retired as of 2026-08-13
+// — see WEEKLY_AUTO_SELECT_COUNT usage in fetchWeeklyQuestions below).
+const WEEKLY_AUTO_SELECT_COUNT = 11;
 // Gemini model fallback chain. Honour GEMINI_MODEL if set, then try current
 // models in turn. Old model names get retired by Google (gemini-1.5-flash is
 // gone), so we never hard-depend on a single one — and if all fail we fall back
@@ -170,16 +176,41 @@ async function fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOK
   // per-day index (position within that date, in sheet order) = the N in the stats key
   const perDay = {};
   const out = [];
-  for (const row of rows) {
+  const candidates = []; // every complete row in the window, W or not — the auto-select pool
+  rows.forEach((row, i) => {
     const isoDate = parseFlexDate((row[0] || '').trim());
-    if (!isoDate) continue;
+    if (!isoDate) return;
     const idx = (perDay[isoDate] = (perDay[isoDate] ?? -1) + 1);
-    if (!validDates.has(isoDate)) continue;
-    if ((row[8] || '').trim().toUpperCase() !== 'W') continue;
+    if (!validDates.has(isoDate)) return;
     const [, question, a, b, c, d, correct, explainer, , image] = row;
-    if (!question || !a || !b || !c || !d || !correct) continue;
-    out.push({ date: isoDate, index: idx, question: question.trim(), image: image ? image.trim() : null });
+    if (!question || !a || !b || !c || !d || !correct) return;
+    const sheetRow = i + 2; // rows[] had the header row sliced off
+    candidates.push({ sheetRow, date: isoDate, index: idx, question: question.trim(), image: image ? image.trim() : null });
+    if ((row[8] || '').trim().toUpperCase() === 'W') {
+      out.push({ date: isoDate, index: idx, question: question.trim(), image: image ? image.trim() : null });
+    }
+  });
+
+  // Nobody flagged any "W" questions this week (Carl no longer does this by
+  // hand) — automatically pick WEEKLY_AUTO_SELECT_COUNT at random from the
+  // week's complete questions and write "W" back into the sheet for them, so
+  // the archive/weekly.html game and this email agree on the same picks, and
+  // next week's auto-select (or a human flagging early) is unaffected.
+  if (out.length === 0 && candidates.length > 0) {
+    const pool = candidates.slice();
+    shuffleInPlace(pool);
+    const picks = pool.slice(0, WEEKLY_AUTO_SELECT_COUNT);
+    try {
+      await writeWeeklyFlags(SHEET_ID, picks.map(p => p.sheetRow));
+      console.log(`weekly-preview: auto-selected ${picks.length} question(s) for the week ending ${addDaysISO(fridayISO, -1)} (rows ${picks.map(p => p.sheetRow).join(', ')})`);
+      out.push(...picks.map(({ sheetRow, ...q }) => q));
+    } catch (e) {
+      console.error('weekly-preview: auto-select W write failed:', e.message || e);
+      // Fall through with out still empty — caller treats this the same as
+      // "nothing to build" rather than silently sending unflagged content.
+    }
   }
+
   out.sort((x, y) => x.date.localeCompare(y.date));
 
   // attach stats
@@ -193,6 +224,74 @@ async function fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOK
     } catch { /* ignore */ }
   }));
   return out;
+}
+
+function shuffleInPlace(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+}
+
+// ── Sheet writes (auto-select fallback only) ────────────────────────────────
+// Everything else in this file only READS the sheet via GOOGLE_API_KEY. Writing
+// the auto-picked "W" flags needs Editor access, so this uses the same service
+// account already granted Editor on the sheet for scripts/draft-questions.js
+// and scripts/assign-weekly.js (GOOGLE_SERVICE_ACCOUNT_JSON = that account's
+// JSON key, set as a Netlify secret). If it's not configured, the auto-select
+// caller catches the error and treats it as nothing-to-build.
+
+let _sheetsAccessToken; // { token, exp } — reused across calls within a cold start
+async function getSheetsAccessToken() {
+  if (_sheetsAccessToken && _sheetsAccessToken.exp > Date.now() / 1000 + 60) {
+    return _sheetsAccessToken.token;
+  }
+  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not set — cannot write to the sheet');
+  const serviceAccount = JSON.parse(raw);
+
+  const header = { alg: 'RS256', typ: 'JWT' };
+  const now = Math.floor(Date.now() / 1000);
+  const claim = {
+    iss: serviceAccount.client_email,
+    scope: 'https://www.googleapis.com/auth/spreadsheets',
+    aud: 'https://oauth2.googleapis.com/token',
+    exp: now + 3600,
+    iat: now,
+  };
+  const base64url = buf => buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  const unsigned = `${base64url(Buffer.from(JSON.stringify(header)))}.${base64url(Buffer.from(JSON.stringify(claim)))}`;
+  const signer = crypto.createSign('RSA-SHA256');
+  signer.update(unsigned);
+  signer.end();
+  const signature = base64url(signer.sign(serviceAccount.private_key));
+  const jwt = `${unsigned}.${signature}`;
+
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
+  });
+  if (!res.ok) throw new Error(`Google auth failed: ${await res.text()}`);
+  const data = await res.json();
+  _sheetsAccessToken = { token: data.access_token, exp: now + (data.expires_in || 3600) };
+  return data.access_token;
+}
+
+// Writes 'W' into column I of the "multi" tab for the given sheet row numbers.
+async function writeWeeklyFlags(sheetId, sheetRows) {
+  if (!sheetRows.length) return;
+  const accessToken = await getSheetsAccessToken();
+  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values:batchUpdate`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      valueInputOption: 'RAW',
+      data: sheetRows.map(row => ({ range: `multi!I${row}`, values: [['W']] })),
+    }),
+  });
+  if (!res.ok) throw new Error(`Failed to write W flags: ${await res.text()}`);
 }
 
 function weeklyAvgPct(questions) {

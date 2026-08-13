@@ -42,6 +42,8 @@ exports.handler = async function() {
 
 // Reads + validates the env this send needs. Returns null if a required one is
 // missing. SEGMENT_ID is only required for a live (non-dry-run) send.
+// SHEET_ID/API_KEY are only used by the on-demand fallback build (see
+// buildWeeklyOnDemand) and are not required for a normal send.
 function readEnv() {
   const env = {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
@@ -50,6 +52,8 @@ function readEnv() {
     TOKEN:          process.env.NETLIFY_API_TOKEN,
     REPORT_EMAIL:   process.env.DAILY_REPORT_EMAIL,
     DRY_RUN:        process.env.WEEKLY_DRY_RUN === 'true',
+    SHEET_ID:       process.env.GOOGLE_SHEET_ID,
+    API_KEY:        process.env.GOOGLE_API_KEY,
   };
   if (!env.RESEND_API_KEY || !env.SITE_ID || !env.TOKEN) {
     console.error('weekly-broadcast: missing required env vars');
@@ -66,7 +70,7 @@ function readEnv() {
 // (respects the cancel flag) and weekly-send-now (ignoreCancel: true). Returns
 // { ok, status, error? } where status is one of:
 // already-sent | cancelled | nothing-built | dry-run | sent | failed.
-async function runBroadcast({ RESEND_API_KEY, SEGMENT_ID, SITE_ID, TOKEN, REPORT_EMAIL, DRY_RUN, fridayISO, ignoreCancel }) {
+async function runBroadcast({ RESEND_API_KEY, SEGMENT_ID, SITE_ID, TOKEN, REPORT_EMAIL, DRY_RUN, SHEET_ID, API_KEY, fridayISO, ignoreCancel }) {
   // De-dupe (retries / double-fire).
   if (await blobExists(SITE_ID, TOKEN, `weekly-sent-${fridayISO}`)) {
     return { ok: true, status: 'already-sent' };
@@ -76,9 +80,19 @@ async function runBroadcast({ RESEND_API_KEY, SEGMENT_ID, SITE_ID, TOKEN, REPORT
     return { ok: true, status: 'cancelled' };
   }
 
-  const built = await getBlob(SITE_ID, TOKEN, `weekly-built-${fridayISO}`);
+  let built = await getBlob(SITE_ID, TOKEN, `weekly-built-${fridayISO}`);
   if (!built || !built.html || !built.subject) {
-    return { ok: true, status: 'nothing-built' };
+    // Thursday's weekly-preview either never ran, found nothing (e.g. no "W"
+    // flags and — before 2026-08-13 — no auto-select fallback), or failed.
+    // Rather than skip the send, build it fresh right now: fetchWeeklyQuestions
+    // itself auto-picks 11 random questions from the week when none are
+    // flagged, so this self-heals instead of needing a human to intervene.
+    built = await buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, API_KEY, fridayISO }).catch(e => {
+      console.error('weekly-broadcast: on-demand fallback build failed:', e.message || e);
+      return null;
+    });
+    if (!built) return { ok: true, status: 'nothing-built' };
+    console.log(`weekly-broadcast: built ${fridayISO} on demand (no stored preview) — proceeding to send`);
   }
 
   // Mark sent up-front so a retry / double-fire can't double-send.
@@ -112,6 +126,41 @@ async function runBroadcast({ RESEND_API_KEY, SEGMENT_ID, SITE_ID, TOKEN, REPORT
     return { ok: false, status: 'failed', error: err };
   }
   return { ok: true, status: 'sent' };
+}
+
+// Builds + stores the Weekly Best-of for fridayISO from scratch, the same way
+// weekly-preview.js / weekly-rebuild.js do (same functions, imported so there's
+// no drift). Used only when runBroadcast finds no stored blob at send time.
+// Requires SHEET_ID/API_KEY; if either is missing this throws and the caller
+// falls back to 'nothing-built'.
+async function buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, API_KEY, fridayISO }) {
+  if (!SHEET_ID || !API_KEY) throw new Error('missing GOOGLE_SHEET_ID/GOOGLE_API_KEY for fallback build');
+  const wp = require('./weekly-preview');
+
+  const questions = await wp.fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOKEN });
+  if (!questions.length) return null; // genuinely nothing to build (empty week)
+
+  const avgPct = wp.weeklyAvgPct(questions);
+  const statText = avgPct !== null ? `Players are averaging <strong>${avgPct}%</strong> on these. How would you do?` : null;
+
+  const subjectQ = wp.pickSubjectQuestion(questions, fridayISO);
+  const hero = (subjectQ && subjectQ.image) || (questions.find(q => q.image) || {}).image || null;
+
+  const copy = await wp.generateCopy(questions).catch(() => wp.fallbackCopy(questions));
+  const whenlyPromo = await wp.buildWhenlyPromo(fridayISO).catch(() => null);
+  const whatwordPromo = await wp.buildWhatWordPromo(fridayISO).catch(() => null);
+  const groupiePromo = await wp.buildGroupiePromo(fridayISO).catch(() => null);
+
+  const cleanHtml = wp.buildTeaserHtml({
+    kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
+    hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
+  });
+  const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
+  const built = { subject, html: cleanHtml, builtAt: new Date().toISOString(), builtOnDemand: true };
+
+  await wp.putBlob(SITE_ID, TOKEN, `weekly-built-${fridayISO}`, built);
+  await wp.deleteBlob(SITE_ID, TOKEN, `weekly-cancel-${fridayISO}`);
+  return built;
 }
 
 // ── helpers ──
