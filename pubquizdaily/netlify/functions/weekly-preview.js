@@ -202,13 +202,17 @@ async function fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOK
     const picks = pool.slice(0, WEEKLY_AUTO_SELECT_COUNT);
     try {
       await writeWeeklyFlags(SHEET_ID, picks.map(p => p.sheetRow));
-      console.log(`weekly-preview: auto-selected ${picks.length} question(s) for the week ending ${addDaysISO(fridayISO, -1)} (rows ${picks.map(p => p.sheetRow).join(', ')})`);
-      out.push(...picks.map(({ sheetRow, ...q }) => q));
     } catch (e) {
-      console.error('weekly-preview: auto-select W write failed:', e.message || e);
-      // Fall through with out still empty — caller treats this the same as
-      // "nothing to build" rather than silently sending unflagged content.
+      // Surface this loudly instead of swallowing it: both callers
+      // (weekly-preview's handler and weekly-rebuild) already catch and
+      // report errors, so a silent "nothing to build" here would hide a
+      // real auth/permission problem writing to the sheet.
+      throw new Error(`auto-select found ${picks.length} candidate question(s) but failed to write W flags: ${e.message || e}`);
     }
+    console.log(`weekly-preview: auto-selected ${picks.length} question(s) for the week ending ${addDaysISO(fridayISO, -1)} (rows ${picks.map(p => p.sheetRow).join(', ')})`);
+    out.push(...picks.map(({ sheetRow, ...q }) => q));
+  } else if (out.length === 0) {
+    console.log(`weekly-preview: no candidate questions at all in the window for ${fridayISO} — nothing to auto-select from`);
   }
 
   out.sort((x, y) => x.date.localeCompare(y.date));
