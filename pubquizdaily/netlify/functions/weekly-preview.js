@@ -250,8 +250,13 @@ async function getSheetsAccessToken() {
   if (_sheetsAccessToken && _sheetsAccessToken.exp > Date.now() / 1000 + 60) {
     return _sheetsAccessToken.token;
   }
-  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON not set — cannot write to the sheet');
+  // Prefer the base64 form (GOOGLE_SERVICE_ACCOUNT_JSON_B64) — the multi-line
+  // PEM private key inside the raw JSON form didn't survive being stored as a
+  // Netlify env var reliably, so the JSON is base64-encoded end to end and
+  // decoded here. Falls back to the raw JSON var if that's what's set.
+  const rawB64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_B64;
+  const raw = rawB64 ? Buffer.from(rawB64, 'base64').toString('utf8') : process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
+  if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON_B64 (or GOOGLE_SERVICE_ACCOUNT_JSON) not set — cannot write to the sheet');
   const serviceAccount = JSON.parse(raw);
 
   const header = { alg: 'RS256', typ: 'JWT' };
