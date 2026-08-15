@@ -159,6 +159,9 @@
     :root {
       --cream: #dcebe7;          /* teal paper — the clean break from Whenly's cream */
       --border: #c7ddd8;
+      --ink-faint: #64786f;      /* the old #c8c8c8 was legible on near-white paper
+                                    but not on this; footer, countdown label and the
+                                    bonus header all use it */
       --font-sans: 'Archivo', system-ui, sans-serif;
       --accent: #f7a828; --accent-ink: #a06905; --accent-bg: #fef1d9;
     }
@@ -195,6 +198,67 @@
     .share-btn { border-bottom: 4px solid #1c4a35; }
     .share-btn:hover { border-bottom-color: #12301f; }
     .signup-btn, .homescreen-nudge-btn { border-bottom: 3px solid rgba(0,0,0,.4); }
+
+    /* ══ Dark mode ═══════════════════════════════════════════════════
+       Follows the phone or laptop setting. Same design, printed on a
+       deep teal instead of a pale one: the accents and the photo wash
+       are already bright enough to carry it, so only the surfaces,
+       the text and the few hard-coded light panels need to move. */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --cream:      #0f2a30;   /* page */
+        --surface:    #163a41;   /* cards and panels */
+        --border:     #27545c;
+        --ink:        #eaf3f1;
+        --ink-light:  #a3bcbb;
+        --ink-faint:  #6d8f91;
+        --correct:    #63c48c;
+        --correct-bg: #14372a;
+        --wrong:      #6fb0dd;
+        --wrong-bg:   #14303f;
+      }
+
+      /* surfaces that were hard-coded white */
+      .question-card, .final-panel, .homescreen-nudge, .stats-text,
+      .score-bar, .signup-input { background: var(--surface); }
+      .nav-menu { background: #12333a; }
+      .option-btn { background: #12333a; border-color: #2c5b63; }
+      .option-btn:hover:not(:disabled) { background: #17414a; }
+
+      /* pills: pale chip on white becomes a tinted chip on dark,
+         with the accent itself doing the talking */
+      .question-card:nth-child(5n+1) { --accent-bg: #3d2f13; --accent-ink: #f7a828; }
+      .question-card:nth-child(5n+2) { --accent-bg: #3f2019; --accent-ink: #ff7f66; }
+      .question-card:nth-child(5n+3) { --accent-bg: #3d1a2b; --accent-ink: #f4739d; }
+      .question-card:nth-child(5n+4) { --accent-bg: #2c1f3d; --accent-ink: #bd8ada; }
+      .question-card:nth-child(5n+5) { --accent-bg: #2f3512; --accent-ink: #c9dd63; }
+
+      /* buttons that used --ink as a background and white as their text */
+      .signup-btn, .homescreen-nudge-btn, .cta-home { color: #0f2a30; }
+      .cta-home-sub { color: rgba(15,42,48,.62); }   /* was white-on-white once --ink flipped */
+      /* links in the empty and error states carry no colour of their own,
+         so they fell back to the browser's default blue on dark teal */
+      .empty-state a, .error-sub a, .error-state a { color: #7fd3a1; }
+      .option-btn.correct .option-letter,
+      .option-btn.wrong .option-letter { color: #0f2a30; }
+
+      .share-btn { background: #38855f; border-bottom-color: #235c40; }
+      .share-btn:hover { background: #45a173; }
+
+      .weekly-nudge { background: #14372a; border-color: #2f6b4a; }
+      .weekly-nudge:hover { background: #1a4534; border-color: #3d8a60; }
+      .weekly-nudge-label { color: #7fd3a1; }
+
+      .bonus-btn { background: #3a2a18; color: #f5ae62; border-color: #6b4a26; }
+      .bonus-btn:hover:not(:disabled) { background: #4a3520; border-color: #8a6132; }
+
+      #guff-crossbar { background: #14332c; border-color: #2b5a48; }
+      #guff-crossbar .gxb-title { color: #86d2a6; }
+      #guff-crossbar .gxb-loz { background: #1e4a3c; color: #eaf3f1; }
+
+      /* a touch less wash, since it now sits on a dark card */
+      .duo { --wash-strength: .30; --wash-bright: 1.02; }
+    }
 
 
     /* ── Duotone: staging-only intensity switcher ── */
