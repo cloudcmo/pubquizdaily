@@ -330,21 +330,27 @@
   /* Duotone mode. Default 'bold' everywhere; the little switcher only
      appears on staging / preview / localhost, or with ?duo=bold|soft|off. */
   (function () {
+    /* DEFAULT is the shipped look. Change this one word to switch the whole
+       site between 'bold' and 'soft'. Live visitors always get DEFAULT: the
+       saved preference below is only ever read on staging/preview, so a
+       returning player can never be stuck on an old setting. */
+    var DEFAULT = 'bold';
     var KEY = 'duoMode', MODES = ['bold', 'soft', 'off'];
     var qs = null;
     try { qs = new URLSearchParams(location.search).get('duo'); } catch (e) {}
+    var preview = qs !== null ||
+      /staging|preview|netlify\.app|localhost|127\.0\.0\.1/i.test(location.hostname);
     var saved = null;
-    try { saved = localStorage.getItem(KEY); } catch (e) {}
-    var mode = MODES.indexOf(qs) > -1 ? qs : (MODES.indexOf(saved) > -1 ? saved : 'bold');
-    function apply(m) {
+    if (preview) { try { saved = localStorage.getItem(KEY); } catch (e) {} }
+    var mode = MODES.indexOf(qs) > -1 ? qs
+      : (preview && MODES.indexOf(saved) > -1 ? saved : DEFAULT);
+    function apply(m, remember) {
       var r = document.documentElement;
       MODES.forEach(function (x) { r.classList.remove('duo-' + x); });
       r.classList.add('duo-' + m);
-      try { localStorage.setItem(KEY, m); } catch (e) {}
+      if (remember) { try { localStorage.setItem(KEY, m); } catch (e) {} }
     }
-    apply(mode);
-    var preview = qs !== null ||
-      /staging|preview|netlify\.app|localhost|127\.0\.0\.1/i.test(location.hostname);
+    apply(mode, preview);
     if (!preview) return;
     function build() {
       if (document.querySelector('.duo-switch')) return;
@@ -361,7 +367,7 @@
       bar.addEventListener('click', function (e) {
         var b = e.target.closest('button[data-duo]');
         if (!b) return;
-        apply(b.getAttribute('data-duo'));
+        apply(b.getAttribute('data-duo'), true);
         sync();
       });
       document.body.appendChild(bar);
