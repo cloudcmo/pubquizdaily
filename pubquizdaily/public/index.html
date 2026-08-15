@@ -47,7 +47,7 @@
   </style>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -62,7 +62,7 @@
       --wrong: #3d6b8c;
       --wrong-bg: #eaf1f7;
       --font-serif: 'Libre Baskerville', Georgia, serif;
-      --font-sans: 'DM Sans', system-ui, sans-serif;
+      --font-sans: 'Archivo', system-ui, sans-serif;
     }
 
     html { font-size: 16px; }
@@ -308,8 +308,9 @@
        Green and blue are deliberately absent from the rotation because
        they mean "right" and "wrong" everywhere else on the page. */
     :root {
-      --cream: #fdf7ec;          /* warmer paper */
-      --border: #ece2d3;         /* warmer rules */
+      --cream: #dcebe7;          /* teal paper — the clean break from Whenly's cream */
+      --border: #c7ddd8;
+      --font-sans: 'Archivo', system-ui, sans-serif;
       --accent: #f7a828; --accent-ink: #a06905; --accent-bg: #fef1d9;
     }
     body::before {
@@ -338,7 +339,7 @@
 
     /* Options pick up the card's accent on hover. The answered states are
        untouched: green still means right, blue still means wrong. */
-    .option-btn { background: #fbf7f0; }
+    .option-btn { background: #f2f9f7; }
     .option-btn:hover:not(:disabled) { border-color: var(--accent); }
     .option-btn:hover:not(:disabled) .option-letter { border-color: var(--accent); color: var(--accent-ink); }
 
