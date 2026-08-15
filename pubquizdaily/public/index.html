@@ -265,44 +265,35 @@
     .bonus-btn:disabled { opacity: 0.6; cursor: default; }
     .bonus-sub { margin-top: 10px; text-align: center; font-size: 0.8125rem; color: var(--ink-light); }
   
-    /* ── Duotone photo treatment ──────────────────────────────────
-       Identical recipe to Whenly: the photo is flattened to grey and
-       multiplied over a BRIGHT ink, then the shadows are lifted to a deep
-       ink by a 'lighten' overlay. Putting the colour in the highlights
-       rather than the shadows is what keeps it lively instead of gloomy. */
+    /* ── Photo colour wash ────────────────────────────────────────
+       The source photograph is left intact: no greyscale, no duotone,
+       nothing that eats detail. It is gently desaturated so the card's
+       colour can be read over the top, then a 'screen' layer in that
+       colour is laid over it, which tints and lifts at the same time.
+       Screen is what makes dark photos work: it raises the blacks
+       toward the accent instead of crushing them. */
     .duo {
-      --duo-hi: var(--accent, #f7a828);         /* highlight ink = the card's accent */
-      --duo-sh: var(--accent-deep, #a67c45);    /* shadow ink = a mid-tone in the SAME hue.
-                                                   A neutral dark ink here drains dark photos
-                                                   to grey mush; keeping the shadow in the
-                                                   card's own colour keeps them alive. */
-      --duo-grey: 1;
-      --duo-contrast: .98;
-      --duo-bright: 1.20;                       /* pre-lifts dim source photos */
-      --duo-lift: .70;                          /* how far shadows lift toward the shadow ink */
-      --duo-opacity: .90;                       /* lets the bright accent show through */
+      --wash: var(--accent, #f7a828);   /* the card's colour */
+      --wash-strength: .34;             /* how much colour goes over the top */
+      --wash-sat: .35;                  /* photo's own colour, dialled back so the
+                                           card's colour reads consistently across
+                                           a very mixed set of photographs */
+      --wash-bright: 1.05;
+      --wash-contrast: 1.10;            /* puts back the snap that desaturating costs */
       position: relative; isolation: isolate; overflow: hidden;
-      border-radius: 8px; margin-bottom: 14px;
-      background: var(--duo-hi);
+      border-radius: 10px; margin-bottom: 14px;
     }
     .duo .q-image {
       margin-bottom: 0; border-radius: 0;
-      opacity: var(--duo-opacity);
-      filter: grayscale(var(--duo-grey)) contrast(var(--duo-contrast)) brightness(var(--duo-bright));
-      mix-blend-mode: multiply;
+      filter: saturate(var(--wash-sat)) brightness(var(--wash-bright)) contrast(var(--wash-contrast));
     }
     .duo::after {
       content: ""; position: absolute; inset: 0;
-      background: var(--duo-sh); mix-blend-mode: lighten;
-      opacity: var(--duo-lift); pointer-events: none;
+      background: var(--wash); mix-blend-mode: screen;
+      opacity: var(--wash-strength); pointer-events: none;
     }
-
-    html.duo-soft .duo {
-      --duo-hi: var(--accent-bg, #fef1d9);
-      --duo-grey: .68; --duo-contrast: 1.0; --duo-bright: 1.08; --duo-lift: .46; --duo-opacity: .95;
-    }
-    html.duo-off .duo { background: none; }
-    html.duo-off .duo .q-image { filter: none; mix-blend-mode: normal; opacity: 1; }
+    html.duo-soft .duo { --wash-strength: .18; --wash-sat: .70; --wash-bright: 1.03; --wash-contrast: 1.02; }
+    html.duo-off .duo .q-image { filter: none; }
     html.duo-off .duo::after { opacity: 0; }
 
     /* ══ Vibrancy pass ═══════════════════════════════════════════════
@@ -325,14 +316,13 @@
     }
     /* Accent rotates per card. #questionsList and #bonusList hold nothing
        but .question-card, so nth-child is safe here. */
-    .question-card:nth-child(5n+1) { --accent:#f7a828; --accent-ink:#9a6604; --accent-bg:#fef1d9; --accent-deep:#a67c45; }  /* marigold  */
-    .question-card:nth-child(5n+2) { --accent:#ec5a3c; --accent-ink:#b03a20; --accent-bg:#fdeae5; --accent-deep:#a85446; }  /* tomato    */
-    .question-card:nth-child(5n+3) { --accent:#d63a72; --accent-ink:#a51f52; --accent-bg:#fde8ef; --accent-deep:#a64a72; }  /* raspberry */
-    .question-card:nth-child(5n+4) { --accent:#9a5abf; --accent-ink:#663189; --accent-bg:#f3e9fa; --accent-deep:#77569e; }  /* damson    */
-    .question-card:nth-child(5n+5) { --accent:#b3c944; --accent-ink:#66761a; --accent-bg:#f2f6de; --accent-deep:#87963f; }  /* lime      */
+    .question-card:nth-child(5n+1) { --accent:#f7a828; --accent-ink:#9a6604; --accent-bg:#fef1d9; }  /* marigold  */
+    .question-card:nth-child(5n+2) { --accent:#ec5a3c; --accent-ink:#b03a20; --accent-bg:#fdeae5; }  /* tomato    */
+    .question-card:nth-child(5n+3) { --accent:#d63a72; --accent-ink:#a51f52; --accent-bg:#fde8ef; }  /* raspberry */
+    .question-card:nth-child(5n+4) { --accent:#9a5abf; --accent-ink:#663189; --accent-bg:#f3e9fa; }  /* damson    */
+    .question-card:nth-child(5n+5) { --accent:#b3c944; --accent-ink:#66761a; --accent-bg:#f2f6de; }  /* lime      */
 
     .question-card { border-radius: 14px; box-shadow: 0 1px 2px rgba(60,40,10,.04); }
-    .duo { border-radius: 10px; }
 
     /* Question label becomes a coloured pill, the way Whenly tags its cards */
     .q-number, .q-meta, .bonus-tag {
