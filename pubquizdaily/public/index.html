@@ -264,6 +264,66 @@
     @media (prefers-reduced-motion: reduce) { .bstar, .bonus-btn { animation: none; } .bstar { opacity: 0.7; } }
     .bonus-btn:disabled { opacity: 0.6; cursor: default; }
     .bonus-sub { margin-top: 10px; text-align: center; font-size: 0.8125rem; color: var(--ink-light); }
+  
+    /* ── Duotone photo treatment ──────────────────────────────────
+       Two inks only, like a risograph print: the photo is flattened to
+       grey and multiplied over a warm paper highlight, then the shadows
+       are lifted to brand green by a 'lighten' overlay. Colours come from
+       custom properties so the whole look retunes from one place. */
+    .duo {
+      --duo-hi: #f4ecd8;      /* highlight ink (warm paper) */
+      --duo-sh: #4a7c59;      /* shadow ink (brand green, same as --correct) */
+      --duo-grey: 1;
+      --duo-contrast: 1.18;
+      --duo-bright: 1.02;
+      --duo-lift: .62;
+      position: relative; isolation: isolate; overflow: hidden;
+      border-radius: 8px; margin-bottom: 14px;
+      background: var(--duo-hi);
+    }
+    .duo .q-image {
+      margin-bottom: 0; border-radius: 0;
+      filter: grayscale(var(--duo-grey)) contrast(var(--duo-contrast)) brightness(var(--duo-bright));
+      mix-blend-mode: multiply;
+    }
+    .duo::after {
+      content: ""; position: absolute; inset: 0;
+      background: var(--duo-sh); mix-blend-mode: lighten;
+      opacity: var(--duo-lift); pointer-events: none;
+    }
+
+    /* Ink cycle: one paper stock, a different ink per card, the way a riso
+       print run changes drums. Cards are the only children of #questionsList
+       and #bonusList, so nth-child is safe here. */
+    .question-card:nth-child(5n+1) .duo { --duo-sh: #4a7c59; }  /* green    */
+    .question-card:nth-child(5n+2) .duo { --duo-sh: #8c3d4a; }  /* burgundy */
+    .question-card:nth-child(5n+3) .duo { --duo-sh: #a8752c; }  /* ochre    */
+    .question-card:nth-child(5n+4) .duo { --duo-sh: #5c4a7c; }  /* plum     */
+    .question-card:nth-child(5n+5) .duo { --duo-sh: #2f6d70; }  /* teal     */
+    html.duo-soft .duo { --duo-hi: #f6eed9; --duo-grey: .68; --duo-contrast: 1.08; --duo-lift: .40; }
+    html.duo-off .duo { background: none; }
+    html.duo-off .duo .q-image { filter: none; mix-blend-mode: normal; }
+    html.duo-off .duo::after { opacity: 0; }
+
+    /* ── Duotone: staging-only intensity switcher ── */
+    .duo-switch {
+      position: fixed; bottom: 14px; left: 50%; transform: translateX(-50%);
+      z-index: 400; display: flex; align-items: center; gap: 4px;
+      background: rgba(20,20,20,.92); color: #fff;
+      border-radius: 999px; padding: 5px 6px 5px 12px;
+      font-family: var(--font-sans, system-ui, sans-serif);
+      font-size: 11px; font-weight: 600; line-height: 1;
+      letter-spacing: .06em; text-transform: uppercase;
+      box-shadow: 0 6px 22px rgba(0,0,0,.28);
+    }
+    .duo-switch > span { opacity: .5; margin-right: 4px; }
+    .duo-switch button {
+      border: 0; cursor: pointer; border-radius: 999px; padding: 6px 11px;
+      font: inherit; letter-spacing: inherit; text-transform: inherit;
+      color: #fff; background: rgba(255,255,255,.14);
+    }
+    .duo-switch button.on { background: #fff; color: #141414; }
+
   </style>
   <script type="application/ld+json">
   {
@@ -274,6 +334,58 @@
     "description": "Free pub quiz questions every day. Test your general knowledge, build a streak and share your score.",
     "potentialAction": { "@type": "PlayAction", "target": "https://pubquizdaily.com" }
   }
+  </script>
+  <script>
+  /* Duotone mode. Default 'bold' everywhere; the little switcher only
+     appears on staging / preview / localhost, or with ?duo=bold|soft|off. */
+  (function () {
+    /* DEFAULT is the shipped look. Change this one word to switch the whole
+       site between 'bold' and 'soft'. Live visitors always get DEFAULT: the
+       saved preference below is only ever read on staging/preview, so a
+       returning player can never be stuck on an old setting. */
+    var DEFAULT = 'bold';
+    var KEY = 'duoMode', MODES = ['bold', 'soft', 'off'];
+    var qs = null;
+    try { qs = new URLSearchParams(location.search).get('duo'); } catch (e) {}
+    var preview = qs !== null ||
+      /staging|preview|netlify\.app|localhost|127\.0\.0\.1/i.test(location.hostname);
+    var saved = null;
+    if (preview) { try { saved = localStorage.getItem(KEY); } catch (e) {} }
+    var mode = MODES.indexOf(qs) > -1 ? qs
+      : (preview && MODES.indexOf(saved) > -1 ? saved : DEFAULT);
+    function apply(m, remember) {
+      var r = document.documentElement;
+      MODES.forEach(function (x) { r.classList.remove('duo-' + x); });
+      r.classList.add('duo-' + m);
+      if (remember) { try { localStorage.setItem(KEY, m); } catch (e) {} }
+    }
+    apply(mode, preview);
+    if (!preview) return;
+    function build() {
+      if (document.querySelector('.duo-switch')) return;
+      var bar = document.createElement('div');
+      bar.className = 'duo-switch';
+      bar.innerHTML = '<span>pics</span>' + MODES.map(function (m) {
+        return '<button type="button" data-duo="' + m + '">' + m + '</button>';
+      }).join('');
+      function sync() {
+        Array.prototype.forEach.call(bar.querySelectorAll('button'), function (b) {
+          b.classList.toggle('on', document.documentElement.classList.contains('duo-' + b.getAttribute('data-duo')));
+        });
+      }
+      bar.addEventListener('click', function (e) {
+        var b = e.target.closest('button[data-duo]');
+        if (!b) return;
+        apply(b.getAttribute('data-duo'), true);
+        sync();
+      });
+      document.body.appendChild(bar);
+      sync();
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', build);
+    } else { build(); }
+  })();
   </script>
 </head>
 <body>
@@ -458,7 +570,7 @@
 
         card.innerHTML = `
           <div class="q-number">Q${i + 1}</div>
-          ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" onerror="this.remove()" />` : ''}
+          ${q.image ? `<div class="duo"><img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" onerror="this.parentElement.remove()" /></div>` : ''}
           <div class="q-text">${q.question}</div>
           <div class="options">${optionsHtml}</div>
           ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
@@ -900,7 +1012,7 @@
       `).join('');
       card.innerHTML = `
         <div class="bonus-tag">Bonus</div>
-        ${q.image ? `<img class="q-image" src="${imageUrl(q.image)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()" />` : ''}
+        ${q.image ? `<div class="duo"><img class="q-image" src="${imageUrl(q.image)}" alt="" referrerpolicy="no-referrer" onerror="this.parentElement.remove()" /></div>` : ''}
         <div class="q-text">${__bonusEsc(q.question)}</div>
         <div class="options">${optionsHtml}</div>
         ${q.explainer ? `<div class="explainer" id="bonus-exp-${n}">${__bonusEsc(q.explainer)}</div>` : ''}
