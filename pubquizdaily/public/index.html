@@ -291,6 +291,15 @@
       background: var(--duo-sh); mix-blend-mode: lighten;
       opacity: var(--duo-lift); pointer-events: none;
     }
+
+    /* Ink cycle: one paper stock, a different ink per card, the way a riso
+       print run changes drums. Cards are the only children of #questionsList
+       and #bonusList, so nth-child is safe here. */
+    .question-card:nth-child(5n+1) .duo { --duo-sh: #4a7c59; }  /* green    */
+    .question-card:nth-child(5n+2) .duo { --duo-sh: #8c3d4a; }  /* burgundy */
+    .question-card:nth-child(5n+3) .duo { --duo-sh: #a8752c; }  /* ochre    */
+    .question-card:nth-child(5n+4) .duo { --duo-sh: #5c4a7c; }  /* plum     */
+    .question-card:nth-child(5n+5) .duo { --duo-sh: #2f6d70; }  /* teal     */
     html.duo-soft .duo { --duo-hi: #f6eed9; --duo-grey: .68; --duo-contrast: 1.08; --duo-lift: .40; }
     html.duo-off .duo { background: none; }
     html.duo-off .duo .q-image { filter: none; mix-blend-mode: normal; }
