@@ -19,7 +19,8 @@
 // whenly.co.uk. Everything Whenly is best-effort: any failure just drops the
 // promo block — it must never hold up the Pub Quiz Daily email.
 
-const crypto = require('crypto');
+const { fetchSheetRows } = require('../lib/sheet');
+const { loadPickSet, addPicks, pickKey } = require('../lib/weekly-picks');
 
 const BASE = 'https://pubquizdaily.com';
 const WEEKLY_URL = `${BASE}/weekly.html`;
@@ -28,13 +29,12 @@ const MIN_SAMPLE = 4;                 // hide a % until at least this many answe
 // in the sheet (Carl's manual weekly-picking step is retired as of 2026-08-13
 // — see WEEKLY_AUTO_SELECT_COUNT usage in fetchWeeklyQuestions below).
 const WEEKLY_AUTO_SELECT_COUNT = 11;
-// Gemini model fallback chain. Honour GEMINI_MODEL if set, then try current
-// models in turn. Old model names get retired by Google (gemini-1.5-flash is
-// gone), so we never hard-depend on a single one — and if all fail we fall back
-// to templated copy and say why in the admin preview.
-// Preferred models tried first (fast path). If all fail, callGemini discovers
-// what the key can actually use via ListModels. GEMINI_MODEL env overrides.
-const GEMINI_MODELS = [process.env.GEMINI_MODEL, 'gemini-flash-latest', 'gemini-2.0-flash', 'gemini-flash-lite-latest'].filter(Boolean);
+// Which Claude model writes the teaser copy. Prefer a known-good name, and if
+// the key can't use it, ask the API what it CAN use rather than hard-depending
+// on a name that may change. ANTHROPIC_MODEL overrides. If everything fails we
+// fall back to templated copy and say why in the admin preview.
+const ANTHROPIC_VERSION = '2023-06-01';
+const ANTHROPIC_MODELS = [process.env.ANTHROPIC_MODEL, 'claude-haiku-4-5', 'claude-sonnet-4-5'].filter(Boolean);
 
 // ── What Word promo (best-effort; never blocks the main email) ──
 const WHATWORD_URL = process.env.WHATWORD_URL || 'https://what-word.carl-b82.workers.dev';
@@ -66,13 +66,12 @@ exports.handler = async function() {
 
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
   const SHEET_ID       = process.env.GOOGLE_SHEET_ID;
-  const API_KEY        = process.env.GOOGLE_API_KEY;
   const SITE_ID        = process.env.NETLIFY_SITE_ID;
   const TOKEN          = process.env.NETLIFY_API_TOKEN;
   const REPORT_EMAIL   = process.env.DAILY_REPORT_EMAIL;
   const CANCEL_TOKEN   = process.env.WEEKLY_CANCEL_TOKEN;
 
-  if (!RESEND_API_KEY || !SHEET_ID || !API_KEY || !SITE_ID || !TOKEN || !REPORT_EMAIL || !CANCEL_TOKEN) {
+  if (!RESEND_API_KEY || !SHEET_ID || !SITE_ID || !TOKEN || !REPORT_EMAIL || !CANCEL_TOKEN) {
     console.error('weekly-preview: missing required env vars');
     return { statusCode: 500, body: 'Missing env vars' };
   }
@@ -82,7 +81,7 @@ exports.handler = async function() {
   const fridayISO = addDaysISO(londonDateISO(), 1);
 
   try {
-    const questions = await fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOKEN });
+    const questions = await fetchWeeklyQuestions({ SHEET_ID, fridayISO, SITE_ID, TOKEN });
     if (questions.length === 0) {
       console.log('weekly-preview: no W questions for this week — nothing to build.');
       // Tell the admin so a blank Friday isn't a surprise.
@@ -164,29 +163,26 @@ exports.handler = async function() {
 
 // ── Content ──────────────────────────────────────────────────────────────────
 
-async function fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOKEN }) {
+async function fetchWeeklyQuestions({ SHEET_ID, fridayISO, SITE_ID, TOKEN }) {
   const validDates = new Set();
   for (let i = 1; i <= 7; i++) validDates.add(addDaysISO(fridayISO, -i)); // last Fri..Thu
 
-  const range = encodeURIComponent('multi!A:J');
-  const res = await fetch(`https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`);
-  if (!res.ok) throw new Error(`Sheets API ${res.status}`);
-  const rows = ((await res.json()).values || []).slice(1);
+  const rows = (await fetchSheetRows(SHEET_ID, 'multi')).slice(1);
+  const autoPicks = await loadPickSet();
 
   // per-day index (position within that date, in sheet order) = the N in the stats key
   const perDay = {};
   const out = [];
   const candidates = []; // every complete row in the window, W or not — the auto-select pool
-  rows.forEach((row, i) => {
+  rows.forEach((row) => {
     const isoDate = parseFlexDate((row[0] || '').trim());
     if (!isoDate) return;
     const idx = (perDay[isoDate] = (perDay[isoDate] ?? -1) + 1);
     if (!validDates.has(isoDate)) return;
     const [, question, a, b, c, d, correct, explainer, , image] = row;
     if (!question || !a || !b || !c || !d || !correct) return;
-    const sheetRow = i + 2; // rows[] had the header row sliced off
-    candidates.push({ sheetRow, date: isoDate, index: idx, question: question.trim(), image: image ? image.trim() : null });
-    if ((row[8] || '').trim().toUpperCase() === 'W') {
+    candidates.push({ date: isoDate, index: idx, question: question.trim(), image: image ? image.trim() : null });
+    if ((row[8] || '').trim().toUpperCase() === 'W' || autoPicks.has(pickKey(isoDate, question))) {
       out.push({ date: isoDate, index: idx, question: question.trim(), image: image ? image.trim() : null });
     }
   });
@@ -201,16 +197,16 @@ async function fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOK
     shuffleInPlace(pool);
     const picks = pool.slice(0, WEEKLY_AUTO_SELECT_COUNT);
     try {
-      await writeWeeklyFlags(SHEET_ID, picks.map(p => p.sheetRow));
+      await addPicks(picks);
     } catch (e) {
       // Surface this loudly instead of swallowing it: both callers
       // (weekly-preview's handler and weekly-rebuild) already catch and
       // report errors, so a silent "nothing to build" here would hide a
       // real auth/permission problem writing to the sheet.
-      throw new Error(`auto-select found ${picks.length} candidate question(s) but failed to write W flags: ${e.message || e}`);
+      throw new Error(`auto-select found ${picks.length} candidate question(s) but failed to save the picks: ${e.message || e}`);
     }
-    console.log(`weekly-preview: auto-selected ${picks.length} question(s) for the week ending ${addDaysISO(fridayISO, -1)} (rows ${picks.map(p => p.sheetRow).join(', ')})`);
-    out.push(...picks.map(({ sheetRow, ...q }) => q));
+    console.log(`weekly-preview: auto-selected ${picks.length} question(s) for the week ending ${addDaysISO(fridayISO, -1)} (${picks.map(p => p.date).join(', ')})`);
+    out.push(...picks);
   } else if (out.length === 0) {
     console.log(`weekly-preview: no candidate questions at all in the window for ${fridayISO} — nothing to auto-select from`);
   }
@@ -237,71 +233,11 @@ function shuffleInPlace(arr) {
   }
 }
 
-// ── Sheet writes (auto-select fallback only) ────────────────────────────────
-// Everything else in this file only READS the sheet via GOOGLE_API_KEY. Writing
-// the auto-picked "W" flags needs Editor access, so this uses the same service
-// account already granted Editor on the sheet for scripts/draft-questions.js
-// and scripts/assign-weekly.js (GOOGLE_SERVICE_ACCOUNT_JSON = that account's
-// JSON key, set as a Netlify secret). If it's not configured, the auto-select
-// caller catches the error and treats it as nothing-to-build.
-
-let _sheetsAccessToken; // { token, exp } — reused across calls within a cold start
-async function getSheetsAccessToken() {
-  if (_sheetsAccessToken && _sheetsAccessToken.exp > Date.now() / 1000 + 60) {
-    return _sheetsAccessToken.token;
-  }
-  // Prefer the base64 form (GOOGLE_SERVICE_ACCOUNT_JSON_B64) — the multi-line
-  // PEM private key inside the raw JSON form didn't survive being stored as a
-  // Netlify env var reliably, so the JSON is base64-encoded end to end and
-  // decoded here. Falls back to the raw JSON var if that's what's set.
-  const rawB64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_B64;
-  const raw = rawB64 ? Buffer.from(rawB64, 'base64').toString('utf8') : process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!raw) throw new Error('GOOGLE_SERVICE_ACCOUNT_JSON_B64 (or GOOGLE_SERVICE_ACCOUNT_JSON) not set — cannot write to the sheet');
-  const serviceAccount = JSON.parse(raw);
-
-  const header = { alg: 'RS256', typ: 'JWT' };
-  const now = Math.floor(Date.now() / 1000);
-  const claim = {
-    iss: serviceAccount.client_email,
-    scope: 'https://www.googleapis.com/auth/spreadsheets',
-    aud: 'https://oauth2.googleapis.com/token',
-    exp: now + 3600,
-    iat: now,
-  };
-  const base64url = buf => buf.toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-  const unsigned = `${base64url(Buffer.from(JSON.stringify(header)))}.${base64url(Buffer.from(JSON.stringify(claim)))}`;
-  const signer = crypto.createSign('RSA-SHA256');
-  signer.update(unsigned);
-  signer.end();
-  const signature = base64url(signer.sign(serviceAccount.private_key));
-  const jwt = `${unsigned}.${signature}`;
-
-  const res = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion: jwt }),
-  });
-  if (!res.ok) throw new Error(`Google auth failed: ${await res.text()}`);
-  const data = await res.json();
-  _sheetsAccessToken = { token: data.access_token, exp: now + (data.expires_in || 3600) };
-  return data.access_token;
-}
-
-// Writes 'W' into column I of the "multi" tab for the given sheet row numbers.
-async function writeWeeklyFlags(sheetId, sheetRows) {
-  if (!sheetRows.length) return;
-  const accessToken = await getSheetsAccessToken();
-  const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values:batchUpdate`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${accessToken}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      valueInputOption: 'RAW',
-      data: sheetRows.map(row => ({ range: `multi!I${row}`, values: [['W']] })),
-    }),
-  });
-  if (!res.ok) throw new Error(`Failed to write W flags: ${await res.text()}`);
-}
+// The auto-select used to write its picks back into the sheet, which needed
+// Editor access via a Google Cloud service account. That was the site's last
+// Google Cloud dependency, so it now records them in a Netlify blob instead -
+// see netlify/lib/weekly-picks.js. Hand-typed "W" flags in the sheet still
+// work exactly as before.
 
 function weeklyAvgPct(questions) {
   let c = 0, t = 0;
@@ -316,100 +252,89 @@ function pickSubjectQuestion(questions, fridayISO) {
   return pool[week % pool.length];
 }
 
-// Ask the API which models THIS key can actually call for generateContent.
-// Model availability varies by project/account (new projects get 404
-// "no longer available to new users" for older names), so we discover rather
-// than hard-depend on a list.
-async function listGenerateModels(key) {
+// Teaser copy used to be written by Gemini. That meant a Google API key, and
+// the point of the 2026-08-18 pass was to get Google Cloud out of the live site
+// entirely, so this calls Claude now. The shape is deliberately unchanged: try
+// the preferred models, then discover what the key can actually use.
+
+async function listAnthropicModels(key) {
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${key}&pageSize=1000`);
+    const res = await fetch('https://api.anthropic.com/v1/models?limit=100', {
+      headers: { 'x-api-key': key, 'anthropic-version': ANTHROPIC_VERSION },
+    });
     if (!res.ok) return [];
     const data = await res.json();
-    return (data.models || [])
-      .filter(m => (m.supportedGenerationMethods || []).includes('generateContent'))
-      .map(m => (m.name || '').replace(/^models\//, ''))
-      .filter(Boolean);
+    return (data.data || []).map(m => m.id).filter(Boolean);
   } catch { return []; }
 }
 
-// Prefer newer, general Flash models; avoid preview/experimental and non-text.
-function rankModel(a, b) {
-  const score = n => {
-    let s = 0;
-    if (/latest/.test(n)) s += 1000;
-    if (/flash/.test(n)) s += 500;
-    if (/lite/.test(n)) s -= 40;
-    if (/preview|exp|thinking|image|tts|audio|embedding|vision/.test(n)) s -= 300;
-    const m = n.match(/gemini-(\d+(?:\.\d+)?)/);
-    if (m) s += parseFloat(m[1]) * 10;
+// Cheap and fast beats clever for a 45-word teaser: Haiku first, then Sonnet.
+// /v1/models comes back newest first, so list position is a decent tiebreak.
+function rankModels(ids) {
+  const score = (id, i) => {
+    let s = -i;
+    if (/haiku/.test(id)) s += 1000;
+    else if (/sonnet/.test(id)) s += 500;
+    if (/opus/.test(id)) s -= 200;
     return s;
   };
-  return score(b) - score(a);
+  return ids.map((id, i) => ({ id, s: score(id, i) })).sort((a, b) => b.s - a.s).map(m => m.id);
 }
 
-// Try one model. Disables "thinking" (thinkingBudget:0) so the token budget goes
-// to the answer, not hidden reasoning — current Flash models otherwise return
-// truncated/empty text. Uses a generous ceiling. If a model rejects thinkingConfig
-// (400), retries it without that field. Returns { ok, text } or { ok:false, err }.
+// Try one model. Returns { ok, text } or { ok:false, err }.
 async function tryModel(model, prompt, generationConfig, key) {
-  const big = Math.max(generationConfig.maxOutputTokens || 0, 2048);
-  const configs = [
-    { ...generationConfig, maxOutputTokens: big, thinkingConfig: { thinkingBudget: 0 } },
-    { ...generationConfig, maxOutputTokens: big },
-  ];
-  let err = 'not tried';
-  for (const cfg of configs) {
-    let res;
-    try {
-      res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key}`,
-        { method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }], generationConfig: cfg }) }
-      );
-    } catch (e) { err = e.message; break; }
-    if (!res.ok) {
-      err = `${res.status} ${(await res.text()).replace(/\s+/g, ' ').slice(0, 90)}`;
-      if (res.status === 400 && cfg.thinkingConfig) continue; // maybe the thinking field; retry without it
-      break;
-    }
-    const cand = (await res.json())?.candidates?.[0];
-    const text = (cand?.content?.parts?.map(p => p.text).filter(Boolean).join('') || '').trim();
-    if (text) return { ok: true, text };
-    err = `empty (finishReason ${cand?.finishReason || '?'})`;
-    if (cfg.thinkingConfig) continue; // truncated by thinking; the no-think retry may help
-    break;
+  let res;
+  try {
+    res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': key,
+        'anthropic-version': ANTHROPIC_VERSION,
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: Math.max(generationConfig.maxOutputTokens || 0, 1024),
+        temperature: generationConfig.temperature != null ? generationConfig.temperature : 1,
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+  } catch (e) { return { ok: false, err: e.message }; }
+
+  if (!res.ok) {
+    return { ok: false, err: `${res.status} ${(await res.text()).replace(/\s+/g, ' ').slice(0, 90)}` };
   }
-  return { ok: false, err };
+  const data = await res.json();
+  const text = ((data.content || []).filter(b => b.type === 'text').map(b => b.text).join('') || '').trim();
+  if (!text) return { ok: false, err: `empty (stop_reason ${data.stop_reason || '?'})` };
+  return { ok: true, text };
 }
 
-// Calls Gemini for `prompt`. Tries the preferred models first, then whatever the
-// key reports it can use (Flash preferred). Returns { text, model }. On total
-// failure, throws with every attempt AND the list of models the key can use, so
-// the admin preview names exactly what to switch to.
+// Calls Claude for `prompt`. Returns { text, model }. On total failure, throws
+// with every attempt AND the models the key can use, so the admin preview names
+// exactly what to switch to.
 let _workingModel = null; // remembered across calls so the 2nd call skips discovery
 
-async function callGemini(prompt, generationConfig) {
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) throw new Error('GEMINI_API_KEY is not set');
+async function callLLM(prompt, generationConfig) {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key) throw new Error('ANTHROPIC_API_KEY is not set');
   const tried = new Set();
   const attempts = [];
-  // Fast path: the last-known-good model first, then the preferred list.
-  for (const model of [_workingModel, ...GEMINI_MODELS]) {
+  for (const model of [_workingModel, ...ANTHROPIC_MODELS]) {
     if (!model || tried.has(model)) continue;
     tried.add(model);
     const r = await tryModel(model, prompt, generationConfig, key);
     if (r.ok) { _workingModel = model; return { text: r.text, model }; }
     attempts.push(`${model} -> ${r.err}`);
   }
-  // Discovery: whatever this key can actually use (Flash preferred).
-  const avail = await listGenerateModels(key);
-  for (const model of avail.filter(n => !tried.has(n)).sort(rankModel).slice(0, 6)) {
+  const avail = await listAnthropicModels(key);
+  for (const model of rankModels(avail.filter(n => !tried.has(n))).slice(0, 6)) {
     tried.add(model);
     const r = await tryModel(model, prompt, generationConfig, key);
     if (r.ok) { _workingModel = model; return { text: r.text, model }; }
     attempts.push(`${model} -> ${r.err}`);
   }
-  const availNote = avail.length ? ` | key can use: ${avail.slice(0, 14).join(', ')}` : ' | ListModels returned nothing';
+  const availNote = avail.length ? ` | key can use: ${avail.slice(0, 14).join(', ')}` : ' | model list returned nothing';
   throw new Error(attempts.join(' ; ') + availNote);
 }
 
@@ -426,7 +351,7 @@ Return ONLY minified JSON (no markdown) with keys:
 Questions:
 ${list}`;
 
-  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 800 });
+  const { text: raw, model } = await callLLM(prompt, { temperature: 0.9, maxOutputTokens: 800 });
   let text = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
   const parsed = JSON.parse(text);
   if (!parsed.kicker || !parsed.headline || !parsed.intro) throw new Error('AI copy missing fields');
@@ -519,7 +444,7 @@ STRICT RULES:
 Today's questions:
 ${list}`;
 
-  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 400 });
+  const { text: raw, model } = await callLLM(prompt, { temperature: 0.9, maxOutputTokens: 400 });
   let text = noEmDash(raw.replace(/```/g, '').replace(/^["']|["']$/g, '').trim());
   if (!text) throw new Error('empty Whenly teaser');
   // Reject implausibly short/truncated output (e.g. "From the") so we use the
@@ -593,7 +518,7 @@ STRICT RULES:
 The day's words:
 ${list}`;
 
-  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 400 });
+  const { text: raw, model } = await callLLM(prompt, { temperature: 0.9, maxOutputTokens: 400 });
   let text = noEmDash(raw.replace(/```/g, '').replace(/^["']|["']$/g, '').trim());
   if (!text) throw new Error('empty What Word teaser');
   if (text.length < 25) throw new Error(`What Word teaser too short: ${JSON.stringify(text)}`);
@@ -673,7 +598,7 @@ STRICT RULES:
 The day's grid (all of this is secret except the sixteen words themselves):
 ${list}`;
 
-  const { text: raw, model } = await callGemini(prompt, { temperature: 0.9, maxOutputTokens: 400 });
+  const { text: raw, model } = await callLLM(prompt, { temperature: 0.9, maxOutputTokens: 400 });
   let text = noEmDash(raw.replace(/```/g, '').replace(/^["']|["']$/g, '').trim());
   if (!text) throw new Error('empty Groupie teaser');
   if (text.length < 25) throw new Error(`Groupie teaser too short: ${JSON.stringify(text)}`);

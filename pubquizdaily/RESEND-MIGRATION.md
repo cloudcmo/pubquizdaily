@@ -26,13 +26,15 @@ The email is a **teaser** — image, a few lines of fun copy, a stat, one big bu
 | Variable | Value / where to get it |
 |---|---|
 | `RESEND_SEGMENT_ID` | `90610922-0511-40a1-a3d1-2c645d992210` (the Pub Quiz Daily segment) |
-| `GEMINI_API_KEY` | Free key from Google AI Studio (aistudio.google.com → "Get API key"). Free tier is ample for one email/week. |
+| `ANTHROPIC_API_KEY` | Key from console.anthropic.com. One short teaser a week costs pennies. |
 | `WEEKLY_CANCEL_TOKEN` | A secret that protects the cancel link. Suggested: `pqd-wk-7f3c1a9be2d4485a9c1e6b02f8a71d34` (or your own random string) |
-| `GEMINI_MODEL` | *Optional.* Defaults to `gemini-1.5-flash`. Only set this if that model name ever 404s — then use the current free "flash" model name. |
+| `ANTHROPIC_MODEL` | *Optional.* Pins a model. Left unset, the function tries a sensible default and, if the key cannot use it, asks the API which models it can. |
 
-Already set and reused: `RESEND_API_KEY`, `GOOGLE_SHEET_ID`, `GOOGLE_API_KEY`, `NETLIFY_SITE_ID`, `NETLIFY_API_TOKEN`, `DAILY_REPORT_EMAIL` (this is where previews and alerts go — currently carl@mesnerlyons.com).
+Already set and reused: `RESEND_API_KEY`, `GOOGLE_SHEET_ID`, `NETLIFY_SITE_ID`, `NETLIFY_API_TOKEN`, `DAILY_REPORT_EMAIL` (this is where previews and alerts go — currently carl@mesnerlyons.com).
 
-If `GEMINI_API_KEY` is missing or the AI call fails, the copy falls back to a clean templated version automatically — it never blocks the send.
+If `ANTHROPIC_API_KEY` is missing or the AI call fails, the copy falls back to a clean templated version automatically — it never blocks the send.
+
+*(August 2026: the teaser copy moved from Gemini to Claude, and the sheet is now read without a Google API key, so the site no longer depends on a Google Cloud project at all.)*
 
 ## Testing before it goes fully live
 

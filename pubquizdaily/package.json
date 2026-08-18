@@ -1,12 +1,13 @@
 {
   "name": "pubquizdaily",
   "version": "1.0.0",
-  "description": "Daily pub quiz — one question, every day.",
+  "description": "Daily pub quiz \u2014 one question, every day.",
   "private": true,
   "engines": {
     "node": ">=18"
   },
   "scripts": {
+    "test": "node test-sheet.mjs",
     "dev": "netlify dev",
     "add-images": "node scripts/add-images.js",
     "assign-weekly": "node scripts/assign-weekly.js",

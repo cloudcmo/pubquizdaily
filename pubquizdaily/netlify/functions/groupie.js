@@ -2,6 +2,8 @@
 // Fetches today's Groupie puzzle from the 'Groupie' tab of the Google Sheet
 // Sheet columns: date | w1 | w2 | w3 | w4 | exp1 | w5 | w6 | w7 | w8 | exp2 | w9 | w10 | w11 | w12 | exp3 | w13 | w14 | w15 | w16 | exp4
 
+const { fetchSheetRows } = require('../lib/sheet');
+
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -10,25 +12,15 @@ exports.handler = async function(event) {
   };
 
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-  const API_KEY  = process.env.GOOGLE_API_KEY;
 
-  if (!SHEET_ID || !API_KEY) {
+  if (!SHEET_ID) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing environment variables' }) };
   }
 
   const requestedDate = event.queryStringParameters?.date || todayISO();
 
   try {
-    const range = encodeURIComponent('Groupie!A:U'); // 21 columns: date + 4 groups of 5
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
-
-    const res = await fetch(url);
-    if (!res.ok) {
-      return { statusCode: 502, headers, body: JSON.stringify({ error: 'Failed to fetch sheet' }) };
-    }
-
-    const data = await res.json();
-    const rows = data.values || [];
+    const rows = await fetchSheetRows(SHEET_ID, 'Groupie');
 
     const matchingRow = rows.slice(1).find(row => {
       const cellDate = (row[0] || '').trim();

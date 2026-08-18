@@ -11,6 +11,8 @@
 // retention window.
 const CUTOFF_DAYS = parseInt(process.env.CUTOFF_DAYS || '10', 10);
 
+const { fetchSheetRows } = require('../lib/sheet');
+
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -19,9 +21,8 @@ exports.handler = async function(event) {
   };
 
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-  const API_KEY  = process.env.GOOGLE_API_KEY;
 
-  if (!SHEET_ID || !API_KEY) {
+  if (!SHEET_ID) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing environment variables' }) };
   }
 
@@ -34,18 +35,7 @@ exports.handler = async function(event) {
   }
 
   try {
-    const range = encodeURIComponent('multi!A:J');
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
-
-    const res = await fetch(url);
-    if (!res.ok) {
-      const err = await res.text();
-      console.error('Sheets API error:', err);
-      return { statusCode: 502, headers, body: JSON.stringify({ error: 'Failed to fetch sheet' }) };
-    }
-
-    const data = await res.json();
-    const rows = data.values || [];
+    const rows = await fetchSheetRows(SHEET_ID, 'multi');
 
     // Find all rows matching the requested date
     const matchingRows = rows.slice(1).filter(row => {
