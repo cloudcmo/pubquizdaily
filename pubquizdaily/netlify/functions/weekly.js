@@ -2,6 +2,9 @@
 // Fetches questions flagged with 'W' in column I from the past 7 days
 // Sheet columns: date | question | A | B | C | D | correct | explainer | weekly
 
+const { fetchSheetRows } = require('../lib/sheet');
+const { loadPickSet, pickKey } = require('../lib/weekly-picks');
+
 exports.handler = async function(event) {
   const headers = {
     'Access-Control-Allow-Origin': '*',
@@ -10,23 +13,19 @@ exports.handler = async function(event) {
   };
 
   const SHEET_ID = process.env.GOOGLE_SHEET_ID;
-  const API_KEY  = process.env.GOOGLE_API_KEY;
 
-  if (!SHEET_ID || !API_KEY) {
+  if (!SHEET_ID) {
     return { statusCode: 500, headers, body: JSON.stringify({ error: 'Missing environment variables' }) };
   }
 
   try {
-    const range = encodeURIComponent('multi!A:J');
-    const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${range}?key=${API_KEY}`;
-
-    const res = await fetch(url);
-    if (!res.ok) {
-      return { statusCode: 502, headers, body: JSON.stringify({ error: 'Failed to fetch sheet' }) };
-    }
-
-    const data = await res.json();
-    const rows = data.values || [];
+    const rows = await fetchSheetRows(SHEET_ID, 'multi');
+    // A question counts as this week's Best-of if the sheet says so (a "W"
+    // typed in by hand or by scripts/assign-weekly.js) or if the weekly
+    // auto-select picked it. Auto-picks used to be written back into the
+    // sheet, which needed a Google service account; they now live in a
+    // Netlify blob instead. See netlify/lib/weekly-picks.js.
+    const autoPicks = await loadPickSet();
 
     // Build the set of valid dates: past 7 days (not including today)
     const validDates = new Set();
@@ -41,9 +40,10 @@ exports.handler = async function(event) {
     const questions = rows.slice(1).reduce((acc, row, rowIndex) => {
       const cellDate = (row[0] || '').trim();
       const isoDate = parseFlexDate(cellDate) || cellDate;
-      const weekly = (row[8] || '').trim().toUpperCase();
+      const isWeekly = (row[8] || '').trim().toUpperCase() === 'W'
+        || autoPicks.has(pickKey(isoDate, row[1]));
 
-      if (!validDates.has(isoDate) || weekly !== 'W') return acc;
+      if (!validDates.has(isoDate) || !isWeekly) return acc;
 
       const [, question, optA, optB, optC, optD, correct, explainer, , image] = row;
       if (!question || !optA || !optB || !optC || !optD || !correct) return acc;

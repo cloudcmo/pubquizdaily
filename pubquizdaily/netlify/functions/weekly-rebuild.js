@@ -22,7 +22,6 @@ exports.handler = async function(event) {
   const env = {
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     SHEET_ID:       process.env.GOOGLE_SHEET_ID,
-    API_KEY:        process.env.GOOGLE_API_KEY,
     SITE_ID:        process.env.NETLIFY_SITE_ID,
     TOKEN:          process.env.NETLIFY_API_TOKEN,
     REPORT_EMAIL:   process.env.DAILY_REPORT_EMAIL,
@@ -52,7 +51,7 @@ exports.handler = async function(event) {
   }
 
   try {
-    const questions = await wp.fetchWeeklyQuestions({ SHEET_ID: env.SHEET_ID, API_KEY: env.API_KEY, fridayISO, SITE_ID: env.SITE_ID, TOKEN: env.TOKEN });
+    const questions = await wp.fetchWeeklyQuestions({ SHEET_ID: env.SHEET_ID, fridayISO, SITE_ID: env.SITE_ID, TOKEN: env.TOKEN });
     if (!questions.length) {
       return htmlResp(200, 'Nothing to rebuild', `No questions are flagged "W" for the week ending ${fridayISO}.`);
     }

@@ -39,17 +39,23 @@ Follow these steps in order. The whole setup takes about 20–30 minutes.
 
 ---
 
-## Step 2 — Get a Google Sheets API Key
+## Step 2 — Share the sheet
 
-1. Go to **console.cloud.google.com**
-2. Click **Select a project** → **New Project**
-3. Name it `Pub Quiz Daily` and click **Create**
-4. In the left menu, go to **APIs & Services → Library**
-5. Search for **Google Sheets API** and click **Enable**
-6. Go to **APIs & Services → Credentials**
-7. Click **+ Create Credentials → API Key**
-8. Copy the API key — save it somewhere safe
-9. (Optional but recommended) Click **Edit API Key** and under **API restrictions**, select **Restrict key** → choose **Google Sheets API**
+There is no API key and no Google Cloud project. The site reads the sheet
+through Google's public CSV export, which works as long as the sheet is
+readable by anyone with the link.
+
+1. Open the sheet and click **Share**
+2. Under **General access**, choose **Anyone with the link**
+3. Leave the role as **Viewer**
+
+That is the whole step. If this is ever tightened to "Restricted", the site
+stops being able to read questions and the functions will say so explicitly
+("returned HTML, not CSV").
+
+> Until August 2026 this step created a Google Cloud project and a Sheets API
+> key. That made the site depend on a Cloud project staying alive, so it was
+> removed. See `netlify/lib/sheet.js`.
 
 ---
 
@@ -62,10 +68,15 @@ Follow these steps in order. The whole setup takes about 20–30 minutes.
 3. Your site will be live at a random URL like `rainbow-unicorn-123.netlify.app`
 4. To add environment variables:
    - In Netlify, click your site → **Site configuration → Environment variables**
-   - Add these two variables:
+   - Add:
      - Key: `GOOGLE_SHEET_ID` → Value: *your Sheet ID from Step 1*
-     - Key: `GOOGLE_API_KEY` → Value: *your API key from Step 2*
    - Click **Save**
+
+   The scheduled weekly email needs a few more, set on the live site already:
+   `RESEND_API_KEY`, `NETLIFY_SITE_ID`, `NETLIFY_API_TOKEN`, `DAILY_REPORT_EMAIL`,
+   `WEEKLY_CANCEL_TOKEN`, and `ANTHROPIC_API_KEY` for the teaser copy
+   (`ANTHROPIC_MODEL` optionally pins a model; without it the function picks one
+   and falls back to templated copy if the API is unreachable).
 5. **Redeploy** the site so the function picks up the new variables:
    - Go to **Deploys** tab → click **Trigger deploy → Deploy site**
 
@@ -127,8 +138,8 @@ The system is designed for you to schedule questions ahead of time. Add a month'
 
 | Problem | Fix |
 |---|---|
-| "Missing environment variables" error | Add `GOOGLE_SHEET_ID` and `GOOGLE_API_KEY` in Netlify and redeploy |
-| "Failed to fetch sheet" error | Make sure the sheet is shared publicly and the API key has Sheets API access |
+| "Missing environment variables" error | Add `GOOGLE_SHEET_ID` in Netlify and redeploy |
+| "Failed to fetch sheet" error | Make sure the sheet is still shared "Anyone with the link can view" |
 | Wrong date shown | Check your sheet uses YYYY-MM-DD format |
 | Streak not working | Streak is stored in the browser — it resets if the user clears their browser data |
 | Share button doesn't work | On desktop without Web Share API, it copies to clipboard instead |

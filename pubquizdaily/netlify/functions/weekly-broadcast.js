@@ -42,7 +42,7 @@ exports.handler = async function() {
 
 // Reads + validates the env this send needs. Returns null if a required one is
 // missing. SEGMENT_ID is only required for a live (non-dry-run) send.
-// SHEET_ID/API_KEY are only used by the on-demand fallback build (see
+// SHEET_ID is only used by the on-demand fallback build (see
 // buildWeeklyOnDemand) and are not required for a normal send.
 function readEnv() {
   const env = {
@@ -53,7 +53,6 @@ function readEnv() {
     REPORT_EMAIL:   process.env.DAILY_REPORT_EMAIL,
     DRY_RUN:        process.env.WEEKLY_DRY_RUN === 'true',
     SHEET_ID:       process.env.GOOGLE_SHEET_ID,
-    API_KEY:        process.env.GOOGLE_API_KEY,
   };
   if (!env.RESEND_API_KEY || !env.SITE_ID || !env.TOKEN) {
     console.error('weekly-broadcast: missing required env vars');
@@ -87,7 +86,7 @@ async function runBroadcast({ RESEND_API_KEY, SEGMENT_ID, SITE_ID, TOKEN, REPORT
     // Rather than skip the send, build it fresh right now: fetchWeeklyQuestions
     // itself auto-picks 11 random questions from the week when none are
     // flagged, so this self-heals instead of needing a human to intervene.
-    built = await buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, API_KEY, fridayISO }).catch(e => {
+    built = await buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, fridayISO }).catch(e => {
       console.error('weekly-broadcast: on-demand fallback build failed:', e.message || e);
       return null;
     });
@@ -131,13 +130,13 @@ async function runBroadcast({ RESEND_API_KEY, SEGMENT_ID, SITE_ID, TOKEN, REPORT
 // Builds + stores the Weekly Best-of for fridayISO from scratch, the same way
 // weekly-preview.js / weekly-rebuild.js do (same functions, imported so there's
 // no drift). Used only when runBroadcast finds no stored blob at send time.
-// Requires SHEET_ID/API_KEY; if either is missing this throws and the caller
-// falls back to 'nothing-built'.
-async function buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, API_KEY, fridayISO }) {
-  if (!SHEET_ID || !API_KEY) throw new Error('missing GOOGLE_SHEET_ID/GOOGLE_API_KEY for fallback build');
+// Requires SHEET_ID; if it is missing this throws and the caller falls back
+// to 'nothing-built'.
+async function buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, fridayISO }) {
+  if (!SHEET_ID) throw new Error('missing GOOGLE_SHEET_ID for fallback build');
   const wp = require('./weekly-preview');
 
-  const questions = await wp.fetchWeeklyQuestions({ SHEET_ID, API_KEY, fridayISO, SITE_ID, TOKEN });
+  const questions = await wp.fetchWeeklyQuestions({ SHEET_ID, fridayISO, SITE_ID, TOKEN });
   if (!questions.length) return null; // genuinely nothing to build (empty week)
 
   const avgPct = wp.weeklyAvgPct(questions);
