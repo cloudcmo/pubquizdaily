@@ -756,7 +756,7 @@
 
       // "More daily guff" — the cross-sell bar shared by all four games
       if (window.GuffBar) {
-        if (isArchiveMode) GuffBar.show(panel); else GuffBar.completedToday(panel);
+        if (isArchiveMode) GuffBar.show(panel); else GuffBar.completedToday(panel, { score: score, max: questions.length, display: score + "/" + questions.length });
       }
     }
 
