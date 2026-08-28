@@ -50,6 +50,15 @@ const GROUPIE_URL = process.env.GROUPIE_URL || 'https://groupie.fun';
 // site: GROUPIE_ADMIN_TOKEN = contents of groupie's .admin-token.
 const GROUPIE_ADMIN_TOKEN = process.env.GROUPIE_ADMIN_TOKEN;
 
+// ── Twentee + Spellbound promos ──
+// Both are deliberately teased with TEMPLATE copy, no API reads: Twentee's
+// whole game is that the day's thing is secret (even its nudge gives too much
+// away), and Spellbound's day is built client-side from the date seed, so
+// there's nothing safe or cheap to fetch. Static copy can't spoil and can't
+// fail.
+const TWENTEE_URL = 'https://twentee.co.uk';
+const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
+
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
 // The same published Google Sheet CSV the Whenly site reads live. Overridable
@@ -131,10 +140,15 @@ exports.handler = async function() {
     });
     const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
+    // Twentee + Spellbound — template copy by design (see consts above).
+    const twenteePromo = buildTwenteePromo();
+    const spellboundPromo = buildSpellboundPromo();
+
     // Clean email that Friday will send (unsubscribe placeholder swapped at send time).
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
+      twenteePromo, spellboundPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -634,9 +648,27 @@ function escapeRegExp(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+// ── Twentee + Spellbound cross-promos ────────────────────────────────────────
+// Template copy on purpose — nothing to fetch, nothing to leak, nothing to
+// fail (see the consts at the top). Synchronous, always present.
+
+function buildTwenteePromo() {
+  return {
+    teaser: 'One secret thing a day, twenty questions to name it, and the machine answers honestly. How few can you do it in?',
+    note: 'Twentee teaser is template copy by design',
+  };
+}
+
+function buildSpellboundPromo() {
+  return {
+    teaser: 'Letters fall, Tetris-style, and a dozen words are hiding in today\'s drop. Spell ten of them before the pile buries you.',
+    note: 'Spellbound teaser is template copy by design',
+  };
+}
+
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, twenteePromo, spellboundPromo }) {
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
       <img src="${escapeAttr(hero)}" width="600" height="300" alt="This week's quiz" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
@@ -646,46 +678,54 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
         <td bgcolor="#edf4ef" style="background-color:#edf4ef;border-radius:8px;padding:12px 16px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.5;color:#3f6b4c;">${statText}</td>
       </tr></table>` : '';
   const label = weekLabel(fridayISO);
-  const promoBlock = (whenlyPromo && whenlyPromo.teaser) ? `
-  <tr><td style="padding:18px 8px 4px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f3efe7;border:1px solid #e7e3dc;border-radius:14px;"><tr><td style="padding:22px 26px;">
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:10px;"><span style="color:#c9772f;">New:</span> Whenly - The Daily Guess the Year Game</div>
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${escapeHtml(whenlyPromo.teaser)}</div>
+
+  // ── The Guff games family blocks ──
+  // One shared skin for every game (the same white card as the main quiz,
+  // with a coloured spine and matching button) so the six games read as one
+  // family rather than five disparate footers. Game identity lives in the
+  // accent colour, not in a whole different design.
+  const gameBlock = ({ accent, title, teaser, url, cta, isNew }, isFirst) => `
+  <tr><td style="padding:${isFirst ? '8px' : '10px'} 8px 4px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:1px solid #e7e3dc;border-left:4px solid ${accent};border-radius:14px;"><tr><td style="padding:20px 26px;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:8px;">${isNew ? `<span style="color:${accent};">New: </span>` : ''}<span style="color:${accent};">${title.split(' - ')[0]}</span> - ${title.split(' - ').slice(1).join(' - ')}</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${escapeHtml(teaser)}</div>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td align="center" bgcolor="#c9772f" style="background-color:#c9772f;border-radius:9px;">
-          <a href="${WHENLY_URL}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">Give it a go →</a>
+        <td align="center" bgcolor="${accent}" style="background-color:${accent};border-radius:9px;">
+          <a href="${url}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${cta}</a>
         </td>
       </tr></table>
     </td></tr></table>
+  </td></tr>`;
+
+  const familyGames = [
+    (whenlyPromo && whenlyPromo.teaser) && {
+      accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
+      teaser: whenlyPromo.teaser, url: WHENLY_URL, cta: 'Give it a go →',
+    },
+    (whatwordPromo && whatwordPromo.teaser) && {
+      accent: '#3d5588', title: 'What Word - Three Unusual Words a Day',
+      teaser: whatwordPromo.teaser, url: WHATWORD_URL, cta: "Play today's three →",
+    },
+    (groupiePromo && groupiePromo.teaser) && {
+      accent: '#6c4288', title: 'Groupie - Your Daily Four Play',
+      teaser: groupiePromo.teaser, url: GROUPIE_URL, cta: "Play today's grid →",
+    },
+    (twenteePromo && twenteePromo.teaser) && {
+      accent: '#b5432a', title: 'Twentee - Twenty Questions, Daily',
+      teaser: twenteePromo.teaser, url: TWENTEE_URL, cta: 'Start asking →',
+    },
+    (spellboundPromo && spellboundPromo.teaser) && {
+      accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
+      teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →", isNew: true,
+    },
+  ].filter(Boolean);
+
+  const familyHeader = familyGames.length ? `
+  <tr><td style="padding:26px 8px 2px;" align="center">
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · six free daily games · the quiz above is one</div>
   </td></tr>` : '';
 
-  const whatwordBlock = (whatwordPromo && whatwordPromo.teaser) ? `
-  <tr><td style="padding:${promoBlock ? '10px' : '18px'} 8px 4px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#f5efe2;border:1px solid #e7e3dc;border-radius:14px;"><tr><td style="padding:22px 26px;">
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:19px;line-height:1.3;color:#2c3f68;font-weight:700;padding-bottom:10px;"><span style="color:#ff48b0;">New:</span> What Word - Three Unusual Words a Day</div>
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${escapeHtml(whatwordPromo.teaser)}</div>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td align="center" bgcolor="#3d5588" style="background-color:#3d5588;border-radius:9px;">
-          <a href="${WHATWORD_URL}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">Play today's three →</a>
-        </td>
-      </tr></table>
-    </td></tr></table>
-  </td></tr>` : '';
-
-  // Groupie block wears the game's vector-arcade skin: near-black panel,
-  // neon-cyan frame, magenta accent, amber button. Email-safe inline styles.
-  const groupieBlock = (groupiePromo && groupiePromo.teaser) ? `
-  <tr><td style="padding:${(promoBlock || whatwordBlock) ? '10px' : '18px'} 8px 4px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#0a0c14;border:2px solid #00c2cc;border-radius:14px;"><tr><td style="padding:22px 26px;">
-      <div style="font-family:'Courier New',Courier,monospace;font-size:19px;line-height:1.3;color:#00f0ff;font-weight:700;letter-spacing:0.04em;padding-bottom:10px;"><span style="color:#ff2bd6;">New:</span> GROUPIE - Your Daily Four Play</div>
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#c9d8de;padding-bottom:16px;">${escapeHtml(groupiePromo.teaser)}</div>
-      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
-        <td align="center" bgcolor="#ffd23f" style="background-color:#ffd23f;border-radius:9px;">
-          <a href="${GROUPIE_URL}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#0a0c14;text-decoration:none;">Play today's grid →</a>
-        </td>
-      </tr></table>
-    </td></tr></table>
-  </td></tr>` : '';
+  const familyBlocks = familyHeader + familyGames.map((g, i) => gameBlock(g, i === 0)).join('');
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pub Quiz Daily: Weekly Best-of</title></head>
@@ -713,9 +753,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#a49f97;padding-top:14px;">Free · No login · One email a week</div>
     </td></tr></table>
   </td></tr>
-  ${promoBlock}
-  ${whatwordBlock}
-  ${groupieBlock}
+  ${familyBlocks}
   <tr><td style="padding:24px 8px;font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.7;color:#b3aea6;" align="center">
     Pub Quiz Daily · pubquizdaily.com<br>
     You're getting this because you signed up for the Friday Best-of. <a href="%%UNSUB%%" style="color:#b3aea6;text-decoration:underline;">Unsubscribe</a>
@@ -821,6 +859,8 @@ module.exports.fallbackCopy = fallbackCopy;
 module.exports.buildWhenlyPromo = buildWhenlyPromo;
 module.exports.buildWhatWordPromo = buildWhatWordPromo;
 module.exports.buildGroupiePromo = buildGroupiePromo;
+module.exports.buildTwenteePromo = buildTwenteePromo;
+module.exports.buildSpellboundPromo = buildSpellboundPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
 module.exports.buildPreviewWrapper = buildPreviewWrapper;
 module.exports.putBlob = putBlob;

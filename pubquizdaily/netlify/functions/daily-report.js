@@ -1,7 +1,8 @@
 // netlify/functions/daily-report.js
-// THE daily email: one report covering all four games — Pub Quiz Daily,
-// Whenly, What Word and Groupie. Replaces the separate PQD and Whenly
-// reports (Whenly's own schedule is switched off in its netlify.toml).
+// THE daily email: one report covering all six games — Pub Quiz Daily,
+// Whenly, What Word, Groupie, Twentee and Spellbound. Replaces the separate
+// PQD and Whenly reports (Whenly's own schedule is switched off in its
+// netlify.toml).
 // Scheduled here at 5am UTC daily; sends via Resend.
 //
 // Sources, all best-effort (a game that can't be reached shows a dash,
@@ -10,9 +11,13 @@
 //   Whenly   — the Whenly site's blobs, via WHENLY_SITE_ID + the same API token
 //   WhatWord — GET {WHATWORD_URL}/api/stats?date= with WHATWORD_ADMIN_TOKEN
 //   Groupie  — GET {GROUPIE_URL}/api/stats?date= with GROUPIE_ADMIN_TOKEN
+//   Twentee  — GET {TWENTEE_URL}/api/stats?date= with TWENTEE_ADMIN_TOKEN
+//   Spellbound — GET {SPELLBOUND_URL}/api/stats?date= with SPELLBOUND_ADMIN_TOKEN
 
 const WHATWORD_URL = process.env.WHATWORD_URL || 'https://what-word.carl-b82.workers.dev';
 const GROUPIE_URL  = process.env.GROUPIE_URL  || 'https://groupie.fun';
+const TWENTEE_URL  = process.env.TWENTEE_URL  || 'https://twentee.co.uk';
+const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 
 exports.handler = async function(event) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -50,18 +55,20 @@ exports.handler = async function(event) {
       body: JSON.stringify({ sent: true, sentAt: new Date().toISOString() }),
     });
 
-    // ── Gather all four games in parallel, each best-effort ──
-    const [pqd, whenly, whatword, groupie] = await Promise.all([
+    // ── Gather all six games in parallel, each best-effort ──
+    const [pqd, whenly, whatword, groupie, twentee, spellbound] = await Promise.all([
       fetchPqd(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('PQD stats failed:', e.message); return null; }),
       fetchWhenly(authHeader, yesterdayISO).catch(e => { console.error('Whenly stats failed:', e.message); return null; }),
       fetchWorkerStats(WHATWORD_URL, process.env.WHATWORD_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('What Word stats failed:', e.message); return null; }),
       fetchWorkerStats(GROUPIE_URL, process.env.GROUPIE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Groupie stats failed:', e.message); return null; }),
+      fetchWorkerStats(TWENTEE_URL, process.env.TWENTEE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Twentee stats failed:', e.message); return null; }),
+      fetchWorkerStats(SPELLBOUND_URL, process.env.SPELLBOUND_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Spellbound stats failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie });
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
-    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · ${yesterdayLabel}`;
+    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · Twentee ${n(twentee)} · Spellbound ${n(spellbound)} · ${yesterdayLabel}`;
 
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -191,14 +198,14 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
-  // Summary strip: the four player counts side by side.
+  // Summary strip: the six player counts side by side.
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc']].map(([label, val, colour]) => `
+        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc'], ['Twentee', p(twentee), '#ff9f1c'], ['Spellbound', p(spellbound), '#7f9dff']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -241,6 +248,16 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie }) {
         tile(groupie.players, 'players', 'big') + tile(groupie.solveRate === null || groupie.solveRate === undefined ? null : groupie.solveRate + '%', 'solved it') + tile(groupie.avgMistakes ?? null, 'avg slips') + tile(groupie.allTime ? groupie.allTime.players : null, 'all-time plays'))
     : gameCard('Groupie', '#00c2cc', 'groupie.fun', tile(null, 'unreachable', 'big'));
 
+  const twenteeCard = twentee
+    ? gameCard('Twentee', '#ff9f1c', 'twentee.co.uk',
+        tile(twentee.players, 'players', 'big') + tile(twentee.winRate === null || twentee.winRate === undefined ? null : twentee.winRate + '%', 'got it') + tile(twentee.avgSpent ?? null, 'avg questions') + tile(twentee.allTime ? twentee.allTime.players : null, 'all-time plays'))
+    : gameCard('Twentee', '#ff9f1c', 'twentee.co.uk', tile(null, 'unreachable', 'big'));
+
+  const spellboundCard = spellbound
+    ? gameCard('Spellbound', '#2563c9', 'spellbounddaily.co.uk',
+        tile(spellbound.players, 'players', 'big') + tile(spellbound.completionRate === null || spellbound.completionRate === undefined ? null : spellbound.completionRate + '%', 'cleared the day') + tile(spellbound.avgWords ?? null, 'avg words') + tile(spellbound.allTime ? spellbound.allTime.players : null, 'all-time plays'))
+    : gameCard('Spellbound', '#2563c9', 'spellbounddaily.co.uk', tile(null, 'unreachable', 'big'));
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
@@ -249,7 +266,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie }) {
 
     <div style="margin-bottom:24px;">
       <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">The Games</div>
-      <div style="font-size:13px;color:#6b6b6b;">Daily report, all four — ${yesterdayLabel}</div>
+      <div style="font-size:13px;color:#6b6b6b;">Daily report, all six — ${yesterdayLabel}</div>
     </div>
 
     ${summary}
@@ -257,13 +274,15 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie }) {
     ${whenlyCard}
     ${wwCard}
     ${groupieCard}
+    ${twenteeCard}
+    ${spellboundCard}
 
     <div style="text-align:center;margin-top:20px;">
       <a href="https://pubquizdaily.com/stats.html" style="font-size:13px;color:#6b6b6b;text-decoration:none;">PQD stats dashboard →</a>
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Pub Quiz Daily · Whenly · What Word · Groupie — one report, sent via pubquizdaily.com
+      Pub Quiz Daily · Whenly · What Word · Groupie · Twentee · Spellbound — one report, sent via pubquizdaily.com
     </div>
 
   </div>
