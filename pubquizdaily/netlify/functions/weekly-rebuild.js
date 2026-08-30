@@ -89,14 +89,15 @@ exports.handler = async function(event) {
     });
     const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
-    // Twentee + Spellbound: template copy by design, can't fail.
+    // Twentee, Spellbound + Guffinoes: template copy by design, can't fail.
     const twenteePromo = wp.buildTwenteePromo();
     const spellboundPromo = wp.buildSpellboundPromo();
+    const guffinoesPromo = wp.buildGuffinoesPromo();
 
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      twenteePromo, spellboundPromo,
+      twenteePromo, spellboundPromo, guffinoesPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 

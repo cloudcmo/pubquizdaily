@@ -24,6 +24,11 @@ const { loadPickSet, addPicks, pickKey } = require('../lib/weekly-picks');
 
 const BASE = 'https://pubquizdaily.com';
 const WEEKLY_URL = `${BASE}/weekly.html`;
+// Every link in the email carries ?ref=friday. guff-bar.js on each site
+// remembers it for the day and reports it with the arrival ping, so the
+// daily report can say how many players the email actually brought.
+const EMAIL_REF = 'friday';
+const withRef = (url) => `${url}${url.includes('?') ? '&' : '?'}ref=${EMAIL_REF}`;
 const MIN_SAMPLE = 4;                 // hide a % until at least this many answers
 // How many questions to auto-pick for the week when nobody flagged any "W"
 // in the sheet (Carl's manual weekly-picking step is retired as of 2026-08-13
@@ -50,14 +55,16 @@ const GROUPIE_URL = process.env.GROUPIE_URL || 'https://groupie.fun';
 // site: GROUPIE_ADMIN_TOKEN = contents of groupie's .admin-token.
 const GROUPIE_ADMIN_TOKEN = process.env.GROUPIE_ADMIN_TOKEN;
 
-// ── Twentee + Spellbound promos ──
-// Both are deliberately teased with TEMPLATE copy, no API reads: Twentee's
+// ── Twentee + Spellbound + Guffinoes promos ──
+// All three are deliberately teased with TEMPLATE copy, no API reads: Twentee's
 // whole game is that the day's thing is secret (even its nudge gives too much
 // away), and Spellbound's day is built client-side from the date seed, so
 // there's nothing safe or cheap to fetch. Static copy can't spoil and can't
-// fail.
+// fail. Guffinoes builds its bag client-side from the date seed, same as
+// Spellbound.
 const TWENTEE_URL = 'https://twentee.co.uk';
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
+const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -140,15 +147,16 @@ exports.handler = async function() {
     });
     const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
-    // Twentee + Spellbound — template copy by design (see consts above).
+    // Twentee, Spellbound + Guffinoes — template copy by design (see consts above).
     const twenteePromo = buildTwenteePromo();
     const spellboundPromo = buildSpellboundPromo();
+    const guffinoesPromo = buildGuffinoesPromo();
 
     // Clean email that Friday will send (unsubscribe placeholder swapped at send time).
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      twenteePromo, spellboundPromo,
+      twenteePromo, spellboundPromo, guffinoesPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -666,9 +674,16 @@ function buildSpellboundPromo() {
   };
 }
 
+function buildGuffinoesPromo() {
+  return {
+    teaser: 'Twelve lettered dominoes and one board. Lay two letters at a time so that everything they spell, across and down, is a word. Long words pay, and pay well.',
+    note: 'Guffinoes teaser is template copy by design',
+  };
+}
+
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, twenteePromo, spellboundPromo }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, twenteePromo, spellboundPromo, guffinoesPromo }) {
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
       <img src="${escapeAttr(hero)}" width="600" height="300" alt="This week's quiz" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
@@ -681,8 +696,8 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
 
   // ── The Guff games family blocks ──
   // One shared skin for every game (the same white card as the main quiz,
-  // with a coloured spine and matching button) so the six games read as one
-  // family rather than five disparate footers. Game identity lives in the
+  // with a coloured spine and matching button) so the games read as one
+  // family rather than a row of disparate footers. Game identity lives in the
   // accent colour, not in a whole different design.
   const gameBlock = ({ accent, title, teaser, url, cta, isNew }, isFirst) => `
   <tr><td style="padding:${isFirst ? '8px' : '10px'} 8px 4px;">
@@ -691,7 +706,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${escapeHtml(teaser)}</div>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td align="center" bgcolor="${accent}" style="background-color:${accent};border-radius:9px;">
-          <a href="${url}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${cta}</a>
+          <a href="${withRef(url)}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${cta}</a>
         </td>
       </tr></table>
     </td></tr></table>
@@ -716,13 +731,18 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     },
     (spellboundPromo && spellboundPromo.teaser) && {
       accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
-      teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →", isNew: true,
+      teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →",
+    },
+    // The newest game carries the "New:" badge, and only one game ever does.
+    (guffinoesPromo && guffinoesPromo.teaser) && {
+      accent: '#3f4a41', title: 'Guffinoes - Daily Word Dominoes',
+      teaser: guffinoesPromo.teaser, url: GUFFINOES_URL, cta: "Play today's set →", isNew: true,
     },
   ].filter(Boolean);
 
   const familyHeader = familyGames.length ? `
   <tr><td style="padding:26px 8px 2px;" align="center">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · six free daily games · the quiz above is one</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · seven free daily games · the quiz above is one</div>
   </td></tr>` : '';
 
   const familyBlocks = familyHeader + familyGames.map((g, i) => gameBlock(g, i === 0)).join('');
@@ -747,7 +767,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       ${statBlock}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td align="center" bgcolor="#4a7c59" style="background-color:#4a7c59;border-radius:10px;">
-          <a href="${WEEKLY_URL}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">Play this week's quiz →</a>
+          <a href="${withRef(WEEKLY_URL)}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">Play this week's quiz →</a>
         </td>
       </tr></table>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#a49f97;padding-top:14px;">Free · No login · One email a week</div>
@@ -861,6 +881,7 @@ module.exports.buildWhatWordPromo = buildWhatWordPromo;
 module.exports.buildGroupiePromo = buildGroupiePromo;
 module.exports.buildTwenteePromo = buildTwenteePromo;
 module.exports.buildSpellboundPromo = buildSpellboundPromo;
+module.exports.buildGuffinoesPromo = buildGuffinoesPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
 module.exports.buildPreviewWrapper = buildPreviewWrapper;
 module.exports.putBlob = putBlob;

@@ -13,6 +13,29 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://guff.carl-b82.workers.dev/guff-bar.js" data-game="pqd" defer></script>
+  <style>
+    /* "More daily guff" cross-sell bar — same PQD skin as the daily. */
+    #guff-crossbar {
+      --gxb-done: #4a7c59;
+      --gxb-done-fg: #ffffff;
+      --gxb-line: #4a7c59;
+      --gxb-muted: 1;
+      background: #edf4ef;
+      border: 1px solid #d5e3d9;
+      border-radius: 12px;
+      padding: 18px 14px 20px;
+    }
+    #guff-crossbar .gxb-title { color: #3f6b4c; opacity: 1; font-weight: 700; }
+    #guff-crossbar .gxb-loz { background: #ffffff; color: #1a1a1a; }
+    #guff-crossbar .gxb-loz.gxb-done {
+      background: var(--gxb-done);
+      color: var(--gxb-done-fg);
+      border-color: var(--gxb-done);
+      box-shadow: 0 2px 8px rgba(74, 124, 89, 0.3);
+    }
+    #guff-crossbar a.gxb-loz:hover { background: #4a7c59; color: #ffffff; }
+  </style>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -391,6 +414,7 @@
     } else { build(); }
   })();
   </script>
+  <!-- Cloudflare Web Analytics (one token for all the Guff games; filter by host in the dashboard) --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token": "bfe1babe08394825950f1a03beef4182"}'></script>
 </head>
 <body>
 
@@ -609,6 +633,20 @@
       panel.classList.add('visible');
       setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
       showBonusRound();
+
+      // Count the play. Reuses the daily's blob counter under a weekly key
+      // (quiz-stats/weekly-YYYY-MM-DD-play): total = plays that day,
+      // correctCount = full marks. The daily report reads it back.
+      const playedOn = new Date().toLocaleDateString('en-CA', { timeZone: 'Europe/London' });
+      fetch('/.netlify/functions/record-answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: `weekly-${playedOn}`, index: 'play', correct: score === questions.length }),
+      }).catch(() => {});
+
+      // The weekly is not one of the six dailies, so no tick — just the bar,
+      // the way an archive play shows it.
+      if (window.GuffBar) GuffBar.show(panel);
     }
 
     async function fetchWeeklyStat(qi, date, index, isCorrect) {

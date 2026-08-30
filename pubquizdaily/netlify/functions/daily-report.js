@@ -1,6 +1,6 @@
 // netlify/functions/daily-report.js
-// THE daily email: one report covering all six games — Pub Quiz Daily,
-// Whenly, What Word, Groupie, Twentee and Spellbound. Replaces the separate
+// THE daily email: one report covering all seven games — Pub Quiz Daily,
+// Whenly, What Word, Groupie, Twentee, Spellbound and Guffinoes. Replaces the separate
 // PQD and Whenly reports (Whenly's own schedule is switched off in its
 // netlify.toml).
 // Scheduled here at 5am UTC daily; sends via Resend.
@@ -13,11 +13,17 @@
 //   Groupie  — GET {GROUPIE_URL}/api/stats?date= with GROUPIE_ADMIN_TOKEN
 //   Twentee  — GET {TWENTEE_URL}/api/stats?date= with TWENTEE_ADMIN_TOKEN
 //   Spellbound — GET {SPELLBOUND_URL}/api/stats?date= with SPELLBOUND_ADMIN_TOKEN
+//   Guffinoes — GET {GUFFINOES_URL}/api/stats?date= with GUFFINOES_ADMIN_TOKEN
+//   Sources  — GET {GROUPIE_URL}/api/sources?date= (public aggregates from the
+//              guff-bar visit pings: visitors, finishers, and how many the
+//              Friday email brought, per game)
+//   Weekly   — this site's blob quiz-stats/weekly-{date}-play (Best-of plays)
 
 const WHATWORD_URL = process.env.WHATWORD_URL || 'https://what-word.carl-b82.workers.dev';
 const GROUPIE_URL  = process.env.GROUPIE_URL  || 'https://groupie.fun';
 const TWENTEE_URL  = process.env.TWENTEE_URL  || 'https://twentee.co.uk';
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
+const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 
 exports.handler = async function(event) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -55,20 +61,29 @@ exports.handler = async function(event) {
       body: JSON.stringify({ sent: true, sentAt: new Date().toISOString() }),
     });
 
-    // ── Gather all six games in parallel, each best-effort ──
-    const [pqd, whenly, whatword, groupie, twentee, spellbound] = await Promise.all([
+    // ── Gather all seven games in parallel, each best-effort ──
+    const [pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes] = await Promise.all([
       fetchPqd(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('PQD stats failed:', e.message); return null; }),
       fetchWhenly(authHeader, yesterdayISO).catch(e => { console.error('Whenly stats failed:', e.message); return null; }),
       fetchWorkerStats(WHATWORD_URL, process.env.WHATWORD_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('What Word stats failed:', e.message); return null; }),
       fetchWorkerStats(GROUPIE_URL, process.env.GROUPIE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Groupie stats failed:', e.message); return null; }),
       fetchWorkerStats(TWENTEE_URL, process.env.TWENTEE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Twentee stats failed:', e.message); return null; }),
       fetchWorkerStats(SPELLBOUND_URL, process.env.SPELLBOUND_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Spellbound stats failed:', e.message); return null; }),
+      fetchWorkerStats(GUFFINOES_URL, process.env.GUFFINOES_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Guffinoes stats failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound });
+    // Where they came from, and the weekly Best-of (which the email links to).
+    const [sources, weekly] = await Promise.all([
+      fetchSources(GROUPIE_URL, yesterdayISO).catch(e => { console.error('Sources failed:', e.message); return null; }),
+      fetchWeeklyPlays(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('Weekly plays failed:', e.message); return null; }),
+    ]);
+
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, sources, weekly });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
-    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · Twentee ${n(twentee)} · Spellbound ${n(spellbound)} · ${yesterdayLabel}`;
+    const fromEmail = emailTotals(sources);
+    const emailBit = fromEmail ? ` · Email ${fromEmail.visits}→${fromEmail.completed}` : '';
+    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · Twentee ${n(twentee)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)}${emailBit} · ${yesterdayLabel}`;
 
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -175,6 +190,44 @@ async function fetchWorkerStats(baseUrl, adminToken, dayISO) {
   return await res.json();
 }
 
+// ── Sources: the guff-bar visit pings, aggregated by groupie ─────────────────
+// { date, games: { pqd: { visits, completed, refs: { friday: { visits, completed } } }, … } }
+
+async function fetchSources(baseUrl, dayISO) {
+  const res = await fetch(`${baseUrl}/api/sources?date=${dayISO}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+}
+
+const EMAIL_REF = 'friday';
+const SOURCE_GAMES = [
+  ['pqd', 'Pub Quiz'], ['whenly', 'Whenly'], ['whatword', 'What Word'],
+  ['groupie', 'Groupie'], ['twentee', 'Twentee'], ['spellbound', 'Spellbound'],
+  ['guffinoes', 'Guffinoes'],
+];
+
+// Totals across the games of what the email brought. Plays, not people:
+// one person playing three games counts three times.
+function emailTotals(sources) {
+  if (!sources || !sources.games) return null;
+  let visits = 0, completed = 0;
+  for (const [key] of SOURCE_GAMES) {
+    const r = sources.games[key] && sources.games[key].refs && sources.games[key].refs[EMAIL_REF];
+    if (r) { visits += r.visits || 0; completed += r.completed || 0; }
+  }
+  return { visits, completed };
+}
+
+// ── Weekly Best-of plays: blob written by weekly.html at the final panel ─────
+
+async function fetchWeeklyPlays(siteId, authHeader, dayISO) {
+  const res = await fetch(`https://api.netlify.com/api/v1/blobs/${siteId}/quiz-stats/weekly-${dayISO}-play`, { headers: authHeader });
+  if (res.status === 404) return { plays: 0, fullMarks: 0 };
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = await res.json();
+  return { plays: data.total || 0, fullMarks: data.correctCount || 0 };
+}
+
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
 function tile(value, label, size) {
@@ -198,20 +251,56 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, sources, weekly }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
   // Summary strip: the six player counts side by side.
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc'], ['Twentee', p(twentee), '#ff9f1c'], ['Spellbound', p(spellbound), '#7f9dff']].map(([label, val, colour]) => `
+        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc'], ['Twentee', p(twentee), '#ff9f1c'], ['Spellbound', p(spellbound), '#7f9dff'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
           </td>`).join('')}
       </tr></table>
       <div style="text-align:center;font-size:10px;color:#8a857d;margin-top:10px;letter-spacing:0.06em;">PLAYERS YESTERDAY</div>
+    </div>`;
+
+  // Where they came from: visitors vs finishers per game, and the email's share.
+  // "Visitors" is anyone whose browser loaded a game page (the guff-bar's
+  // arrival ping), so this is the only place bounces show up.
+  const srcRows = SOURCE_GAMES.map(([key, label]) => {
+    const g = sources && sources.games && sources.games[key];
+    const e = g && g.refs && g.refs[EMAIL_REF];
+    const cell = v => (v === null || v === undefined) ? '—' : v;
+    const emailCell = e ? `${e.visits} → ${e.completed}` : (g ? '0' : '—');
+    return `<tr>
+      <td style="padding:6px 10px;font-size:12px;color:#1a1a1a;">${label}</td>
+      <td align="right" style="padding:6px 10px;font-size:12px;color:#1a1a1a;">${cell(g && g.visits)}</td>
+      <td align="right" style="padding:6px 10px;font-size:12px;color:#1a1a1a;">${cell(g && g.completed)}</td>
+      <td align="right" style="padding:6px 10px;font-size:12px;font-weight:600;color:${e && e.completed ? '#4a7c59' : '#6b6b6b'};">${emailCell}</td>
+    </tr>`;
+  }).join('');
+  const weeklyLine = weekly
+    ? `<div style="font-size:12px;color:#6b6b6b;margin-top:12px;">Weekly Best-of (where the email's big button goes): <strong style="color:#1a1a1a;">${weekly.plays}</strong> play${weekly.plays === 1 ? '' : 's'}, ${weekly.fullMarks} full marks</div>`
+    : `<div style="font-size:12px;color:#6b6b6b;margin-top:12px;">Weekly Best-of: unreachable</div>`;
+  const sourcesCard = `
+    <div style="background:white;border:1px solid #e0ddd8;border-left:4px solid #1a1a1a;border-radius:12px;padding:20px 24px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#1a1a1a;margin-bottom:12px;">
+        Where they came from <span style="font-weight:400;color:#b3aea6;">· visitors vs finishers</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;">
+        <tr>
+          <td style="padding:4px 10px;font-size:10px;color:#6b6b6b;text-transform:uppercase;letter-spacing:0.06em;">Game</td>
+          <td align="right" style="padding:4px 10px;font-size:10px;color:#6b6b6b;text-transform:uppercase;letter-spacing:0.06em;">Visited</td>
+          <td align="right" style="padding:4px 10px;font-size:10px;color:#6b6b6b;text-transform:uppercase;letter-spacing:0.06em;">Finished</td>
+          <td align="right" style="padding:4px 10px;font-size:10px;color:#6b6b6b;text-transform:uppercase;letter-spacing:0.06em;">From the email</td>
+        </tr>
+        ${srcRows}
+      </table>
+      ${weeklyLine}
+      ${sources ? '' : '<div style="font-size:11px;color:#c0622e;margin-top:8px;">Sources API unreachable — groupie.fun/api/sources</div>'}
     </div>`;
 
   // PQD card, with its per-question table when available.
@@ -258,6 +347,13 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
         tile(spellbound.players, 'players', 'big') + tile(spellbound.completionRate === null || spellbound.completionRate === undefined ? null : spellbound.completionRate + '%', 'cleared the day') + tile(spellbound.avgWords ?? null, 'avg words') + tile(spellbound.allTime ? spellbound.allTime.players : null, 'all-time plays'))
     : gameCard('Spellbound', '#2563c9', 'spellbounddaily.co.uk', tile(null, 'unreachable', 'big'));
 
+  // Guffinoes reports dominoes down and points, not a word count — the day is
+  // "how much of the bag went down", so that is the rate worth watching.
+  const guffinoesCard = guffinoes
+    ? gameCard('Guffinoes', '#3f4a41', 'guffinoes.carlosfandango.net',
+        tile(guffinoes.players, 'players', 'big') + tile(guffinoes.completionRate === null || guffinoes.completionRate === undefined ? null : guffinoes.completionRate + '%', 'laid all twelve') + tile(guffinoes.avgDown ?? null, 'avg down') + tile(guffinoes.avgScore ?? null, 'avg score'))
+    : gameCard('Guffinoes', '#3f4a41', 'guffinoes.carlosfandango.net', tile(null, 'unreachable', 'big'));
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
@@ -266,23 +362,25 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
 
     <div style="margin-bottom:24px;">
       <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">The Games</div>
-      <div style="font-size:13px;color:#6b6b6b;">Daily report, all six — ${yesterdayLabel}</div>
+      <div style="font-size:13px;color:#6b6b6b;">Daily report, all seven — ${yesterdayLabel}</div>
     </div>
 
     ${summary}
+    ${sourcesCard}
     ${pqdCard}
     ${whenlyCard}
     ${wwCard}
     ${groupieCard}
     ${twenteeCard}
     ${spellboundCard}
+    ${guffinoesCard}
 
     <div style="text-align:center;margin-top:20px;">
       <a href="https://pubquizdaily.com/stats.html" style="font-size:13px;color:#6b6b6b;text-decoration:none;">PQD stats dashboard →</a>
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Pub Quiz Daily · Whenly · What Word · Groupie · Twentee · Spellbound — one report, sent via pubquizdaily.com
+      Pub Quiz Daily · Whenly · What Word · Groupie · Twentee · Spellbound · Guffinoes — one report, sent via pubquizdaily.com
     </div>
 
   </div>
