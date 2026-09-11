@@ -93,11 +93,17 @@ exports.handler = async function(event) {
     const twenteePromo = wp.buildTwenteePromo();
     const spellboundPromo = wp.buildSpellboundPromo();
     const guffinoesPromo = wp.buildGuffinoesPromo();
+    // Hexadec: template copy too, but its peek fetches the day's real tiles,
+    // so unlike the three above it can fail. It degrades to the plain block.
+    const hexadecPromo = await wp.buildHexadecPromo(fridayISO).catch(err => {
+      console.error('Hexadec promo failed, omitting block:', err);
+      return null;
+    });
 
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      twenteePromo, spellboundPromo, guffinoesPromo,
+      twenteePromo, spellboundPromo, guffinoesPromo, hexadecPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 

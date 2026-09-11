@@ -65,7 +65,6 @@ const GROUPIE_ADMIN_TOKEN = process.env.GROUPIE_ADMIN_TOKEN;
 const TWENTEE_URL = 'https://twentee.co.uk';
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
-const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -152,16 +151,12 @@ exports.handler = async function() {
     const twenteePromo = buildTwenteePromo();
     const spellboundPromo = buildSpellboundPromo();
     const guffinoesPromo = buildGuffinoesPromo();
-    const hexadecPromo = await buildHexadecPromo(fridayISO).catch(err => {
-      console.error('Hexadec promo failed, omitting block:', err);
-      return null;
-    });
 
     // Clean email that Friday will send (unsubscribe placeholder swapped at send time).
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      twenteePromo, spellboundPromo, guffinoesPromo, hexadecPromo,
+      twenteePromo, spellboundPromo, guffinoesPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -686,23 +681,6 @@ function buildSpellboundPromo() {
   };
 }
 
-// Hexadec. Template teaser, but a REAL peek: the day's sixteen tiles, which
-// are the whole puzzle and give nothing away, because the four words are
-// hidden among them by construction. Costs one 12KB fetch of a public static
-// asset and no AI call. Fails to the plain block if the site is unreachable,
-// which it is until the game is deployed.
-async function buildHexadecPromo(fridayISO) {
-  const teaser = 'Sixteen lettered tiles hide four four-letter words that use every tile exactly. The trouble is that far more words can be made than can be used, so three good ones can leave you holding nonsense.';
-  let peek = '';
-  try {
-    const res = await fetch(`${HEXADEC_URL}/days.js`, { signal: AbortSignal.timeout(8000) });
-    if (res.ok) peek = peekHexadecTiles(await res.text(), fridayISO);
-  } catch (err) {
-    console.error('Hexadec peek failed, block still renders:', err.message);
-  }
-  return { teaser, peek, note: peek ? 'Hexadec teaser is template copy, peek is the real tiles' : 'Hexadec teaser is template copy, no peek this week' };
-}
-
 function buildGuffinoesPromo() {
   return {
     teaser: 'Twelve lettered dominoes and one board. Lay two letters at a time so that everything they spell, across and down, is a word. Long words pay, and pay well.',
@@ -756,29 +734,6 @@ function peekGroupieGrid(groups, seedISO) {
   } catch { return ''; }
 }
 
-// Hexadec: the day's sixteen tiles, two rows of eight, exactly as the player
-// first sees them. Safe to show in full — the four words that use all sixteen
-// are the thing you have to find, and seeing the letters is the puzzle, not
-// the answer.
-function peekHexadecTiles(daysJs, sendISO) {
-  try {
-    const from = daysJs.match(/DAYS_FROM = "(\d{4}-\d{2}-\d{2})"/);
-    const tiles = daysJs.match(/TILES = "([a-z ]+)"/);
-    if (!from || !tiles) return '';
-    const list = tiles[1].split(' ');
-    const i = Math.round((Date.parse(sendISO + 'T12:00:00Z') - Date.parse(from[1] + 'T12:00:00Z')) / 86400000);
-    if (!(i >= 0 && i < list.length)) return '';
-    const day = list[i];
-    if (!/^[a-z]{16}$/.test(day)) return '';
-
-    const cell = ch => `<td width="12.5%" align="center" bgcolor="#fbf5e9" style="background-color:#fbf5e9;border-radius:6px;padding:11px 2px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#2b2118;">${escapeHtml(ch.toUpperCase())}</td>`;
-    const rows = [0, 8].map(k => `<tr>${day.slice(k, k + 8).split('').map(cell).join('')}</tr>`).join('');
-
-    return peekLabel("Today's sixteen") +
-      `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:4px;margin:0 0 16px;table-layout:fixed;">${rows}</table>`;
-  } catch { return ''; }
-}
-
 // What Word: the hardest of the day's three, shown as the real question with
 // its four real options and no answer marked.
 function peekWhatWord(questions) {
@@ -826,7 +781,7 @@ function peekWhenly(questions) {
 
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, twenteePromo, spellboundPromo, guffinoesPromo, hexadecPromo }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, twenteePromo, spellboundPromo, guffinoesPromo }) {
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
       <img src="${escapeAttr(hero)}" width="600" height="300" alt="This week's quiz" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
@@ -877,22 +832,16 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
       teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →",
     },
+    // The newest game carries the "New:" badge, and only one game ever does.
     (guffinoesPromo && guffinoesPromo.teaser) && {
       accent: '#3f4a41', title: 'Guffinoes - Daily Word Dominoes',
-      teaser: guffinoesPromo.teaser, url: GUFFINOES_URL, cta: "Play today's set →",
-    },
-    // The newest game carries the "New:" badge, and only one game ever does.
-    // It moved here from Guffinoes when Hexadec launched.
-    (hexadecPromo && hexadecPromo.teaser) && {
-      accent: '#c8763a', title: 'Hexadec - Four the Win',
-      teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
-      url: HEXADEC_URL, cta: "Play today's sixteen →", isNew: true,
+      teaser: guffinoesPromo.teaser, url: GUFFINOES_URL, cta: "Play today's set →", isNew: true,
     },
   ].filter(Boolean);
 
   const familyHeader = familyGames.length ? `
   <tr><td style="padding:26px 8px 2px;" align="center">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · eight free daily games · the quiz above is one</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · seven free daily games · the quiz above is one</div>
   </td></tr>` : '';
 
   const familyBlocks = familyHeader + familyGames.map((g, i) => gameBlock(g, i === 0)).join('');
@@ -1032,7 +981,6 @@ module.exports.buildGroupiePromo = buildGroupiePromo;
 module.exports.buildTwenteePromo = buildTwenteePromo;
 module.exports.buildSpellboundPromo = buildSpellboundPromo;
 module.exports.buildGuffinoesPromo = buildGuffinoesPromo;
-module.exports.buildHexadecPromo = buildHexadecPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
 module.exports.buildPreviewWrapper = buildPreviewWrapper;
 module.exports.putBlob = putBlob;
@@ -1052,3 +1000,20 @@ function noEmDash(s) {
     .replace(/\s{2,}/g, ' ')          // collapse runs of spaces
     .trim();
 }
+module.exports.peekGroupieGrid = peekGroupieGrid;
+module.exports.peekWhatWord = peekWhatWord;
+module.exports.peekWhenly = peekWhenly;
+module.exports.gameCardPreview = function (g, isFirst) {
+  return `<tr><td style="padding:${isFirst ? '8px' : '10px'} 8px 4px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:1px solid #e7e3dc;border-left:4px solid ${g.accent};border-radius:14px;"><tr><td style="padding:20px 26px;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:8px;"><span style="color:${g.accent};">${g.title.split(' - ')[0]}</span> - ${g.title.split(' - ').slice(1).join(' - ')}</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${g.teaser}</div>
+      ${g.peek || ''}
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" bgcolor="${g.accent}" style="background-color:${g.accent};border-radius:9px;">
+          <a href="#" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${g.cta}</a>
+        </td>
+      </tr></table>
+    </td></tr></table>
+  </td></tr>`;
+};

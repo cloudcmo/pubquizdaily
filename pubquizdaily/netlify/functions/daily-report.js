@@ -14,6 +14,7 @@
 //   Twentee  — GET {TWENTEE_URL}/api/stats?date= with TWENTEE_ADMIN_TOKEN
 //   Spellbound — GET {SPELLBOUND_URL}/api/stats?date= with SPELLBOUND_ADMIN_TOKEN
 //   Guffinoes — GET {GUFFINOES_URL}/api/stats?date= with GUFFINOES_ADMIN_TOKEN
+//   Hexadec   — GET {HEXADEC_URL}/api/stats?date= with HEXADEC_ADMIN_TOKEN
 //   Sources  — GET {GROUPIE_URL}/api/sources?date= (public aggregates from the
 //              guff-bar visit pings: visitors, finishers, and how many the
 //              Friday email brought, per game)
@@ -24,6 +25,7 @@ const GROUPIE_URL  = process.env.GROUPIE_URL  || 'https://groupie.fun';
 const TWENTEE_URL  = process.env.TWENTEE_URL  || 'https://twentee.co.uk';
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
+const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
 
 exports.handler = async function(event) {
   const RESEND_API_KEY = process.env.RESEND_API_KEY;
@@ -62,7 +64,7 @@ exports.handler = async function(event) {
     });
 
     // ── Gather all seven games in parallel, each best-effort ──
-    const [pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes] = await Promise.all([
+    const [pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, hexadec] = await Promise.all([
       fetchPqd(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('PQD stats failed:', e.message); return null; }),
       fetchWhenly(authHeader, yesterdayISO).catch(e => { console.error('Whenly stats failed:', e.message); return null; }),
       fetchWorkerStats(WHATWORD_URL, process.env.WHATWORD_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('What Word stats failed:', e.message); return null; }),
@@ -70,6 +72,7 @@ exports.handler = async function(event) {
       fetchWorkerStats(TWENTEE_URL, process.env.TWENTEE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Twentee stats failed:', e.message); return null; }),
       fetchWorkerStats(SPELLBOUND_URL, process.env.SPELLBOUND_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Spellbound stats failed:', e.message); return null; }),
       fetchWorkerStats(GUFFINOES_URL, process.env.GUFFINOES_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Guffinoes stats failed:', e.message); return null; }),
+      fetchWorkerStats(HEXADEC_URL, process.env.HEXADEC_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Hexadec stats failed:', e.message); return null; }),
     ]);
 
     // Where they came from, and the weekly Best-of (which the email links to).
@@ -78,12 +81,12 @@ exports.handler = async function(event) {
       fetchWeeklyPlays(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('Weekly plays failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, sources, weekly });
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, hexadec, sources, weekly });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
     const fromEmail = emailTotals(sources);
     const emailBit = fromEmail ? ` · Email ${fromEmail.visits}→${fromEmail.completed}` : '';
-    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · Twentee ${n(twentee)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)}${emailBit} · ${yesterdayLabel}`;
+    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · Twentee ${n(twentee)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
 
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -204,6 +207,7 @@ const SOURCE_GAMES = [
   ['pqd', 'Pub Quiz'], ['whenly', 'Whenly'], ['whatword', 'What Word'],
   ['groupie', 'Groupie'], ['twentee', 'Twentee'], ['spellbound', 'Spellbound'],
   ['guffinoes', 'Guffinoes'],
+  ['hexadec', 'Hexadec'],
 ];
 
 // Totals across the games of what the email brought. Plays, not people:
@@ -251,14 +255,14 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, sources, weekly }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, hexadec, sources, weekly }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
   // Summary strip: the six player counts side by side.
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc'], ['Twentee', p(twentee), '#ff9f1c'], ['Spellbound', p(spellbound), '#7f9dff'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
+        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc'], ['Twentee', p(twentee), '#ff9f1c'], ['Spellbound', p(spellbound), '#7f9dff'], ['Guffinoes', p(guffinoes), '#b8912f'], ['Hexadec', p(hexadec), '#c8763a']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -354,6 +358,14 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
         tile(guffinoes.players, 'players', 'big') + tile(guffinoes.completionRate === null || guffinoes.completionRate === undefined ? null : guffinoes.completionRate + '%', 'laid all twelve') + tile(guffinoes.avgDown ?? null, 'avg down') + tile(guffinoes.avgScore ?? null, 'avg score'))
     : gameCard('Guffinoes', '#3f4a41', 'guffinoes.carlosfandango.net', tile(null, 'unreachable', 'big'));
 
+  // Hexadec's own measure is the share of the day's best possible score that
+  // players actually took — the one number that says whether the puzzle was
+  // played well rather than merely finished.
+  const hexadecCard = hexadec
+    ? gameCard('Hexadec', '#c8763a', 'hexadec.carlosfandango.net',
+        tile(hexadec.players, 'players', 'big') + tile(hexadec.completionRate === null || hexadec.completionRate === undefined ? null : hexadec.completionRate + '%', 'all four words') + tile(hexadec.avgPctOfBest === null || hexadec.avgPctOfBest === undefined ? null : hexadec.avgPctOfBest + '%', 'of the best') + tile(hexadec.avgScore ?? null, 'avg score'))
+    : gameCard('Hexadec', '#c8763a', 'hexadec.carlosfandango.net', tile(null, 'unreachable', 'big'));
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
@@ -374,6 +386,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
     ${twenteeCard}
     ${spellboundCard}
     ${guffinoesCard}
+    ${hexadecCard}
 
     <div style="text-align:center;margin-top:20px;">
       <a href="https://pubquizdaily.com/stats.html" style="font-size:13px;color:#6b6b6b;text-decoration:none;">PQD stats dashboard →</a>
