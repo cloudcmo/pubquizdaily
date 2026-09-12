@@ -66,6 +66,10 @@ const TWENTEE_URL = 'https://twentee.co.uk';
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
+// Hexadec carries a prominent NEW flash on every send dated on or before this
+// (a month from launch, Carl's call on 12 Sept 2026). After that it lapses on
+// its own; nothing to switch off. Change the date to extend it.
+const HEXADEC_NEW_UNTIL = '2026-10-12';
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -842,10 +846,14 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
   // with a coloured spine and matching button) so the games read as one
   // family rather than a row of disparate footers. Game identity lives in the
   // accent colour, not in a whole different design.
+  // A new game gets a solid NEW flash before its title and a heavier border in
+  // its own colour, so it reads as the headline of the family rather than one
+  // more card. Table-and-span markup only, so it survives every mail client.
+  const newFlash = accent => `<span style="display:inline-block;vertical-align:middle;margin:0 10px 3px 0;padding:5px 10px 4px;background-color:${accent};color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border-radius:4px;">New</span>`;
   const gameBlock = ({ accent, title, teaser, peek, url, cta, isNew }, isFirst) => `
   <tr><td style="padding:${isFirst ? '8px' : '10px'} 8px 4px;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:1px solid #e7e3dc;border-left:4px solid ${accent};border-radius:14px;"><tr><td style="padding:20px 26px;">
-      <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:8px;">${isNew ? `<span style="color:${accent};">New: </span>` : ''}<span style="color:${accent};">${title.split(' - ')[0]}</span> - ${title.split(' - ').slice(1).join(' - ')}</div>
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:${isNew ? `2px solid ${accent}` : '1px solid #e7e3dc'};border-left:${isNew ? '6px' : '4px'} solid ${accent};border-radius:14px;"><tr><td style="padding:20px 26px;">
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:8px;">${isNew ? newFlash(accent) : ''}<span style="color:${accent};">${title.split(' - ')[0]}</span> - ${title.split(' - ').slice(1).join(' - ')}</div>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.6;color:#4a4a4a;padding-bottom:16px;">${escapeHtml(teaser)}</div>
       ${peek || ''}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -856,37 +864,38 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     </td></tr></table>
   </td></tr>`;
 
+  // Order is Carl's ranking (Sep 2026): Hexadec sits directly under the quiz,
+  // Twentee and Guffinoes go last. Same order as games.json and the guff bar.
   const familyGames = [
+    (hexadecPromo && hexadecPromo.teaser) && {
+      accent: '#c8763a', title: 'Hexadec - Four the Win',
+      teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
+      url: HEXADEC_URL, cta: "Play today's sixteen →",
+      isNew: fridayISO <= HEXADEC_NEW_UNTIL,
+    },
     (whenlyPromo && whenlyPromo.teaser) && {
       accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
       teaser: whenlyPromo.teaser, peek: whenlyPromo.peek, url: WHENLY_URL, cta: 'Give it a go →',
-    },
-    (whatwordPromo && whatwordPromo.teaser) && {
-      accent: '#3d5588', title: 'What Word - Three Unusual Words a Day',
-      teaser: whatwordPromo.teaser, peek: whatwordPromo.peek, url: WHATWORD_URL, cta: "Play today's three →",
     },
     (groupiePromo && groupiePromo.teaser) && {
       accent: '#6c4288', title: 'Groupie - Your Daily Four Play',
       teaser: groupiePromo.teaser, peek: groupiePromo.peek, url: GROUPIE_URL, cta: "Play today's grid →",
     },
-    (twenteePromo && twenteePromo.teaser) && {
-      accent: '#b5432a', title: 'Twentee - Twenty Questions, Daily',
-      teaser: twenteePromo.teaser, url: TWENTEE_URL, cta: 'Start asking →',
-    },
     (spellboundPromo && spellboundPromo.teaser) && {
       accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
       teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →",
     },
+    (whatwordPromo && whatwordPromo.teaser) && {
+      accent: '#3d5588', title: 'What Word - Three Unusual Words a Day',
+      teaser: whatwordPromo.teaser, peek: whatwordPromo.peek, url: WHATWORD_URL, cta: "Play today's three →",
+    },
+    (twenteePromo && twenteePromo.teaser) && {
+      accent: '#b5432a', title: 'Twentee - Twenty Questions, Daily',
+      teaser: twenteePromo.teaser, url: TWENTEE_URL, cta: 'Start asking →',
+    },
     (guffinoesPromo && guffinoesPromo.teaser) && {
       accent: '#3f4a41', title: 'Guffinoes - Daily Word Dominoes',
       teaser: guffinoesPromo.teaser, url: GUFFINOES_URL, cta: "Play today's set →",
-    },
-    // The newest game carries the "New:" badge, and only one game ever does.
-    // It moved here from Guffinoes when Hexadec launched.
-    (hexadecPromo && hexadecPromo.teaser) && {
-      accent: '#c8763a', title: 'Hexadec - Four the Win',
-      teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
-      url: HEXADEC_URL, cta: "Play today's sixteen →", isNew: true,
     },
   ].filter(Boolean);
 

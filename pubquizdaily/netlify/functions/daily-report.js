@@ -204,10 +204,10 @@ async function fetchSources(baseUrl, dayISO) {
 
 const EMAIL_REF = 'friday';
 const SOURCE_GAMES = [
-  ['pqd', 'Pub Quiz'], ['whenly', 'Whenly'], ['whatword', 'What Word'],
-  ['groupie', 'Groupie'], ['twentee', 'Twentee'], ['spellbound', 'Spellbound'],
-  ['guffinoes', 'Guffinoes'],
-  ['hexadec', 'Hexadec'],
+  // Order is Carl's ranking (Sep 2026), the same in every list.
+  ['pqd', 'Pub Quiz'], ['hexadec', 'Hexadec'], ['whenly', 'Whenly'],
+  ['groupie', 'Groupie'], ['spellbound', 'Spellbound'], ['whatword', 'What Word'],
+  ['twentee', 'Twentee'], ['guffinoes', 'Guffinoes'],
 ];
 
 // Totals across the games of what the email brought. Plays, not people:
@@ -262,7 +262,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['PQD', p(pqd), '#4a7c59'], ['Whenly', p(whenly), '#c9772f'], ['What Word', p(whatword), '#ff48b0'], ['Groupie', p(groupie), '#00c2cc'], ['Twentee', p(twentee), '#ff9f1c'], ['Spellbound', p(spellbound), '#7f9dff'], ['Guffinoes', p(guffinoes), '#b8912f'], ['Hexadec', p(hexadec), '#c8763a']].map(([label, val, colour]) => `
+        ${[['PQD', p(pqd), '#4a7c59'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Twentee', p(twentee), '#ff9f1c'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -374,26 +374,26 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
 
     <div style="margin-bottom:24px;">
       <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">The Games</div>
-      <div style="font-size:13px;color:#6b6b6b;">Daily report, all seven — ${yesterdayLabel}</div>
+      <div style="font-size:13px;color:#6b6b6b;">Daily report, all eight — ${yesterdayLabel}</div>
     </div>
 
     ${summary}
     ${sourcesCard}
     ${pqdCard}
-    ${whenlyCard}
-    ${wwCard}
-    ${groupieCard}
-    ${twenteeCard}
-    ${spellboundCard}
-    ${guffinoesCard}
     ${hexadecCard}
+    ${whenlyCard}
+    ${groupieCard}
+    ${spellboundCard}
+    ${wwCard}
+    ${twenteeCard}
+    ${guffinoesCard}
 
     <div style="text-align:center;margin-top:20px;">
       <a href="https://pubquizdaily.com/stats.html" style="font-size:13px;color:#6b6b6b;text-decoration:none;">PQD stats dashboard →</a>
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Pub Quiz Daily · Whenly · What Word · Groupie · Twentee · Spellbound · Guffinoes — one report, sent via pubquizdaily.com
+      Pub Quiz Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Twentee · Guffinoes — one report, sent via pubquizdaily.com
     </div>
 
   </div>
