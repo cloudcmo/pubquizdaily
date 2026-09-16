@@ -71,6 +71,13 @@
     .page-subtitle { font-size: 0.9375rem; color: var(--ink-light); }
 
     .score-bar { display: flex; align-items: center; gap: 12px; background: white; border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 32px; position: sticky; top: 12px; z-index: 10; }
+    /* GuffBot, the quizmaster, sits by the score */
+    .quizmaster { font-size: 1.25rem; line-height: 1; display: inline-block; margin-right: 2px; transform-origin: 50% 90%; }
+    .quizmaster.cheer { animation: qm-cheer 0.5s ease; }
+    .quizmaster.flat  { animation: qm-flat 0.6s ease; }
+    @keyframes qm-cheer { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-7px) scale(1.15) rotate(-8deg); } 70% { transform: translateY(0) scale(0.95) rotate(6deg); } 100% { transform: translateY(0) scale(1); } }
+    @keyframes qm-flat  { 0% { transform: rotate(0); } 25% { transform: rotate(-10deg) scaleY(0.9); } 60% { transform: rotate(10deg) scaleY(0.9); } 100% { transform: rotate(0); } }
+    @media (prefers-reduced-motion: reduce) { .quizmaster.cheer, .quizmaster.flat { animation: none; } }
     .score-pips { display: flex; gap: 5px; flex-wrap: wrap; }
     .pip { width: 10px; height: 10px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
     .pip.correct { background: var(--correct); }
@@ -541,6 +548,7 @@
 
       app.innerHTML = `
         <div class="score-bar">
+          <span class="quizmaster" id="quizmaster" aria-hidden="true">🤖</span>
           <div class="score-pips">${pips}</div>
           <span class="score-label"><span class="score-number" id="scoreNum">0</span> / ${questions.length}</span>
         </div>
@@ -600,6 +608,8 @@
       const isCorrect = chosen === q.correct;
       answered[qi] = isCorrect ? 'correct' : 'wrong';
       if (isCorrect) score++;
+      const qm = document.getElementById('quizmaster');
+      if (qm) { qm.classList.remove('cheer', 'flat'); void qm.offsetWidth; qm.classList.add(isCorrect ? 'cheer' : 'flat'); }
 
       const card = document.getElementById(`card-${qi}`);
       card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');

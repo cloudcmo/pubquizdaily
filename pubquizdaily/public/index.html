@@ -91,6 +91,13 @@
     .date-label { font-size: 0.75rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-light); }
     .tagline { font-family: var(--font-serif); font-style: italic; font-size: 1rem; color: var(--ink-light); text-align: center; max-width: 480px; margin: 20px auto 0; padding: 0 24px; }
     .score-bar { display: flex; align-items: center; gap: 8px; }
+    /* GuffBot, the quizmaster, sits by the score */
+    .quizmaster { font-size: 1.25rem; line-height: 1; display: inline-block; margin-right: 2px; transform-origin: 50% 90%; }
+    .quizmaster.cheer { animation: qm-cheer 0.5s ease; }
+    .quizmaster.flat  { animation: qm-flat 0.6s ease; }
+    @keyframes qm-cheer { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-7px) scale(1.15) rotate(-8deg); } 70% { transform: translateY(0) scale(0.95) rotate(6deg); } 100% { transform: translateY(0) scale(1); } }
+    @keyframes qm-flat  { 0% { transform: rotate(0); } 25% { transform: rotate(-10deg) scaleY(0.9); } 60% { transform: rotate(10deg) scaleY(0.9); } 100% { transform: rotate(0); } }
+    @media (prefers-reduced-motion: reduce) { .quizmaster.cheer, .quizmaster.flat { animation: none; } }
     .score-pips { display: flex; gap: 4px; }
     .pip { width: 9px; height: 9px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
     .pip.correct { background: var(--correct); }
@@ -532,6 +539,7 @@
       <div class="top-bar">
         <p class="date-label" id="dateLabel"></p>
         <div class="score-bar">
+          <span class="quizmaster" id="quizmaster" aria-hidden="true">🤖</span>
           <div class="score-pips" id="scorePips"></div>
           <span class="score-label"><span class="score-number" id="scoreNum">0</span> / <span id="scoreTotal">0</span></span>
         </div>
@@ -693,6 +701,8 @@
       const q = questions[qi];
       const isCorrect = chosen === q.correct;
       answered[qi] = isCorrect ? 'correct' : 'wrong';
+      const qm = document.getElementById('quizmaster');
+      if (qm) { qm.classList.remove('cheer', 'flat'); void qm.offsetWidth; qm.classList.add(isCorrect ? 'cheer' : 'flat'); }
       if (isCorrect) {
         score++;
         triggerConfetti();
