@@ -98,6 +98,7 @@
     @keyframes qm-cheer { 0% { transform: translateY(0) scale(1); } 35% { transform: translateY(-7px) scale(1.15) rotate(-8deg); } 70% { transform: translateY(0) scale(0.95) rotate(6deg); } 100% { transform: translateY(0) scale(1); } }
     @keyframes qm-flat  { 0% { transform: rotate(0); } 25% { transform: rotate(-10deg) scaleY(0.9); } 60% { transform: rotate(10deg) scaleY(0.9); } 100% { transform: rotate(0); } }
     @media (prefers-reduced-motion: reduce) { .quizmaster.cheer, .quizmaster.flat { animation: none; } }
+    .gbimg{display:inline-block;width:1.15em;height:1.15em;vertical-align:-.22em;object-fit:contain;border:0;pointer-events:none;-webkit-user-drag:none;user-select:none} /* GuffBot as a picture, sized to the emoji he replaced (19 Sept 2026) */
     .score-pips { display: flex; gap: 4px; }
     .pip { width: 9px; height: 9px; border-radius: 50%; background: var(--border); transition: background 0.2s; }
     .pip.correct { background: var(--correct); }
@@ -539,7 +540,7 @@
       <div class="top-bar">
         <p class="date-label" id="dateLabel"></p>
         <div class="score-bar">
-          <span class="quizmaster" id="quizmaster" aria-hidden="true">🤖</span>
+          <span class="quizmaster" id="quizmaster" aria-hidden="true"><img class="gbimg" src="/guffbot.webp" alt="" width="23" height="23"></span>
           <div class="score-pips" id="scorePips"></div>
           <span class="score-label"><span class="score-number" id="scoreNum">0</span> / <span id="scoreTotal">0</span></span>
         </div>
