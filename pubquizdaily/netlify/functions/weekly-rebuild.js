@@ -89,8 +89,12 @@ exports.handler = async function(event) {
     });
     const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
-    // Twentee, Spellbound + Guffinoes: template copy by design, can't fail.
-    const twenteePromo = wp.buildTwenteePromo();
+    // Spellbound + Guffinoes: template copy by design, can't fail. W&G Daily
+    // (Twentee's old place) adds the day's rack and degrades to its plain block.
+    const wagdailyPromo = await wp.buildWagDailyPromo(fridayISO).catch(err => {
+      console.error('rebuild: W&G Daily promo failed, omitting peek:', err.message);
+      return wp.buildWagDailyPromo.plain();
+    });
     const spellboundPromo = wp.buildSpellboundPromo();
     const guffinoesPromo = wp.buildGuffinoesPromo();
     // Hexadec: template copy too, but its peek fetches the day's real tiles,
@@ -103,7 +107,7 @@ exports.handler = async function(event) {
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      twenteePromo, spellboundPromo, guffinoesPromo, hexadecPromo,
+      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 

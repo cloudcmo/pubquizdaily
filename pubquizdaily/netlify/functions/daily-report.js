@@ -1,6 +1,7 @@
 // netlify/functions/daily-report.js
-// THE daily email: one report covering all seven games — Pub Quiz Daily,
-// Whenly, What Word, Groupie, Twentee, Spellbound and Guffinoes. Replaces the separate
+// THE daily email: one report covering all eight games — Pub Quiz Daily, Hexadec,
+// Whenly, What Word, Groupie, Words and Guff Daily, Spellbound and Guffinoes.
+// (Words and Guff Daily took Twentee's place on 20 Sept 2026.) Replaces the separate
 // PQD and Whenly reports (Whenly's own schedule is switched off in its
 // netlify.toml).
 // Scheduled here at 5am UTC daily; sends via Resend.
@@ -11,7 +12,7 @@
 //   Whenly   — the Whenly site's blobs, via WHENLY_SITE_ID + the same API token
 //   WhatWord — GET {WHATWORD_URL}/api/stats?date= with WHATWORD_ADMIN_TOKEN
 //   Groupie  — GET {GROUPIE_URL}/api/stats?date= with GROUPIE_ADMIN_TOKEN
-//   Twentee  — GET {TWENTEE_URL}/api/stats?date= with TWENTEE_ADMIN_TOKEN
+//   W&G Daily — GET {WAGDAILY_URL}/api/stats?date= with WAGDAILY_ADMIN_TOKEN
 //   Spellbound — GET {SPELLBOUND_URL}/api/stats?date= with SPELLBOUND_ADMIN_TOKEN
 //   Guffinoes — GET {GUFFINOES_URL}/api/stats?date= with GUFFINOES_ADMIN_TOKEN
 //   Hexadec   — GET {HEXADEC_URL}/api/stats?date= with HEXADEC_ADMIN_TOKEN
@@ -22,7 +23,7 @@
 
 const WHATWORD_URL = process.env.WHATWORD_URL || 'https://what-word.carl-b82.workers.dev';
 const GROUPIE_URL  = process.env.GROUPIE_URL  || 'https://groupie.fun';
-const TWENTEE_URL  = process.env.TWENTEE_URL  || 'https://twentee.co.uk';
+const WAGDAILY_URL = process.env.WAGDAILY_URL || 'https://wordsandguff.carlosfandango.net';
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
@@ -64,12 +65,12 @@ exports.handler = async function(event) {
     });
 
     // ── Gather all seven games in parallel, each best-effort ──
-    const [pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, hexadec] = await Promise.all([
+    const [pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec] = await Promise.all([
       fetchPqd(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('PQD stats failed:', e.message); return null; }),
       fetchWhenly(authHeader, yesterdayISO).catch(e => { console.error('Whenly stats failed:', e.message); return null; }),
       fetchWorkerStats(WHATWORD_URL, process.env.WHATWORD_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('What Word stats failed:', e.message); return null; }),
       fetchWorkerStats(GROUPIE_URL, process.env.GROUPIE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Groupie stats failed:', e.message); return null; }),
-      fetchWorkerStats(TWENTEE_URL, process.env.TWENTEE_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Twentee stats failed:', e.message); return null; }),
+      fetchWorkerStats(WAGDAILY_URL, process.env.WAGDAILY_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('W&G Daily stats failed:', e.message); return null; }),
       fetchWorkerStats(SPELLBOUND_URL, process.env.SPELLBOUND_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Spellbound stats failed:', e.message); return null; }),
       fetchWorkerStats(GUFFINOES_URL, process.env.GUFFINOES_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Guffinoes stats failed:', e.message); return null; }),
       fetchWorkerStats(HEXADEC_URL, process.env.HEXADEC_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Hexadec stats failed:', e.message); return null; }),
@@ -81,12 +82,12 @@ exports.handler = async function(event) {
       fetchWeeklyPlays(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('Weekly plays failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, hexadec, sources, weekly });
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, sources, weekly });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
     const fromEmail = emailTotals(sources);
     const emailBit = fromEmail ? ` · Email ${fromEmail.visits}→${fromEmail.completed}` : '';
-    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · Twentee ${n(twentee)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
+    const subject = `Games — PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · W&G Daily ${n(wagdaily)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
 
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -202,12 +203,32 @@ async function fetchSources(baseUrl, dayISO) {
   return await res.json();
 }
 
+// The Friday email's refs are PER LINK since 2026-09-17: 'friday-hero',
+// 'friday-card-whatword', and so on ('friday' bare is the pre-17-Sept value,
+// still present in historic rows). Match on the PREFIX. An exact lookup for
+// 'friday' reads zero for every game and looks exactly like a dead newsletter.
 const EMAIL_REF = 'friday';
+const isEmailRef = (ref) => ref === EMAIL_REF || ref.startsWith(`${EMAIL_REF}-`);
+
+// Every email ref for one game, summed. Returns null when the game has none,
+// which is what the old `refs[EMAIL_REF]` lookup returned, so callers are
+// unchanged.
+function emailRef(game) {
+  if (!game || !game.refs) return null;
+  let visits = 0, completed = 0, found = false;
+  for (const [ref, r] of Object.entries(game.refs)) {
+    if (!isEmailRef(ref)) continue;
+    found = true;
+    visits += r.visits || 0;
+    completed += r.completed || 0;
+  }
+  return found ? { visits, completed } : null;
+}
 const SOURCE_GAMES = [
   // Order is Carl's ranking (Sep 2026), the same in every list.
   ['pqd', 'Pub Quiz'], ['hexadec', 'Hexadec'], ['whenly', 'Whenly'],
   ['groupie', 'Groupie'], ['spellbound', 'Spellbound'], ['whatword', 'What Word'],
-  ['twentee', 'Twentee'], ['guffinoes', 'Guffinoes'],
+  ['wagdaily', 'W&G Daily'], ['guffinoes', 'Guffinoes'],
 ];
 
 // Totals across the games of what the email brought. Plays, not people:
@@ -216,7 +237,7 @@ function emailTotals(sources) {
   if (!sources || !sources.games) return null;
   let visits = 0, completed = 0;
   for (const [key] of SOURCE_GAMES) {
-    const r = sources.games[key] && sources.games[key].refs && sources.games[key].refs[EMAIL_REF];
+    const r = emailRef(sources.games[key]);
     if (r) { visits += r.visits || 0; completed += r.completed || 0; }
   }
   return { visits, completed };
@@ -255,14 +276,14 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, spellbound, guffinoes, hexadec, sources, weekly }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, sources, weekly }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
   // Summary strip: the six player counts side by side.
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['PQD', p(pqd), '#4a7c59'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Twentee', p(twentee), '#ff9f1c'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
+        ${[['PQD', p(pqd), '#4a7c59'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -276,7 +297,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
   // arrival ping), so this is the only place bounces show up.
   const srcRows = SOURCE_GAMES.map(([key, label]) => {
     const g = sources && sources.games && sources.games[key];
-    const e = g && g.refs && g.refs[EMAIL_REF];
+    const e = emailRef(g);
     const cell = v => (v === null || v === undefined) ? '—' : v;
     const emailCell = e ? `${e.visits} → ${e.completed}` : (g ? '0' : '—');
     return `<tr>
@@ -286,6 +307,21 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
       <td align="right" style="padding:6px 10px;font-size:12px;font-weight:600;color:${e && e.completed ? '#4a7c59' : '#6b6b6b'};">${emailCell}</td>
     </tr>`;
   }).join('');
+  // Which link they pressed, not just which game they reached. Only renders
+  // once per-link refs are actually flowing, so it is silent on historic days.
+  const linkCounts = {};
+  for (const [key] of SOURCE_GAMES) {
+    const g = sources && sources.games && sources.games[key];
+    if (!g || !g.refs) continue;
+    for (const [ref, r] of Object.entries(g.refs)) {
+      if (!isEmailRef(ref) || ref === EMAIL_REF) continue;
+      linkCounts[ref] = (linkCounts[ref] || 0) + (r.visits || 0);
+    }
+  }
+  const linkEntries = Object.entries(linkCounts).sort((a, b) => b[1] - a[1]);
+  const linkLine = linkEntries.length
+    ? `<div style="font-size:12px;color:#6b6b6b;margin-top:10px;line-height:1.7;">Link pressed: ${linkEntries.map(([ref, n]) => `${ref.slice(EMAIL_REF.length + 1)} <strong style="color:#1a1a1a;">${n}</strong>`).join(' · ')}</div>`
+    : '';
   const weeklyLine = weekly
     ? `<div style="font-size:12px;color:#6b6b6b;margin-top:12px;">Weekly Best-of (where the email's big button goes): <strong style="color:#1a1a1a;">${weekly.plays}</strong> play${weekly.plays === 1 ? '' : 's'}, ${weekly.fullMarks} full marks</div>`
     : `<div style="font-size:12px;color:#6b6b6b;margin-top:12px;">Weekly Best-of: unreachable</div>`;
@@ -303,6 +339,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
         </tr>
         ${srcRows}
       </table>
+      ${linkLine}
       ${weeklyLine}
       ${sources ? '' : '<div style="font-size:11px;color:#c0622e;margin-top:8px;">Sources API unreachable — groupie.fun/api/sources</div>'}
     </div>`;
@@ -341,10 +378,13 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
         tile(groupie.players, 'players', 'big') + tile(groupie.solveRate === null || groupie.solveRate === undefined ? null : groupie.solveRate + '%', 'solved it') + tile(groupie.avgMistakes ?? null, 'avg slips') + tile(groupie.allTime ? groupie.allTime.players : null, 'all-time plays'))
     : gameCard('Groupie', '#00c2cc', 'groupie.fun', tile(null, 'unreachable', 'big'));
 
-  const twenteeCard = twentee
-    ? gameCard('Twentee', '#ff9f1c', 'twentee.co.uk',
-        tile(twentee.players, 'players', 'big') + tile(twentee.winRate === null || twentee.winRate === undefined ? null : twentee.winRate + '%', 'got it') + tile(twentee.avgSpent ?? null, 'avg questions') + tile(twentee.allTime ? twentee.allTime.players : null, 'all-time plays'))
-    : gameCard('Twentee', '#ff9f1c', 'twentee.co.uk', tile(null, 'unreachable', 'big'));
+  // Words and Guff Daily (took Twentee's place 20 Sept 2026): how many found the day's best
+  // play, and the board's best under the tiles. boardsThrough is when the puzzle files run out.
+  const wagdailyCard = wagdaily
+    ? gameCard('Words and Guff Daily', '#0E4F58', 'wordsandguff.carlosfandango.net',
+        tile(wagdaily.players, 'players', 'big') + tile(wagdaily.foundRate === null || wagdaily.foundRate === undefined ? null : wagdaily.foundRate + '%', 'found the best') + tile(wagdaily.avgTotal ?? null, 'avg score') + tile(wagdaily.allTime ? wagdaily.allTime.players : null, 'all-time plays'),
+        wagdaily.bestWord ? `<div style="margin-top:10px;font-size:12px;color:#8a857d;">Best play ${String(wagdaily.bestWord).replace(/[^A-Z]/g, '')} for ${Number(wagdaily.best) || 0}${wagdaily.avgSeconds ? ` · ${wagdaily.avgSeconds}s to play on average` : ''}${wagdaily.boardsThrough ? ` · boards on file to ${wagdaily.boardsThrough}` : ''}</div>` : '')
+    : gameCard('Words and Guff Daily', '#0E4F58', 'wordsandguff.carlosfandango.net', tile(null, 'unreachable', 'big'));
 
   const spellboundCard = spellbound
     ? gameCard('Spellbound', '#2563c9', 'spellbounddaily.co.uk',
@@ -385,7 +425,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
     ${groupieCard}
     ${spellboundCard}
     ${wwCard}
-    ${twenteeCard}
+    ${wagdailyCard}
     ${guffinoesCard}
 
     <div style="text-align:center;margin-top:20px;">
@@ -393,7 +433,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, twentee, sp
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Pub Quiz Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Twentee · Guffinoes — one report, sent via pubquizdaily.com
+      Pub Quiz Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Words and Guff Daily · Guffinoes — one report, sent via pubquizdaily.com
     </div>
 
   </div>

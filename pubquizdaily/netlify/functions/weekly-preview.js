@@ -24,11 +24,22 @@ const { loadPickSet, addPicks, pickKey } = require('../lib/weekly-picks');
 
 const BASE = 'https://pubquizdaily.com';
 const WEEKLY_URL = `${BASE}/weekly.html`;
-// Every link in the email carries ?ref=friday. guff-bar.js on each site
-// remembers it for the day and reports it with the arrival ping, so the
-// daily report can say how many players the email actually brought.
+// Every link in the email carries a ref beginning 'friday'. guff-bar.js on
+// each site remembers it for the day and reports it with the arrival ping, so
+// the daily report can say how many players the email actually brought.
+//
+// The ref is PER LINK, not per send: 'friday-hero' for the big quiz button,
+// 'friday-card-<game>' for a game card's button. Anything reading these must
+// match on the 'friday' PREFIX, never on the literal string — daily-report.js
+// and groupie's /api/sources were both written when there was only one value.
+//
+// HARD LIMIT: 24 characters. guff-bar.js matches /[?&]ref=([A-Za-z0-9_-]{1,24})/
+// and groupie's /api/visit tests /^[a-z0-9_-]{1,24}$/, so a longer value is
+// silently truncated by one and dropped by the other. The longest value in use
+// is 'friday-card-spellbound' (22). Lowercase only: both sides lowercase it.
 const EMAIL_REF = 'friday';
-const withRef = (url) => `${url}${url.includes('?') ? '&' : '?'}ref=${EMAIL_REF}`;
+const refFor = (slot) => (slot ? `${EMAIL_REF}-${slot}` : EMAIL_REF).toLowerCase().slice(0, 24);
+const withRef = (url, slot) => `${url}${url.includes('?') ? '&' : '?'}ref=${refFor(slot)}`;
 const MIN_SAMPLE = 4;                 // hide a % until at least this many answers
 // How many questions to auto-pick for the week when nobody flagged any "W"
 // in the sheet (Carl's manual weekly-picking step is retired as of 2026-08-13
@@ -55,14 +66,18 @@ const GROUPIE_URL = process.env.GROUPIE_URL || 'https://groupie.fun';
 // site: GROUPIE_ADMIN_TOKEN = contents of groupie's .admin-token.
 const GROUPIE_ADMIN_TOKEN = process.env.GROUPIE_ADMIN_TOKEN;
 
-// ── Twentee + Spellbound + Guffinoes promos ──
-// All three are deliberately teased with TEMPLATE copy, no API reads: Twentee's
-// whole game is that the day's thing is secret (even its nudge gives too much
-// away), and Spellbound's day is built client-side from the date seed, so
-// there's nothing safe or cheap to fetch. Static copy can't spoil and can't
-// fail. Guffinoes builds its bag client-side from the date seed, same as
-// Spellbound.
-const TWENTEE_URL = 'https://twentee.co.uk';
+// ── Spellbound + Guffinoes promos ──
+// Both are deliberately teased with TEMPLATE copy, no API reads: Spellbound's day is
+// built client-side from the date seed, so there's nothing safe or cheap to fetch.
+// Static copy can't spoil and can't fail. Guffinoes builds its bag client-side from
+// the date seed, same as Spellbound.
+//
+// ── Words and Guff Daily (took Twentee's place, 20 Sept 2026) ──
+// Template teaser plus a real peek: the send day's rack of eight, which is the puzzle,
+// not the answer. The Worker only serves future boards to its admin token, so set
+// WAGDAILY_ADMIN_TOKEN on this Netlify site (the same one the daily report uses).
+const WAGDAILY_URL = process.env.WAGDAILY_URL || 'https://wordsandguff.carlosfandango.net';
+const WAGDAILY_ADMIN_TOKEN = process.env.WAGDAILY_ADMIN_TOKEN;
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
@@ -152,8 +167,12 @@ exports.handler = async function() {
     });
     const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
-    // Twentee, Spellbound + Guffinoes — template copy by design (see consts above).
-    const twenteePromo = buildTwenteePromo();
+    // Spellbound + Guffinoes — template copy by design (see consts above). W&G Daily
+    // is template copy plus the send day's rack, best-effort.
+    const wagdailyPromo = await buildWagDailyPromo(fridayISO).catch(err => {
+      console.error('W&G Daily promo failed, omitting peek:', err);
+      return buildWagDailyPromo.plain();
+    });
     const spellboundPromo = buildSpellboundPromo();
     const guffinoesPromo = buildGuffinoesPromo();
     const hexadecPromo = await buildHexadecPromo(fridayISO).catch(err => {
@@ -165,7 +184,7 @@ exports.handler = async function() {
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      twenteePromo, spellboundPromo, guffinoesPromo, hexadecPromo,
+      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo,
     });
     const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
 
@@ -672,15 +691,39 @@ function escapeRegExp(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-// ── Twentee + Spellbound cross-promos ────────────────────────────────────────
-// Template copy on purpose — nothing to fetch, nothing to leak, nothing to
-// fail (see the consts at the top). Synchronous, always present.
+// ── Words and Guff Daily + Spellbound cross-promos ──────────────────────────
+// Spellbound is template copy on purpose — nothing to fetch, nothing to leak,
+// nothing to fail (see the consts at the top). W&G Daily adds a peek at the send
+// day's rack, and falls back to the plain block if the board can't be read.
 
-function buildTwenteePromo() {
-  return {
-    teaser: 'One secret thing a day, twenty questions to name it, and the machine answers honestly. How few can you do it in?',
-    note: 'Twentee teaser is template copy by design',
-  };
+async function buildWagDailyPromo(fridayISO) {
+  const plain = buildWagDailyPromo.plain();
+  if (!WAGDAILY_ADMIN_TOKEN) return plain;
+  const res = await fetch(`${WAGDAILY_URL}/api/puzzle?date=${fridayISO}`, {
+    headers: { Authorization: `Bearer ${WAGDAILY_ADMIN_TOKEN}` },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!res.ok) return plain;
+  const day = await res.json();
+  const peek = peekWagDailyRack(day);
+  return peek ? { ...plain, peek, note: 'W&G Daily teaser is template copy, peek is the real rack' } : plain;
+}
+buildWagDailyPromo.plain = () => ({
+  teaser: 'A game already under way, a rack of eight tiles, and one play to find the best word on the board. Quicker earns a little extra, but there\'s no clock to watch.',
+  note: 'W&G Daily teaser is template copy, no peek this week',
+});
+
+// The send day's eight tiles as cream Power Board tiles with their values: the puzzle
+// itself, so it can't spoil anything. Table markup, no images.
+function peekWagDailyRack(day) {
+  try {
+    const rack = String(day && day.rack || '');
+    if (!/^[A-Z]{8}$/.test(rack)) return '';
+    const v = (day && day.values) || {};
+    const cell = ch => `<td width="12.5%" align="center" bgcolor="#fbf3dc" style="background-color:#fbf3dc;border:1px solid #c9b786;border-radius:6px;padding:9px 2px 7px;font-family:Georgia,'Times New Roman',serif;font-size:18px;color:#1f2d2c;">${escapeHtml(ch)}<sub style="font-family:Arial,Helvetica,sans-serif;font-size:9px;">${Number(v[ch]) || ''}</sub></td>`;
+    return peekLabel("Today's rack") +
+      `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border-collapse:separate;border-spacing:4px;margin:0 0 16px;table-layout:fixed;"><tr>${rack.split('').map(cell).join('')}</tr></table>`;
+  } catch { return ''; }
 }
 
 function buildSpellboundPromo() {
@@ -830,7 +873,7 @@ function peekWhenly(questions) {
 
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, twenteePromo, spellboundPromo, guffinoesPromo, hexadecPromo }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo }) {
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
       <img src="${escapeAttr(hero)}" width="600" height="300" alt="This week's quiz" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
@@ -850,7 +893,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
   // its own colour, so it reads as the headline of the family rather than one
   // more card. Table-and-span markup only, so it survives every mail client.
   const newFlash = accent => `<span style="display:inline-block;vertical-align:middle;margin:0 10px 3px 0;padding:5px 10px 4px;background-color:${accent};color:#ffffff;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;border-radius:4px;">New</span>`;
-  const gameBlock = ({ accent, title, teaser, peek, url, cta, isNew }, isFirst) => `
+  const gameBlock = ({ key, accent, title, teaser, peek, url, cta, isNew }, isFirst) => `
   <tr><td style="padding:${isFirst ? '8px' : '10px'} 8px 4px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#ffffff;border:${isNew ? `2px solid ${accent}` : '1px solid #e7e3dc'};border-left:${isNew ? '6px' : '4px'} solid ${accent};border-radius:14px;"><tr><td style="padding:20px 26px;">
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:18px;line-height:1.3;color:#1a1a1a;font-weight:700;padding-bottom:8px;">${isNew ? newFlash(accent) : ''}<span style="color:${accent};">${title.split(' - ')[0]}</span> - ${title.split(' - ').slice(1).join(' - ')}</div>
@@ -858,43 +901,43 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       ${peek || ''}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td align="center" bgcolor="${accent}" style="background-color:${accent};border-radius:9px;">
-          <a href="${withRef(url)}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${cta}</a>
+          <a href="${withRef(url, `card-${key}`)}" style="display:inline-block;padding:12px 28px;font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#ffffff;text-decoration:none;">${cta}</a>
         </td>
       </tr></table>
     </td></tr></table>
   </td></tr>`;
 
   // Order is Carl's ranking (Sep 2026): Hexadec sits directly under the quiz,
-  // Twentee and Guffinoes go last. Same order as games.json and the guff bar.
+  // W&G Daily (Twentee's old place) and Guffinoes go last. Same order as games.json and the guff bar.
   const familyGames = [
     (hexadecPromo && hexadecPromo.teaser) && {
-      accent: '#c8763a', title: 'Hexadec - Four the Win',
+      key: 'hexadec', accent: '#c8763a', title: 'Hexadec - Four the Win',
       teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
       url: HEXADEC_URL, cta: "Play today's sixteen →",
       isNew: fridayISO <= HEXADEC_NEW_UNTIL,
     },
     (whenlyPromo && whenlyPromo.teaser) && {
-      accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
+      key: 'whenly', accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
       teaser: whenlyPromo.teaser, peek: whenlyPromo.peek, url: WHENLY_URL, cta: 'Give it a go →',
     },
     (groupiePromo && groupiePromo.teaser) && {
-      accent: '#6c4288', title: 'Groupie - Your Daily Four Play',
+      key: 'groupie', accent: '#6c4288', title: 'Groupie - Your Daily Four Play',
       teaser: groupiePromo.teaser, peek: groupiePromo.peek, url: GROUPIE_URL, cta: "Play today's grid →",
     },
     (spellboundPromo && spellboundPromo.teaser) && {
-      accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
+      key: 'spellbound', accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
       teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →",
     },
     (whatwordPromo && whatwordPromo.teaser) && {
-      accent: '#3d5588', title: 'What Word - Three Unusual Words a Day',
+      key: 'whatword', accent: '#3d5588', title: 'What Word - Three Unusual Words a Day',
       teaser: whatwordPromo.teaser, peek: whatwordPromo.peek, url: WHATWORD_URL, cta: "Play today's three →",
     },
-    (twenteePromo && twenteePromo.teaser) && {
-      accent: '#b5432a', title: 'Twentee - Twenty Questions, Daily',
-      teaser: twenteePromo.teaser, url: TWENTEE_URL, cta: 'Start asking →',
+    (wagdailyPromo && wagdailyPromo.teaser) && {
+      key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - One Board, One Play',
+      teaser: wagdailyPromo.teaser, peek: wagdailyPromo.peek, url: WAGDAILY_URL, cta: "Find today's best play →",
     },
     (guffinoesPromo && guffinoesPromo.teaser) && {
-      accent: '#3f4a41', title: 'Guffinoes - Daily Word Dominoes',
+      key: 'guffinoes', accent: '#3f4a41', title: 'Guffinoes - Daily Word Dominoes',
       teaser: guffinoesPromo.teaser, url: GUFFINOES_URL, cta: "Play today's set →",
     },
   ].filter(Boolean);
@@ -926,7 +969,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       ${statBlock}
       <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
         <td align="center" bgcolor="#4a7c59" style="background-color:#4a7c59;border-radius:10px;">
-          <a href="${withRef(WEEKLY_URL)}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">Play this week's quiz →</a>
+          <a href="${withRef(WEEKLY_URL, 'hero')}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">Play this week's quiz →</a>
         </td>
       </tr></table>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#a49f97;padding-top:14px;">Free · No login · One email a week</div>
@@ -1038,7 +1081,7 @@ module.exports.fallbackCopy = fallbackCopy;
 module.exports.buildWhenlyPromo = buildWhenlyPromo;
 module.exports.buildWhatWordPromo = buildWhatWordPromo;
 module.exports.buildGroupiePromo = buildGroupiePromo;
-module.exports.buildTwenteePromo = buildTwenteePromo;
+module.exports.buildWagDailyPromo = buildWagDailyPromo;
 module.exports.buildSpellboundPromo = buildSpellboundPromo;
 module.exports.buildGuffinoesPromo = buildGuffinoesPromo;
 module.exports.buildHexadecPromo = buildHexadecPromo;
