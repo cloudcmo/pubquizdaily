@@ -913,7 +913,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
   // 2026), then Hexadec, and Guffinoes last. Same order as games.json and the guff bar.
   const familyGames = [
     (wagdailyPromo && wagdailyPromo.teaser) && {
-      key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - One Board, One Play',
+      key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - Can You Find the Best Word?',
       teaser: wagdailyPromo.teaser, peek: wagdailyPromo.peek, url: WAGDAILY_URL, cta: "Find today's best play →",
       isNew: fridayISO <= NEW_UNTIL.wagdaily,
     },
