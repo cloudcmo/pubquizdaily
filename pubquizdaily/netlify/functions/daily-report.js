@@ -226,9 +226,9 @@ function emailRef(game) {
 }
 const SOURCE_GAMES = [
   // Order is Carl's ranking (Sep 2026), the same in every list.
-  ['pqd', 'Pub Quiz'], ['hexadec', 'Hexadec'], ['whenly', 'Whenly'],
-  ['groupie', 'Groupie'], ['spellbound', 'Spellbound'], ['whatword', 'What Word'],
-  ['wagdaily', 'W&G Daily'], ['guffinoes', 'Guffinoes'],
+  ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'], ['hexadec', 'Hexadec'],
+  ['whenly', 'Whenly'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
+  ['whatword', 'What Word'], ['guffinoes', 'Guffinoes'],
 ];
 
 // Totals across the games of what the email brought. Plays, not people:
@@ -283,7 +283,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['PQD', p(pqd), '#4a7c59'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
+        ${[['PQD', p(pqd), '#4a7c59'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -420,12 +420,12 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
     ${summary}
     ${sourcesCard}
     ${pqdCard}
+    ${wagdailyCard}
     ${hexadecCard}
     ${whenlyCard}
     ${groupieCard}
     ${spellboundCard}
     ${wwCard}
-    ${wagdailyCard}
     ${guffinoesCard}
 
     <div style="text-align:center;margin-top:20px;">
@@ -433,7 +433,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Pub Quiz Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Words and Guff Daily · Guffinoes — one report, sent via pubquizdaily.com
+      Pub Quiz Daily · Words and Guff Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Guffinoes — one report, sent via pubquizdaily.com
     </div>
 
   </div>

@@ -81,10 +81,12 @@ const WAGDAILY_ADMIN_TOKEN = process.env.WAGDAILY_ADMIN_TOKEN;
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
-// Hexadec carries a prominent NEW flash on every send dated on or before this
-// (a month from launch, Carl's call on 12 Sept 2026). After that it lapses on
-// its own; nothing to switch off. Change the date to extend it.
-const HEXADEC_NEW_UNTIL = '2026-10-12';
+// A new game carries a prominent NEW flash on every send dated on or before its
+// date here (a month from launch: Hexadec was Carl's call on 12 Sept 2026, Words
+// and Guff Daily on 20 Sept). It lapses on its own; nothing to switch off.
+// Change a date to extend it; add a key (and isNew on its familyGames entry) for
+// the next new game.
+const NEW_UNTIL = { hexadec: '2026-10-12', wagdaily: '2026-10-20' };
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -907,14 +909,19 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     </td></tr></table>
   </td></tr>`;
 
-  // Order is Carl's ranking (Sep 2026): Hexadec sits directly under the quiz,
-  // W&G Daily (Twentee's old place) and Guffinoes go last. Same order as games.json and the guff bar.
+  // Order is Carl's ranking: W&G Daily directly under the quiz (moved up 20 Sept
+  // 2026), then Hexadec, and Guffinoes last. Same order as games.json and the guff bar.
   const familyGames = [
+    (wagdailyPromo && wagdailyPromo.teaser) && {
+      key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - One Board, One Play',
+      teaser: wagdailyPromo.teaser, peek: wagdailyPromo.peek, url: WAGDAILY_URL, cta: "Find today's best play →",
+      isNew: fridayISO <= NEW_UNTIL.wagdaily,
+    },
     (hexadecPromo && hexadecPromo.teaser) && {
       key: 'hexadec', accent: '#c8763a', title: 'Hexadec - Four the Win',
       teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
       url: HEXADEC_URL, cta: "Play today's sixteen →",
-      isNew: fridayISO <= HEXADEC_NEW_UNTIL,
+      isNew: fridayISO <= NEW_UNTIL.hexadec,
     },
     (whenlyPromo && whenlyPromo.teaser) && {
       key: 'whenly', accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
@@ -931,10 +938,6 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     (whatwordPromo && whatwordPromo.teaser) && {
       key: 'whatword', accent: '#3d5588', title: 'What Word - Three Unusual Words a Day',
       teaser: whatwordPromo.teaser, peek: whatwordPromo.peek, url: WHATWORD_URL, cta: "Play today's three →",
-    },
-    (wagdailyPromo && wagdailyPromo.teaser) && {
-      key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - One Board, One Play',
-      teaser: wagdailyPromo.teaser, peek: wagdailyPromo.peek, url: WAGDAILY_URL, cta: "Find today's best play →",
     },
     (guffinoesPromo && guffinoesPromo.teaser) && {
       key: 'guffinoes', accent: '#3f4a41', title: 'Guffinoes - Daily Word Dominoes',
