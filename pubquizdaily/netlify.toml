@@ -34,3 +34,28 @@
   for = "/.netlify/functions/*"
   [headers.values]
     Cache-Control = "public, max-age=300"
+
+# Articles moved to the Tom Cobley Pub Quiz site (Sep 2026)
+[[redirects]]
+  from = "/articles.html"
+  to = "https://tomcobleypubquiz.co.uk/news.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/what-makes-a-good-pub-quiz.html"
+  to = "https://tomcobleypubquiz.co.uk/news/what-makes-a-good-pub-quiz.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/10-secrets-of-the-tom-cobley-pub-quiz.html"
+  to = "https://tomcobleypubquiz.co.uk/news/10-secrets-of-the-tom-cobley-pub-quiz.html"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/articles/*"
+  to = "https://tomcobleypubquiz.co.uk/news.html"
+  status = 301
+  force = true
