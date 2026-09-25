@@ -1,5 +1,5 @@
 // netlify/functions/daily-report.js
-// THE daily email: one report covering all eight games — Pub Quiz Daily, Hexadec,
+// THE daily email: one report covering the Guff games — Pub Quiz Daily, Hexadec,
 // Whenly, What Word, Groupie, Words and Guff Daily, Spellbound and Guffinoes.
 // (Words and Guff Daily took Twentee's place on 20 Sept 2026.) Replaces the separate
 // PQD and Whenly reports (Whenly's own schedule is switched off in its
@@ -225,7 +225,10 @@ function emailRef(game) {
   return found ? { visits, completed } : null;
 }
 const SOURCE_GAMES = [
-  // Order is Carl's ranking (Sep 2026), the same in every list.
+  // Order is Carl's ranking (Sep 2026), the same in every list. Wordminer and
+  // Guffitaire (25 Sept 2026) have no stats API of their own yet, so the
+  // docket's visited/finished counts here are their only line in this report.
+  ['wordminer', 'Wordminer'], ['guffitaire', 'Guffitaire'],
   ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'], ['hexadec', 'Hexadec'],
   ['whenly', 'Whenly'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
   ['whatword', 'What Word'], ['guffinoes', 'Guffinoes'],
@@ -414,7 +417,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
 
     <div style="margin-bottom:24px;">
       <div style="font-family:Georgia,serif;font-size:22px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">The Games</div>
-      <div style="font-size:13px;color:#6b6b6b;">Daily report, all eight — ${yesterdayLabel}</div>
+      <div style="font-size:13px;color:#6b6b6b;">Daily report — ${yesterdayLabel}</div>
     </div>
 
     ${summary}

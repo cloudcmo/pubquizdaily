@@ -81,12 +81,14 @@ const WAGDAILY_ADMIN_TOKEN = process.env.WAGDAILY_ADMIN_TOKEN;
 const SPELLBOUND_URL = process.env.SPELLBOUND_URL || 'https://spellbounddaily.co.uk';
 const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfandango.net';
 const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
+const WORDMINER_URL = process.env.WORDMINER_URL || 'https://wordminer.carlosfandango.net';
+const GUFFITAIRE_URL = process.env.GUFFITAIRE_URL || 'https://guffitaire.carlosfandango.net';
 // A new game carries a prominent NEW flash on every send dated on or before its
-// date here (a month from launch: Hexadec was Carl's call on 12 Sept 2026, Words
-// and Guff Daily on 20 Sept). It lapses on its own; nothing to switch off.
-// Change a date to extend it; add a key (and isNew on its familyGames entry) for
-// the next new game.
-const NEW_UNTIL = { hexadec: '2026-10-12', wagdaily: '2026-10-20' };
+// date here (a month from launch: Wordminer and Guffitaire were Carl's call on
+// 25 Sept 2026, which is also when Hexadec and W&G Daily lost theirs). It
+// lapses on its own; nothing to switch off. Change a date to extend it; add a
+// key (and isNew on its familyGames entry) for the next new game.
+const NEW_UNTIL = { wordminer: '2026-10-25', guffitaire: '2026-10-25' };
 
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
@@ -752,6 +754,22 @@ async function buildHexadecPromo(fridayISO) {
   return { teaser, peek, note: peek ? 'Hexadec teaser is template copy, peek is the real tiles' : 'Hexadec teaser is template copy, no peek this week' };
 }
 
+// Wordminer and Guffitaire (25 Sept 2026): template copy by design, built
+// inside buildTeaserHtml so weekly-rebuild.js picks them up with no change.
+function buildWordminerPromo() {
+  return {
+    teaser: 'Minesweeper, but the squares hide words as well as mines. Numbers count the mines around them, letters belong to words on the day\'s theme, and a word square never holds a mine, so once you can guess a word the rest of it is safe. Fewer taps and a quicker finish score more.',
+    note: 'Wordminer teaser is template copy by design',
+  };
+}
+
+function buildGuffitairePromo() {
+  return {
+    teaser: 'Solitaire, but the cards are letters. Turn the pile, build six words in the columns, then bank your score or push your luck for a bigger one. Five lives, a par to beat, and one deal a day, the same for everyone.',
+    note: 'Guffitaire teaser is template copy by design',
+  };
+}
+
 function buildGuffinoesPromo() {
   return {
     teaser: 'Twelve lettered dominoes and one board. Lay two letters at a time so that everything they spell, across and down, is a word. Long words pay, and pay well.',
@@ -909,19 +927,30 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     </td></tr></table>
   </td></tr>`;
 
-  // Order is Carl's ranking: W&G Daily directly under the quiz (moved up 20 Sept
-  // 2026), then Hexadec, and Guffinoes last. Same order as games.json and the guff bar.
+  // Order is Carl's ranking: the two new games first (Wordminer and Guffitaire,
+  // 25 Sept 2026), then W&G Daily, Hexadec, and Guffinoes last. Same order as
+  // games.json and the guff bar.
+  const wordminerPromo = buildWordminerPromo();
+  const guffitairePromo = buildGuffitairePromo();
   const familyGames = [
+    {
+      key: 'wordminer', accent: '#008080', title: 'Wordminer - Minesweeper with Words',
+      teaser: wordminerPromo.teaser, url: WORDMINER_URL, cta: "Clear today's board →",
+      isNew: fridayISO <= NEW_UNTIL.wordminer,
+    },
+    {
+      key: 'guffitaire', accent: '#1d6b3f', title: 'Guffitaire - Solitaire, but the Cards Are Letters',
+      teaser: guffitairePromo.teaser, url: GUFFITAIRE_URL, cta: "Play today's deal →",
+      isNew: fridayISO <= NEW_UNTIL.guffitaire,
+    },
     (wagdailyPromo && wagdailyPromo.teaser) && {
       key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - Can You Find the Best Word?',
       teaser: wagdailyPromo.teaser, peek: wagdailyPromo.peek, url: WAGDAILY_URL, cta: "Find today's best play →",
-      isNew: fridayISO <= NEW_UNTIL.wagdaily,
     },
     (hexadecPromo && hexadecPromo.teaser) && {
       key: 'hexadec', accent: '#c8763a', title: 'Hexadec - Four the Win',
       teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
       url: HEXADEC_URL, cta: "Play today's sixteen →",
-      isNew: fridayISO <= NEW_UNTIL.hexadec,
     },
     (whenlyPromo && whenlyPromo.teaser) && {
       key: 'whenly', accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
@@ -947,7 +976,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
 
   const familyHeader = familyGames.length ? `
   <tr><td style="padding:26px 8px 2px;" align="center">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · eight free daily games · the quiz above is one</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · ten free daily games · the quiz above is one</div>
   </td></tr>` : '';
 
   const familyBlocks = familyHeader + familyGames.map((g, i) => gameBlock(g, i === 0)).join('');
@@ -1087,6 +1116,8 @@ module.exports.buildGroupiePromo = buildGroupiePromo;
 module.exports.buildWagDailyPromo = buildWagDailyPromo;
 module.exports.buildSpellboundPromo = buildSpellboundPromo;
 module.exports.buildGuffinoesPromo = buildGuffinoesPromo;
+module.exports.buildWordminerPromo = buildWordminerPromo;
+module.exports.buildGuffitairePromo = buildGuffitairePromo;
 module.exports.buildHexadecPromo = buildHexadecPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
 module.exports.buildPreviewWrapper = buildPreviewWrapper;
