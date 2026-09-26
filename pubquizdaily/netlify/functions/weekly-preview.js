@@ -927,17 +927,12 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     </td></tr></table>
   </td></tr>`;
 
-  // Order is Carl's ranking: the two new games first (Wordminer and Guffitaire,
-  // 25 Sept 2026), then W&G Daily, Hexadec, and Guffinoes last. Same order as
-  // games.json and the guff bar.
+  // Order is Carl's ranking (26 Sept 2026): Guffitaire first, then W&G Daily,
+  // Hexadec, Wordminer, and Guffinoes last. Same order as games.json and the
+  // guff bar (Pub Quiz Daily is the quiz above, so it isn't listed here).
   const wordminerPromo = buildWordminerPromo();
   const guffitairePromo = buildGuffitairePromo();
   const familyGames = [
-    {
-      key: 'wordminer', accent: '#008080', title: 'Wordminer - Minesweeper with Words',
-      teaser: wordminerPromo.teaser, url: WORDMINER_URL, cta: "Clear today's board →",
-      isNew: fridayISO <= NEW_UNTIL.wordminer,
-    },
     {
       key: 'guffitaire', accent: '#1d6b3f', title: 'Guffitaire - Solitaire, but the Cards Are Letters',
       teaser: guffitairePromo.teaser, url: GUFFITAIRE_URL, cta: "Play today's deal →",
@@ -951,6 +946,11 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       key: 'hexadec', accent: '#c8763a', title: 'Hexadec - Four the Win',
       teaser: hexadecPromo.teaser, peek: hexadecPromo.peek,
       url: HEXADEC_URL, cta: "Play today's sixteen →",
+    },
+    {
+      key: 'wordminer', accent: '#008080', title: 'Wordminer - Minesweeper with Words',
+      teaser: wordminerPromo.teaser, url: WORDMINER_URL, cta: "Clear today's board →",
+      isNew: fridayISO <= NEW_UNTIL.wordminer,
     },
     (whenlyPromo && whenlyPromo.teaser) && {
       key: 'whenly', accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
