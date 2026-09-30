@@ -109,7 +109,7 @@ exports.handler = async function(event) {
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
       wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo,
     });
-    const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
+    const subject = wp.subjectFor(fridayISO, subjectQ);
 
     // Overwrite the stored build so Friday's broadcast sends this one.
     await wp.putBlob(env.SITE_ID, env.TOKEN, `weekly-built-${fridayISO}`, { subject, html: cleanHtml, builtAt: new Date().toISOString(), rebuilt: true });

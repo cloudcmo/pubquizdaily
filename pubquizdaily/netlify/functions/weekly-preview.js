@@ -90,6 +90,38 @@ const GUFFITAIRE_URL = process.env.GUFFITAIRE_URL || 'https://guffitaire.carlosf
 // key (and isNew on its familyGames entry) for the next new game.
 const NEW_UNTIL = { wordminer: '2026-10-25', guffitaire: '2026-10-25' };
 
+// ── One-off editions, keyed by the send date (the Friday) ──
+// A week listed here changes the email's shape for that send only; every other
+// week builds exactly as before. Keys a week can set:
+//   subject  - replaces the usual quiz-question subject line
+//   feature  - a big promo block above the quiz card ('wordsandguff' is the one there is)
+//   games    - the family cards to show, by key, in this order (the rest are left out)
+//   allGames - a "See all the Guff games" link under the cards
+// 2 Oct 2026 was Carl's call on 30 Sept: major on Words and Guff ("the best Guff
+// game yet": try it against GuffBot, then start a mini league with friends),
+// then only the quiz, Guffitaire and Wordminer, then a link to all the games.
+// House rule for anything Words and Guff: never name the older board games it
+// might be compared with, anywhere in the copy.
+const EDITIONS = {
+  '2026-10-02': {
+    subject: 'The best Guff game yet. Can you beat GuffBot?',
+    feature: 'wordsandguff',
+    games: ['guffitaire', 'wordminer'],
+    allGames: true,
+  },
+};
+const editionFor = fridayISO => EDITIONS[fridayISO] || null;
+const ALL_GAMES_URL = 'https://carlosfandango.net/games/';
+const WWG_URL = 'https://carlosfandango.net/wwg/';
+const WWG_BOARD_IMG = `${BASE}/email/wordsandguff-board.jpg`;
+
+// The subject line: the edition's if it has one, else one of the week's questions.
+function subjectFor(fridayISO, subjectQ) {
+  const ed = editionFor(fridayISO);
+  if (ed && ed.subject) return ed.subject;
+  return subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
+}
+
 // ── Whenly promo (best-effort; never blocks the main email) ──
 const WHENLY_URL = 'https://whenly.co.uk';
 // The same published Google Sheet CSV the Whenly site reads live. Overridable
@@ -190,7 +222,7 @@ exports.handler = async function() {
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
       wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo,
     });
-    const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
+    const subject = subjectFor(fridayISO, subjectQ);
 
     // Store what will be sent, so Friday sends exactly this.
     await putBlob(SITE_ID, TOKEN, `weekly-built-${fridayISO}`, { subject, html: cleanHtml, builtAt: new Date().toISOString() });
@@ -893,6 +925,31 @@ function peekWhenly(questions) {
 
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
+// Words and Guff feature (edition of 2 Oct 2026). The deep teal is the game's
+// own colour (--wag on carlosfandango.net), so the block reads as Words and Guff
+// rather than one more quiz card. The picture is a real game on the game's own
+// board, rounded corners baked in so Outlook shows them too. One button: the
+// GuffBot trial, which is where the "Play your friends" offer lives.
+function buildWordsAndGuffFeature() {
+  const teal = '#0e4f58';
+  const tryUrl = `${WWG_URL}?ref=${refFor('wwg')}#/try`;
+  return `
+  <tr><td style="padding:0 0 18px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${teal}" style="background-color:${teal};border-radius:16px;"><tr><td align="center" style="padding:32px 30px 34px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#f2c94c;padding-bottom:10px;">The best Guff game yet</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:32px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:12px;">Words and Guff</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#d8ebe8;padding-bottom:24px;max-width:440px;">A proper word game for you and up to three friends, played one move at a time, whenever suits you.</div>
+      <a href="${tryUrl}" style="text-decoration:none;"><img src="${WWG_BOARD_IMG}" width="300" height="489" alt="A game of Words and Guff in progress" style="display:block;width:300px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:#ffffff;padding:26px 0 22px;max-width:440px;">Try it now against GuffBot. No sign-up, nothing to download.<br>Like it? Start your own mini league with friends.</div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" bgcolor="#3f9a48" style="background-color:#3f9a48;border-radius:10px;">
+          <a href="${tryUrl}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#ffffff;text-decoration:none;">Play GuffBot now →</a>
+        </td>
+      </tr></table>
+    </td></tr></table>
+  </td></tr>`;
+}
+
 function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo }) {
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
@@ -974,12 +1031,25 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     },
   ].filter(Boolean);
 
-  const familyHeader = familyGames.length ? `
+  const edition = editionFor(fridayISO);
+  const shownGames = (edition && edition.games)
+    ? edition.games.map(k => familyGames.find(g => g.key === k)).filter(Boolean)
+    : familyGames;
+
+  const familyHeader = shownGames.length ? `
   <tr><td style="padding:26px 8px 2px;" align="center">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">The Guff games · ten free daily games · the quiz above is one</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">${edition && edition.games ? 'More free daily Guff games' : 'The Guff games · ten free daily games · the quiz above is one'}</div>
   </td></tr>` : '';
 
-  const familyBlocks = familyHeader + familyGames.map((g, i) => gameBlock(g, i === 0)).join('');
+  const allGamesLink = (edition && edition.allGames) ? `
+  <tr><td style="padding:20px 8px 4px;" align="center">
+    <a href="${withRef(ALL_GAMES_URL, 'allgames')}" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#1a1a1a;text-decoration:underline;">See all the Guff games →</a>
+  </td></tr>` : '';
+
+  const familyBlocks = familyHeader + shownGames.map((g, i) => gameBlock(g, i === 0)).join('') + allGamesLink;
+
+  // The feature block sits between the masthead and the quiz card.
+  const featureBlock = (edition && edition.feature === 'wordsandguff') ? buildWordsAndGuffFeature() : '';
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pub Quiz Daily: Weekly Best-of</title></head>
@@ -992,6 +1062,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       <td align="right" style="font-family:Arial,Helvetica,sans-serif;font-size:12px;color:#8a857d;letter-spacing:0.04em;">FRIDAY BEST-OF · ${label}</td>
     </tr></table>
   </td></tr>
+  ${featureBlock}
   <tr><td style="background-color:#ffffff;border:1px solid #e7e3dc;border-radius:16px;padding:0;overflow:hidden;">
     ${heroBlock}
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="padding:32px 36px 36px;">
@@ -1120,6 +1191,7 @@ module.exports.buildWordminerPromo = buildWordminerPromo;
 module.exports.buildGuffitairePromo = buildGuffitairePromo;
 module.exports.buildHexadecPromo = buildHexadecPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
+module.exports.subjectFor = subjectFor;
 module.exports.buildPreviewWrapper = buildPreviewWrapper;
 module.exports.putBlob = putBlob;
 module.exports.deleteBlob = deleteBlob;

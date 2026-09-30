@@ -154,7 +154,7 @@ async function buildWeeklyOnDemand({ SITE_ID, TOKEN, SHEET_ID, fridayISO }) {
     kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
     hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
   });
-  const subject = subjectQ ? subjectQ.question : "This week's Pub Quiz Daily Best-of 🍺";
+  const subject = wp.subjectFor(fridayISO, subjectQ);
   const built = { subject, html: cleanHtml, builtAt: new Date().toISOString(), builtOnDemand: true };
 
   await wp.putBlob(SITE_ID, TOKEN, `weekly-built-${fridayISO}`, built);
