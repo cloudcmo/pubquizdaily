@@ -104,6 +104,12 @@
     .pip.correct { background: var(--correct); }
     .pip.wrong { background: var(--wrong); }
     .score-label { font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); }
+    /* Time taken, the league tie-break (30 Sept 2026) */
+    .top-left { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .clock-label { display: inline-flex; align-items: center; gap: 4px; font-size: 0.8125rem; font-weight: 500; color: var(--ink-light); font-variant-numeric: tabular-nums; }
+    .clock-label[hidden] { display: none; }
+    .final-time { display: inline-flex; align-items: center; gap: 6px; font-size: 0.875rem; font-weight: 600; color: var(--ink-light); margin: -4px 0 12px; font-variant-numeric: tabular-nums; }
+    .final-time:empty { display: none; }
     .score-number { color: var(--ink); }
 
     .questions { display: flex; flex-direction: column; gap: 16px; }
@@ -537,7 +543,10 @@
     </div>
     <div id="gameState" style="display:none;">
       <div class="top-bar">
-        <p class="date-label" id="dateLabel"></p>
+        <div class="top-left">
+          <p class="date-label" id="dateLabel"></p>
+          <span class="clock-label" id="clockWrap" title="Time taken: equal scores rank fastest first" hidden><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="8"/><path d="M12 10v4l2.5 2M10 2h4M12 2v4"/></svg><span id="clockNum"></span></span>
+        </div>
         <div class="score-bar">
           <span class="quizmaster" id="quizmaster" aria-hidden="true"><img class="gbimg" src="/guffbot.webp" alt="" width="23" height="23"></span>
           <div class="score-pips" id="scorePips"></div>
@@ -558,6 +567,7 @@
       <div class="final-panel" id="finalPanel">
         <div class="final-score" id="finalScore">0</div>
         <div class="final-out-of" id="finalOutOf">out of 0</div>
+        <div class="final-time" id="finalTime"></div>
         <div class="final-message" id="finalMessage"></div>
         <button class="share-btn" onclick="shareResult()">
           Share with friends
@@ -612,6 +622,58 @@
     const SIGNUP_KEY  = 'pqd_subscribed';
     const DISMISSED_KEY = 'pqd_bar_dismissed';
     const LETTERS     = ['A','B','C','D'];
+    const CLOCK_KEY   = 'pqd_clock';
+
+    // ── The clock (30 Sept 2026) ──
+    // Time is the league tie-break: equal scores rank fastest first, and a
+    // score with no time sits below one with a time. The clock starts the first
+    // time today's questions are on screen and stops when the last is answered.
+    // Start and stop are kept per date, so a reload neither resets nor pauses it.
+    // A day already half played before the clock existed stays untimed (s: 0).
+    let clockTimer = null;
+    function clockRead() {
+      try { return JSON.parse(localStorage.getItem(CLOCK_KEY) || '{}'); } catch { return {}; }
+    }
+    function clockWrite(c) {
+      const out = {};
+      Object.keys(c).sort().slice(-7).forEach(k => { out[k] = c[k]; });
+      try { localStorage.setItem(CLOCK_KEY, JSON.stringify(out)); } catch {}
+    }
+    function clockStart(date, resuming) {
+      const c = clockRead();
+      if (!c[date]) { c[date] = { s: resuming ? 0 : Date.now() }; clockWrite(c); }
+      tickClock(date);
+      clearInterval(clockTimer);
+      clockTimer = setInterval(() => tickClock(date), 1000);
+    }
+    function clockStop(date) {
+      clearInterval(clockTimer);
+      const c = clockRead();
+      const e = c[date];
+      if (e && e.s && !e.e) { e.e = Date.now(); clockWrite(c); }
+      const ms = clockMs(date);
+      tickClock(date);
+      return ms;
+    }
+    function clockMs(date) {
+      const e = clockRead()[date];
+      if (!e || !e.s) return null;
+      return Math.max(1, (e.e || Date.now()) - e.s);
+    }
+    function clockText(ms) {
+      const t = Math.max(0, Math.floor(ms / 1000));
+      const h = Math.floor(t / 3600), m = Math.floor((t % 3600) / 60), sec = String(t % 60).padStart(2, '0');
+      return h ? `${h}:${String(m).padStart(2, '0')}:${sec}` : `${m}:${sec}`;
+    }
+    function tickClock(date) {
+      const el = document.getElementById('clockNum');
+      const wrap = document.getElementById('clockWrap');
+      if (!el || !wrap) return;
+      const ms = clockMs(date);
+      el.textContent = ms === null ? '' : clockText(ms);
+      wrap.hidden = ms === null;
+    }
+
 
     function getFinalMsg(score, total) {
       const pct = total > 0 ? Math.round((score / total) * 100) : 0;
@@ -741,6 +803,8 @@
     }
 
     function onAllAnswered() {
+      const ms = isArchiveMode ? null : clockStop(todayISO);
+      document.getElementById('finalTime').innerHTML = ms === null ? '' : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="14" r="8"/><path d="M12 10v4l2.5 2M10 2h4M12 2v4"/></svg>' + clockText(ms);
       if (!isArchiveMode) {
         const yesterday = getYesterdayISO();
         let streak = playerState.streak || 0;
@@ -767,7 +831,7 @@
 
       // "More daily guff" — the cross-sell bar shared by all four games
       if (window.GuffBar) {
-        if (isArchiveMode) GuffBar.show(panel); else GuffBar.completedToday(panel, { score: score, max: questions.length, display: score + "/" + questions.length });
+        if (isArchiveMode) GuffBar.show(panel); else GuffBar.completedToday(panel, { score: score, max: questions.length, display: score + "/" + questions.length, ms: ms === null ? undefined : ms });
       }
     }
 
@@ -797,6 +861,7 @@
       if (Object.keys(answered).length === questions.length) {
         onAllAnswered();
       } else {
+        if (!isArchiveMode) clockStart(todayISO, Object.keys(answered).length > 0);
         startCountdown();
       }
     }
@@ -906,7 +971,9 @@
         taunt = `${score}/${total} — there's room at the top. Have a go.`;
       }
 
-      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}${streakStr}\n\n${taunt}\npubquizdaily.com`;
+      const ms = isArchiveMode ? null : clockMs(todayISO);
+      const timeStr = ms !== null ? ` in ${clockText(ms)}` : '';
+      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}${timeStr}${streakStr}\n\n${taunt}\npubquizdaily.com`;
       if (navigator.share) {
         navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
       } else {
