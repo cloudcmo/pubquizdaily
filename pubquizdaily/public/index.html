@@ -441,6 +441,67 @@
     }
     .duo-switch button.on { background: #fff; color: #141414; }
 
+
+    /* ══ PUB REFRESH (10 Oct 2026) ═══════════════════════════════════
+       The score is a pint that fills with each right answer and foams
+       over on full marks. Each question is a beer mat that flips over to
+       show the answer, the fact and how the pub did. The final score is
+       a bar tab. Colours, fonts and the per-card accents are unchanged. */
+    .score-bar .score-pips { display: none; }
+    .pint { display: block; flex: none; overflow: visible; }
+    .pint-beer { fill: #e09a12; transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform .9s cubic-bezier(.3,1.4,.5,1); }
+    .pint-foam { fill: #fff6df; opacity: 0; transition: transform .9s cubic-bezier(.3,1.4,.5,1), opacity .3s; }
+    .pint-glass { fill: none; stroke: var(--ink); stroke-width: 5; stroke-linejoin: round; }
+    .pint-spill { fill: #fff6df; stroke: var(--ink); stroke-width: 2; display: none; }
+    .pint.full .pint-spill { display: inline; animation: pintSpill 1.4s ease-in-out infinite alternate; }
+    .pint.glug { animation: pintGlug .5s ease; }
+    @keyframes pintSpill { from { transform: translateY(0); } to { transform: translateY(2px); } }
+    @keyframes pintGlug { 0%,100% { transform: rotate(0); } 30% { transform: rotate(-8deg) scale(1.08); } 65% { transform: rotate(5deg); } }
+
+    .mat { perspective: 1100px; margin-bottom: 14px; }
+    .mat-inner { display: grid; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.3,1.3,.5,1); }
+    .mat.flipped .mat-inner { transform: rotateY(180deg); }
+    .mat.instant .mat-inner { transition: none; }
+    .mat-face {
+      grid-area: 1 / 1; -webkit-backface-visibility: hidden; backface-visibility: hidden;
+      background: var(--accent-bg, #fef1d9); border-radius: 16px; padding: 18px 18px 16px;
+      box-shadow: inset 0 0 0 6px var(--accent-bg, #fef1d9), inset 0 0 0 8px var(--accent, #f7a828), 0 3px 0 rgba(60,40,10,.12);
+    }
+    .mat-front { transform: rotateY(0deg); }
+    .mat-front .q-number { background: var(--surface, #fff); }
+    .mat-front .q-text { margin-bottom: 2px; }
+    .mat-back { transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; gap: 8px; }
+    .mat-q { font-size: .78rem; color: var(--ink-light); line-height: 1.4; max-width: 34em; }
+    .mat-k { font-size: .68rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent-ink); }
+    .mat-ans { font-family: var(--font-serif); font-weight: 700; font-size: 1.6rem; line-height: 1.15; color: var(--ink); }
+    .mat-back .explainer { margin: 0; padding: 0; border: 0; font-size: .85rem; color: var(--ink); max-width: 32em; }
+    .mat-pub { display: none; width: 100%; max-width: 300px; margin-top: 2px; }
+    .mat-pub.visible { display: block; }
+    .mat-bar { height: 9px; border-radius: 5px; background: rgba(0,0,0,.08); overflow: hidden; margin-bottom: 6px; }
+    .mat-bar i { display: block; height: 100%; width: 0; border-radius: 5px; background: var(--accent-ink); transition: width .9s cubic-bezier(.2,.9,.3,1) .5s; }
+    .mat-back .stats-text { display: block; margin: 0; padding: 0; border: 0; background: none; font-weight: 700; font-size: .82rem; color: var(--ink); }
+    @media (prefers-color-scheme: dark) { .mat-bar { background: rgba(255,255,255,.12); } .mat-back .stats-text { background: none; } }
+
+    .bar-tab {
+      max-width: 320px; margin: 0 auto 20px; padding: 20px 20px 22px; text-align: left;
+      background: #fffdf6; color: #1f1a14; border-radius: 3px;
+      font-family: ui-monospace, 'Courier New', Courier, monospace; font-size: .9rem; line-height: 1.5;
+      box-shadow: 0 1px 0 rgba(0,0,0,.06), 0 6px 18px rgba(60,40,10,.10);
+      animation: tabIn .5s ease both;
+    }
+    @keyframes tabIn { from { transform: translateY(14px) rotate(-1deg); opacity: 0; } to { transform: rotate(-.6deg); opacity: 1; } }
+    .bar-tab .t-head { text-align: center; font-weight: 700; font-size: 1.05rem; letter-spacing: .12em; }
+    .bar-tab .t-sub { text-align: center; font-size: .78rem; margin-bottom: 8px; }
+    .bar-tab .t-rule { border-top: 2px dashed #1f1a14; margin: 8px 0; opacity: .7; }
+    .bar-tab .t-row { display: flex; gap: 10px; }
+    .bar-tab .t-row span:first-child { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-tab .t-total { font-weight: 700; font-size: 1.1rem; }
+    .bar-tab .t-foot { text-align: center; font-size: .78rem; margin-top: 10px; }
+    .final-panel.has-tab .final-score, .final-panel.has-tab .final-out-of { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .mat-inner, .pint-beer, .pint-foam, .mat-bar i { transition: none; }
+      .pint.full .pint-spill, .pint.glug, .bar-tab { animation: none; }
+    }
   </style>
   <script type="application/ld+json">
   {
@@ -550,6 +611,12 @@
         <div class="score-bar">
           <span class="quizmaster" id="quizmaster" aria-hidden="true"><img class="gbimg" src="/guffbot.webp" alt="" width="23" height="23"></span>
           <div class="score-pips" id="scorePips"></div>
+          <svg class="pint" id="pint" width="32" height="48" viewBox="-4 -6 68 98" aria-hidden="true">
+            <defs><clipPath id="pintGlassClip"><path d="M6 4 L54 4 L48 86 Q47 88 45 88 L15 88 Q13 88 12 86 Z"/></clipPath></defs>
+            <g clip-path="url(#pintGlassClip)"><rect class="pint-beer" id="pintBeer" x="0" y="14" width="60" height="76"/><rect class="pint-foam" id="pintFoam" x="0" y="0" width="60" height="10" rx="3"/></g>
+            <g class="pint-spill"><ellipse cx="30" cy="3" rx="28" ry="6"/><path d="M5 4 Q2 14 6 20 Q10 14 9 4 Z"/><path d="M50 4 Q53 10 51 15 Q47 10 47 4 Z"/></g>
+            <path class="pint-glass" d="M6 4 L54 4 L48 86 Q47 88 45 88 L15 88 Q13 88 12 86 Z"/>
+          </svg>
           <span class="score-label"><span class="score-number" id="scoreNum">0</span> / <span id="scoreTotal">0</span></span>
         </div>
       </div>
@@ -742,13 +809,25 @@
           </button>
         `).join('');
 
+        const answerText = q.options[LETTERS.indexOf(q.correct)] || '';
         card.innerHTML = `
-          <div class="q-number">Q${i + 1}</div>
-          ${q.image ? `<div class="duo"><img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" onerror="this.parentElement.remove()" /></div>` : ''}
-          <div class="q-text">${q.question}</div>
+          <div class="mat" id="mat-${i}">
+            <div class="mat-inner">
+              <div class="mat-face mat-front">
+                <div class="q-number">Q${i + 1}</div>
+                ${q.image ? `<div class="duo"><img class="q-image" src="${imageUrl(q.image)}" alt="${q.question}" referrerpolicy="no-referrer" onerror="this.parentElement.remove()" /></div>` : ''}
+                <div class="q-text">${q.question}</div>
+              </div>
+              <div class="mat-face mat-back" aria-live="polite">
+                <div class="mat-q">${q.question}</div>
+                <div class="mat-k" id="mat-k-${i}">The answer</div>
+                <div class="mat-ans">${answerText}</div>
+                ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
+                <div class="mat-pub" id="mat-pub-${i}"><div class="mat-bar"><i id="mat-bar-${i}"></i></div><div class="stats-text" id="stats-${i}"></div></div>
+              </div>
+            </div>
+          </div>
           <div class="options">${optionsHtml}</div>
-          ${q.explainer ? `<div class="explainer" id="explainer-${i}">${q.explainer}</div>` : ''}
-          <div class="stats-text" id="stats-${i}"></div>
         `;
         list.appendChild(card);
       });
@@ -796,10 +875,34 @@
       const exp = document.getElementById(`explainer-${qi}`);
       if (exp) exp.classList.add('visible');
 
+      const mat = document.getElementById(`mat-${qi}`);
+      if (mat) {
+        const k = document.getElementById(`mat-k-${qi}`);
+        if (k) k.textContent = isCorrect ? 'Correct!' : 'The answer was';
+        if (chosen === null) mat.classList.add('instant');
+        mat.classList.add('flipped');
+      }
+
       const pip = document.getElementById(`pip-${qi}`);
       if (pip) pip.classList.add(isCorrect ? 'correct' : 'wrong');
 
       document.getElementById('scoreNum').textContent = score;
+      updatePint(chosen !== null);
+    }
+
+    // The pint: a third (or whatever share) fuller with each right answer
+    function updatePint(animate) {
+      const pint = document.getElementById('pint');
+      if (!pint || !questions.length) return;
+      const fill = Math.min(1, score / questions.length);
+      const beer = document.getElementById('pintBeer'), foam = document.getElementById('pintFoam');
+      if (!animate) { beer.style.transition = foam.style.transition = 'none'; }
+      beer.style.transform = `scaleY(${fill})`;
+      foam.style.transform = `translateY(${(14 + 76 * (1 - fill) - 9).toFixed(1)}px)`;
+      foam.style.opacity = fill > 0 ? 1 : 0;
+      if (!animate) requestAnimationFrame(() => { beer.style.transition = foam.style.transition = ''; });
+      pint.classList.toggle('full', fill >= 1);
+      if (animate) { pint.classList.remove('glug'); void pint.getBoundingClientRect(); pint.classList.add('glug'); }
     }
 
     function onAllAnswered() {
@@ -817,6 +920,7 @@
 
       const panel = document.getElementById('finalPanel');
       document.getElementById('finalScore').textContent = score;
+      renderBarTab();
       const msg = getFinalMsg(score, questions.length);
       document.getElementById('finalMessage').textContent = msg;
       panel.classList.add('visible');
@@ -833,6 +937,40 @@
       if (window.GuffBar) {
         if (isArchiveMode) GuffBar.show(panel); else GuffBar.completedToday(panel, { date: todayISO, score: score, max: questions.length, display: score + "/" + questions.length, ms: ms === null ? undefined : ms });
       }
+    }
+
+    // The final score as a bar tab (10 Oct 2026)
+    const pubPct = {};
+    function renderBarTab() {
+      const panel = document.getElementById('finalPanel');
+      if (!panel || !questions.length) return;
+      let tab = document.getElementById('barTab');
+      if (!tab) {
+        tab = document.createElement('div');
+        tab.id = 'barTab'; tab.className = 'bar-tab';
+        panel.insertBefore(tab, panel.firstChild);
+        panel.classList.add('has-tab');
+      }
+      const esc = t => String(t).replace(/<[^>]*>/g, '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+      const rows = questions.map((q, i) => `<div class="t-row"><span>${i + 1} x ${esc(q.question)}</span><span>${answered[i] === 'correct' ? '&#10003;' : '&#10007;'}</span></div>`).join('');
+      const known = questions.map((_, i) => pubPct[i]).filter(v => v !== undefined);
+      const avg = known.length === questions.length ? known.reduce((a, b) => a + b, 0) / 100 : null;
+      const n = questions.length;
+      const line = score === n ? 'Full pint. Drinks on you.'
+        : score === 0 ? 'Dry night. Tomorrow is another round.'
+        : avg !== null && score > avg ? 'Better than most of the pub.'
+        : 'One for the road.';
+      const d = new Date(todayISO + 'T12:00:00');
+      const when = d.toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' });
+      tab.innerHTML = `
+        <div class="t-head">THE GUFF ARMS</div>
+        <div class="t-sub">Bar tab &middot; ${when}</div>
+        <div class="t-rule"></div>
+        ${rows}
+        <div class="t-rule"></div>
+        <div class="t-row t-total"><span>TOTAL</span><span>${score} / ${n}</span></div>
+        ${avg !== null ? `<div class="t-row"><span>Pub average today</span><span>${avg.toFixed(1)} / ${n}</span></div>` : ''}
+        <div class="t-foot">${line}<br>Thank you, come again tomorrow</div>`;
     }
 
     function restoreProgress() {
@@ -903,15 +1041,16 @@
         const el = document.getElementById(`stats-${qi}`);
         if (!el) return;
         if (isCorrect) {
-          el.textContent = pct >= 70 ? `Most players got this — ${pct}% correct`
-            : pct >= 40 ? `${pct}% of players got this right`
-            : `Sharp! Only ${pct}% got this one`;
+          el.textContent = pct < 40 ? `Only ${pct}% of the pub got this. Nice.` : `${pct}% of the pub got this`;
         } else {
-          el.textContent = pct >= 70 ? `Tricky — ${100 - pct}% also got this wrong`
-            : pct >= 40 ? `${pct}% of players got this right`
-            : `Tough one — only ${pct}% got it right`;
+          el.textContent = pct < 40 ? `Only ${pct}% of the pub got this. No shame.` : pct >= 70 ? `${pct}% of the pub got this. Ouch.` : `${pct}% of the pub got this`;
         }
         el.classList.add('visible');
+        const pub = document.getElementById(`mat-pub-${qi}`), bar = document.getElementById(`mat-bar-${qi}`);
+        if (pub) pub.classList.add('visible');
+        if (bar) requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = pct + '%'; }));
+        pubPct[qi] = pct;
+        if (Object.keys(answered).length === questions.length) renderBarTab();
       } catch {}
     }
 
