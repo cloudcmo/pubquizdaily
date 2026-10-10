@@ -448,6 +448,9 @@
        show the answer, the fact and how the pub did. The final score is
        a bar tab. Colours, fonts and the per-card accents are unchanged. */
     .score-bar .score-pips { display: none; }
+    /* The score bar stays on screen while you scroll, so you can watch the pint fill */
+    .top-bar { position: sticky; top: 5px; z-index: 50; background: var(--cream); margin: 0 -12px 24px; padding: 8px 12px; border-radius: 0 0 14px 14px; transition: box-shadow .2s; }
+    .top-bar.stuck { box-shadow: 0 8px 14px -10px rgba(60,40,10,.45); }
     .pint { display: block; flex: none; overflow: visible; }
     .pint-beer { fill: #e09a12; transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(0); transition: transform .9s cubic-bezier(.3,1.4,.5,1); }
     .pint-foam { fill: #fff6df; opacity: 0; transition: transform .9s cubic-bezier(.3,1.4,.5,1), opacity .3s; }
@@ -904,6 +907,15 @@
       pint.classList.toggle('full', fill >= 1);
       if (animate) { pint.classList.remove('glug'); void pint.getBoundingClientRect(); pint.classList.add('glug'); }
     }
+
+    // Shadow under the score bar once it is stuck to the top
+    (function () {
+      const bar = document.querySelector('.top-bar');
+      if (!bar) return;
+      const check = () => bar.classList.toggle('stuck', window.scrollY > 0 && bar.getBoundingClientRect().top <= 6);
+      addEventListener('scroll', check, { passive: true });
+      check();
+    })();
 
     function onAllAnswered() {
       const ms = isArchiveMode ? null : clockStop(todayISO);
