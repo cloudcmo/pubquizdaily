@@ -229,7 +229,7 @@ const SOURCE_GAMES = [
   // Guffitaire (25 Sept 2026) have no stats API of their own yet, so the
   // docket's visited/finished counts here are their only line in this report.
   ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
-  ['hexadec', 'Hexadec'], ['wordminer', 'Wordminer'], ['whenly', 'Whenly'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
+  ['hexadec', 'Hexadec'], ['wordminer', 'Wordminer'], ['whenly', 'Whenly'], ['helmet', 'Helmet'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
   ['whatword', 'What Word'], ['guffinoes', 'Guffinoes'],
 ];
 

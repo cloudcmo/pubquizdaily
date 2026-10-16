@@ -83,12 +83,14 @@ const GUFFINOES_URL = process.env.GUFFINOES_URL || 'https://guffinoes.carlosfand
 const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.net';
 const WORDMINER_URL = process.env.WORDMINER_URL || 'https://wordminer.carlosfandango.net';
 const GUFFITAIRE_URL = process.env.GUFFITAIRE_URL || 'https://guffitaire.carlosfandango.net';
+const HELMET_URL = process.env.HELMET_URL || 'https://wordhelmet.carlosfandango.net';
 // A new game carries a prominent NEW flash on every send dated on or before its
 // date here (a month from launch: Wordminer and Guffitaire were Carl's call on
 // 25 Sept 2026, which is also when Hexadec and W&G Daily lost theirs). It
 // lapses on its own; nothing to switch off. Change a date to extend it; add a
 // key (and isNew on its familyGames entry) for the next new game.
-const NEW_UNTIL = { wordminer: '2026-10-25', guffitaire: '2026-10-25' };
+// Helmet joined on 16 Oct 2026 and took the flash off Wordminer and Guffitaire.
+const NEW_UNTIL = { helmet: '2026-11-16' };
 
 // ── One-off editions, keyed by the send date (the Friday) ──
 // A week listed here changes the email's shape for that send only; every other
@@ -109,7 +111,59 @@ const EDITIONS = {
     games: ['guffitaire', 'wordminer'],
     allGames: true,
   },
+  // Helmet's launch week (Carl, 16 Oct 2026): NEW in the subject, Helmet as the feature.
+  '2026-10-23': {
+    subject: 'NEW: Helmet. Can you clear the building site?',
+    feature: 'helmet',
+  },
 };
+
+// ── The Friday shape from 23 Oct 2026 (Carl's call on 16 Oct) ──
+// The old email ran to ten game cards and read the same every week. From this
+// send on it is three modules and nothing else:
+//   1. A featured game, a different one each week (FEATURE_ORDER, below)
+//   2. Pub Quiz Daily, the quiz this email belongs to
+//   3. "See all the Guff games", with a picture of the hub
+// Sends dated before NEW_SHAPE_FROM still build the old way, untouched.
+// A launch week names its game with `feature` in EDITIONS (as Helmet's does);
+// every other week takes the next game from the rotation.
+const NEW_SHAPE_FROM = '2026-10-23';
+const HUB_URL = 'https://hub.carlosfandango.net/';
+const HUB_IMG = `${BASE}/email/guff-hub.jpg`;          // 600x1055, corners baked on #0b1430
+const ICON_URL = key => `${BASE}/email/icons/${key}.png`; // 128x128, copied from guff/public/icons
+// The rotation. Pub Quiz Daily is always second so it is never the feature, and
+// Guffinoes is left out (Carl: "not much fun", don't promote it). Each run through
+// the list is shuffled afresh, seeded on its cycle number, so a rebuild picks the
+// same game as the preview, every game gets its turn before any comes round
+// again, and the order isn't the same every time.
+const FEATURE_ORDER = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly', 'helmet', 'groupie', 'spellbound', 'whatword'];
+const ROTATION_FROM = '2026-10-30';   // the first Friday the rotation chooses
+
+function featureFor(fridayISO) {
+  const ed = editionFor(fridayISO);
+  if (ed && ed.feature && FEATURES[ed.feature]) return ed.feature;
+  const len = FEATURE_ORDER.length;
+  const n = Math.round((Date.parse(`${fridayISO}T12:00:00Z`) - Date.parse(`${ROTATION_FROM}T12:00:00Z`)) / (7 * 86400000));
+  const cycle = Math.floor(n / len);
+  const pos = ((n % len) + len) % len;
+  return featureDeck(cycle)[pos];
+}
+// One run through the rotation. The last three games of the previous run are
+// moved into the middle of this one (slots 4 to 6), so where two runs meet no
+// game comes back within four weeks.
+const featureDecks = {};
+function featureDeck(c) {
+  if (featureDecks[c]) return featureDecks[c];
+  let d = seededShuffle(FEATURE_ORDER, `feature-${c}`);
+  // Helmet has just had its launch week, so it goes to the back of the first run.
+  if (c === 0) { d.splice(d.indexOf('helmet'), 1); d.push('helmet'); }
+  if (c > 0) {
+    const tail = featureDeck(c - 1).slice(-3);
+    const rest = d.filter(k => !tail.includes(k));
+    d = [...rest.slice(0, 3), ...d.filter(k => tail.includes(k)), ...rest.slice(3)];
+  }
+  return (featureDecks[c] = d);
+}
 const editionFor = fridayISO => EDITIONS[fridayISO] || null;
 const ALL_GAMES_URL = 'https://carlosfandango.net/games/';
 const WWG_URL = 'https://carlosfandango.net/wwg/';
@@ -179,39 +233,45 @@ exports.handler = async function() {
         return fallbackCopy(questions);
       });
 
+    // From 23 Oct 2026 only the featured game is fetched (no AI teasers); the
+    // per-game promos below are for sends in the old shape.
+    const newShape = fridayISO >= NEW_SHAPE_FROM;
+    const featurePromo = newShape ? await buildFeaturePromo(fridayISO) : null;
+    const legacy = (fn) => newShape ? Promise.resolve(null) : fn();
+
     // Whenly cross-promo — teases the SEND day's live Whenly questions. Fully
     // best-effort: on any error we get null and the block is simply omitted.
-    const whenlyPromo = await buildWhenlyPromo(fridayISO).catch(err => {
+    const whenlyPromo = await legacy(() => buildWhenlyPromo(fridayISO)).catch(err => {
       console.error('Whenly promo failed, omitting block:', err);
       return null;
     });
-    const aiWhenlyNote = whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
+    const aiWhenlyNote = newShape ? featurePromo.note : whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
 
     // What Word cross-promo — teases the SEND day's three words. Same
     // best-effort contract as Whenly: any failure just omits the block.
-    const whatwordPromo = await buildWhatWordPromo(fridayISO).catch(err => {
+    const whatwordPromo = await legacy(() => buildWhatWordPromo(fridayISO)).catch(err => {
       console.error('What Word promo failed, omitting block:', err);
       return null;
     });
-    const aiWhatWordNote = whatwordPromo ? whatwordPromo.note : 'no What Word promo this week';
+    const aiWhatWordNote = newShape ? '' : whatwordPromo ? whatwordPromo.note : 'no What Word promo this week';
 
     // Groupie cross-promo — teases the SEND day's sixteen-word grid. Same
     // best-effort contract as the others: any failure just omits the block.
-    const groupiePromo = await buildGroupiePromo(fridayISO).catch(err => {
+    const groupiePromo = await legacy(() => buildGroupiePromo(fridayISO)).catch(err => {
       console.error('Groupie promo failed, omitting block:', err);
       return null;
     });
-    const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
+    const aiGroupieNote = newShape ? '' : groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
     // Spellbound + Guffinoes — template copy by design (see consts above). W&G Daily
     // is template copy plus the send day's rack, best-effort.
-    const wagdailyPromo = await buildWagDailyPromo(fridayISO).catch(err => {
+    const wagdailyPromo = await legacy(() => buildWagDailyPromo(fridayISO)).catch(err => {
       console.error('W&G Daily promo failed, omitting peek:', err);
       return buildWagDailyPromo.plain();
     });
     const spellboundPromo = buildSpellboundPromo();
     const guffinoesPromo = buildGuffinoesPromo();
-    const hexadecPromo = await buildHexadecPromo(fridayISO).catch(err => {
+    const hexadecPromo = await legacy(() => buildHexadecPromo(fridayISO)).catch(err => {
       console.error('Hexadec promo failed, omitting block:', err);
       return null;
     });
@@ -220,7 +280,7 @@ exports.handler = async function() {
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo,
+      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo,
     });
     const subject = subjectFor(fridayISO, subjectQ);
 
@@ -925,6 +985,106 @@ function peekWhenly(questions) {
 
 // ── HTML ─────────────────────────────────────────────────────────────────────
 
+// ── The featured game (from 23 Oct 2026) ──
+// One block in the game's own colour. Short copy on purpose (Carl: promo modules
+// carry just enough to get the click). A game with a peek shows the send day's
+// real puzzle; Helmet shows a picture of a site instead; the rest show their icon.
+// No AI calls: the old weekly AI teasers for Whenly, What Word and Groupie are not
+// used in the new shape, so the only API spend left is the quiz intro.
+const FEATURES = {
+  guffitaire: { name: 'Guffitaire', line: 'Solitaire, but the cards are letters', bg: '#1d6b3f', url: GUFFITAIRE_URL, cta: "Play today's deal",
+    pitch: 'Turn the pile, build six words in the columns, then bank your score or push your luck for a bigger one.' },
+  wagdaily: { name: 'Words and Guff Daily', line: 'Can you find the best word?', bg: '#0e4f58', url: WAGDAILY_URL, cta: "Find today's best play",
+    pitch: 'A game already under way, a rack of eight tiles, and one play to find the best word on the board.',
+    peek: async d => (await buildWagDailyPromo(d)).peek },
+  hexadec: { name: 'Hexadec', line: 'Four the win', bg: '#c8763a', url: HEXADEC_URL, cta: "Play today's sixteen",
+    pitch: 'Sixteen tiles hide four words that use every one. Three good words can still leave you holding nonsense.',
+    peek: async d => (await buildHexadecPromo(d)).peek },
+  wordminer: { name: 'Wordminer', line: 'Minesweeper, with words', bg: '#008080', url: WORDMINER_URL, cta: "Clear today's board",
+    pitch: 'The squares hide words as well as mines, and a word square never holds a mine. Guess the word and the rest of it is safe.' },
+  whenly: { name: 'Whenly', line: 'The daily guess the year game', bg: '#c9772f', url: WHENLY_URL, cta: 'Give it a go',
+    pitch: 'A few moments from history. All you have to do is say when.',
+    peek: async d => peekWhenly(await fetchWhenlyQuestions(d)) },
+  helmet: { name: 'Helmet', line: 'Clear the building site', bg: '#ffc21a', ink: '#1b1f27', sub: '#4a3d12', btnBg: '#1b1f27', btnInk: '#ffc21a',
+    url: HELMET_URL, cta: "Clear today's site",
+    pitch: 'Spell words through any touching tiles, even round corners, and everything above comes crashing down. Mind the dynamite.',
+    image: `${BASE}/email/helmet-site.jpg`, imageW: 300, imageH: 504, imageAlt: 'A Helmet building site, with GuffBot bending a word round a corner' },
+  groupie: { name: 'Groupie', line: 'Your daily four play', bg: '#6c4288', url: GROUPIE_URL, cta: "Play today's grid",
+    pitch: 'Sixteen words, four hidden groups of four. Some of them are there to trip you up.',
+    peek: async d => peekGroupieGrid(await fetchGroupieGrid(d), d) },
+  spellbound: { name: 'Spellbound', line: 'Word Tetris, daily', bg: '#2563c9', url: SPELLBOUND_URL, cta: "Play today's letters",
+    pitch: "Letters fall and a dozen words are hiding in today's drop. Spell ten of them before the pile buries you." },
+  whatword: { name: 'What Word', line: 'Three unusual words a day', bg: '#3d5588', url: WHATWORD_URL, cta: "Play today's three",
+    pitch: 'Three words you have probably never used. Can you tell what they mean?',
+    peek: async d => peekWhatWord(await fetchWhatWordQuestions(d)) },
+};
+
+// Which game is featured on this send, plus its peek. Best-effort: a failed
+// peek just means the block shows the game's icon instead.
+async function buildFeaturePromo(fridayISO) {
+  const key = featureFor(fridayISO);
+  const f = FEATURES[key];
+  let peek = '';
+  if (f.peek) {
+    try { peek = (await f.peek(fridayISO)) || ''; }
+    catch (err) { console.error(`Feature peek for ${key} failed, showing the icon:`, err.message); }
+  }
+  return { key, peek, note: `featured game: ${f.name}${f.image ? ' (picture)' : peek ? ' (with a peek at the real puzzle)' : ' (icon, no peek)'}` };
+}
+
+function buildFeatureBlock(featurePromo, fridayISO) {
+  const key = featurePromo.key;
+  const f = FEATURES[key];
+  const ink = f.ink || '#ffffff', sub = f.sub || '#f1ece4', btnBg = f.btnBg || '#ffffff', btnInk = f.btnInk || f.bg;
+  const url = withRef(f.url, `feature-${key}`);
+  const isNew = !!NEW_UNTIL[key] && fridayISO <= NEW_UNTIL[key];
+  const kicker = isNew
+    ? `<span style="display:inline-block;padding:5px 11px 4px;background-color:${ink};color:${f.bg};border-radius:4px;letter-spacing:0.16em;">NEW</span>&nbsp; A new Guff game`
+    : "This week's featured game";
+  const icon = f.image ? '' : `
+      <a href="${url}" style="text-decoration:none;"><img src="${ICON_URL(key)}" width="72" height="72" alt="" style="display:block;width:72px;height:72px;border:0;border-radius:16px;margin:0 auto 14px;"></a>`;
+  const picture = f.image ? `
+      <a href="${url}" style="text-decoration:none;"><img src="${f.image}" width="${f.imageW}" height="${f.imageH}" alt="${escapeAttr(f.imageAlt)}" style="display:block;width:${f.imageW}px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>` : '';
+  const peek = (!f.image && featurePromo.peek) ? `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="background-color:#ffffff;border-radius:12px;max-width:440px;"><tr><td style="padding:16px 16px 2px;text-align:left;">${featurePromo.peek}</td></tr></table>` : '';
+  return `
+  <tr><td style="padding:0 0 18px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${f.bg}" style="background-color:${f.bg};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">${icon}
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${sub};padding-bottom:10px;">${kicker}</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:1.15;color:${ink};font-weight:700;padding-bottom:6px;">${escapeHtml(f.name)}</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:17px;line-height:1.4;color:${ink};padding-bottom:22px;">${escapeHtml(f.line)}</div>${picture}${peek}
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6;color:${sub};padding:22px 0 22px;max-width:440px;">${escapeHtml(f.pitch)}</div>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0"><tr>
+        <td align="center" bgcolor="${btnBg}" style="background-color:${btnBg};border-radius:10px;">
+          <a href="${url}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:${btnInk};text-decoration:none;">${escapeHtml(f.cta)} &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr></table>
+  </td></tr>`;
+}
+
+// Module 3: all the games, on the hub. Night-sky navy and gold, the hub's own
+// colours. The picture is the hub itself (rendered from ~/code/guffhub in demo
+// mode on 16 Oct 2026, corners baked on this navy). Retake it if the hub changes.
+function buildAllGamesBlock() {
+  const url = withRef(HUB_URL, 'hub');
+  const navy = '#0b1430', gold = '#ffb347';
+  return `
+  <tr><td style="padding:18px 0 0;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${navy}" style="background-color:${navy};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Eleven free daily games</div>
+      <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:8px;">All the Guff games</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#d6cfc0;padding-bottom:22px;">Pick the ones you like and play them in your own order.</div>
+      <a href="${url}" style="text-decoration:none;"><img src="${HUB_IMG}" width="260" height="457" alt="The Guff Games hub: GuffBot with the games orbiting him" style="display:block;width:260px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:24px;"><tr>
+        <td align="center" bgcolor="${gold}" style="background-color:${gold};border-radius:10px;">
+          <a href="${url}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#1b2430;text-decoration:none;">See all the games &rarr;</a>
+        </td>
+      </tr></table>
+    </td></tr></table>
+  </td></tr>`;
+}
+
 // Words and Guff feature (edition of 2 Oct 2026). The deep teal is the game's
 // own colour (--wag on carlosfandango.net), so the block reads as Words and Guff
 // rather than one more quiz card. The picture is a real game on the game's own
@@ -950,7 +1110,8 @@ function buildWordsAndGuffFeature() {
   </td></tr>`;
 }
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo }) {
+  const newShape = fridayISO >= NEW_SHAPE_FROM;
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
       <img src="${escapeAttr(hero)}" width="600" height="300" alt="This week's quiz" style="display:block;width:100%;max-width:600px;height:auto;border:0;">
@@ -993,7 +1154,6 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     {
       key: 'guffitaire', accent: '#1d6b3f', title: 'Guffitaire - Solitaire, but the Cards Are Letters',
       teaser: guffitairePromo.teaser, url: GUFFITAIRE_URL, cta: "Play today's deal →",
-      isNew: fridayISO <= NEW_UNTIL.guffitaire,
     },
     (wagdailyPromo && wagdailyPromo.teaser) && {
       key: 'wagdaily', accent: '#0e4f58', title: 'Words and Guff Daily - Can You Find the Best Word?',
@@ -1007,11 +1167,16 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     {
       key: 'wordminer', accent: '#008080', title: 'Wordminer - Minesweeper with Words',
       teaser: wordminerPromo.teaser, url: WORDMINER_URL, cta: "Clear today's board →",
-      isNew: fridayISO <= NEW_UNTIL.wordminer,
     },
     (whenlyPromo && whenlyPromo.teaser) && {
       key: 'whenly', accent: '#c9772f', title: 'Whenly - The Daily Guess the Year Game',
       teaser: whenlyPromo.teaser, peek: whenlyPromo.peek, url: WHENLY_URL, cta: 'Give it a go →',
+    },
+    {
+      key: 'helmet', accent: '#e8a800', title: 'Helmet - Clear the Building Site',
+      teaser: 'Spell words through any touching tiles, even round corners, and everything above comes crashing down. Dynamite, girders, and a site that can always be cleared. Be quick about it.',
+      url: HELMET_URL, cta: "Clear today's site →",
+      isNew: fridayISO <= NEW_UNTIL.helmet,
     },
     (groupiePromo && groupiePromo.teaser) && {
       key: 'groupie', accent: '#6c4288', title: 'Groupie - Your Daily Four Play',
@@ -1046,10 +1211,15 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
     <a href="${withRef(ALL_GAMES_URL, 'allgames')}" style="font-family:Arial,Helvetica,sans-serif;font-size:15px;font-weight:700;color:#1a1a1a;text-decoration:underline;">See all the Guff games →</a>
   </td></tr>` : '';
 
-  const familyBlocks = familyHeader + shownGames.map((g, i) => gameBlock(g, i === 0)).join('') + allGamesLink;
+  // From 23 Oct 2026: the featured game above the quiz, then only the hub module below it.
+  const familyBlocks = newShape
+    ? buildAllGamesBlock()
+    : familyHeader + shownGames.map((g, i) => gameBlock(g, i === 0)).join('') + allGamesLink;
 
   // The feature block sits between the masthead and the quiz card.
-  const featureBlock = (edition && edition.feature === 'wordsandguff') ? buildWordsAndGuffFeature() : '';
+  const featureBlock = newShape
+    ? buildFeatureBlock(featurePromo || { key: featureFor(fridayISO), peek: '' }, fridayISO)
+    : (edition && edition.feature === 'wordsandguff') ? buildWordsAndGuffFeature() : '';
 
   return `<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta http-equiv="X-UA-Compatible" content="IE=edge"><title>Pub Quiz Daily: Weekly Best-of</title></head>
@@ -1191,6 +1361,9 @@ module.exports.buildWordminerPromo = buildWordminerPromo;
 module.exports.buildGuffitairePromo = buildGuffitairePromo;
 module.exports.buildHexadecPromo = buildHexadecPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
+module.exports.buildFeaturePromo = buildFeaturePromo;
+module.exports.featureFor = featureFor;
+module.exports.NEW_SHAPE_FROM = NEW_SHAPE_FROM;
 module.exports.subjectFor = subjectFor;
 module.exports.buildPreviewWrapper = buildPreviewWrapper;
 module.exports.putBlob = putBlob;

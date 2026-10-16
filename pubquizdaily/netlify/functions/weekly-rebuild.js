@@ -71,27 +71,32 @@ exports.handler = async function(event) {
         return wp.fallbackCopy(questions);
       });
 
-    const whenlyPromo = await wp.buildWhenlyPromo(fridayISO).catch(err => {
+    // From 23 Oct 2026 only the featured game is fetched (see weekly-preview.js).
+    const newShape = fridayISO >= wp.NEW_SHAPE_FROM;
+    const featurePromo = newShape ? await wp.buildFeaturePromo(fridayISO) : null;
+    const legacy = (fn) => newShape ? Promise.resolve(null) : fn();
+
+    const whenlyPromo = await legacy(() => wp.buildWhenlyPromo(fridayISO)).catch(err => {
       console.error('rebuild: Whenly promo failed, omitting block:', err.message);
       return null;
     });
-    const aiWhenlyNote = whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
+    const aiWhenlyNote = newShape ? featurePromo.note : whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
 
-    const whatwordPromo = await wp.buildWhatWordPromo(fridayISO).catch(err => {
+    const whatwordPromo = await legacy(() => wp.buildWhatWordPromo(fridayISO)).catch(err => {
       console.error('rebuild: What Word promo failed, omitting block:', err.message);
       return null;
     });
-    const aiWhatWordNote = whatwordPromo ? whatwordPromo.note : 'no What Word promo this week';
+    const aiWhatWordNote = newShape ? '' : whatwordPromo ? whatwordPromo.note : 'no What Word promo this week';
 
-    const groupiePromo = await wp.buildGroupiePromo(fridayISO).catch(err => {
+    const groupiePromo = await legacy(() => wp.buildGroupiePromo(fridayISO)).catch(err => {
       console.error('rebuild: Groupie promo failed, omitting block:', err.message);
       return null;
     });
-    const aiGroupieNote = groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
+    const aiGroupieNote = newShape ? '' : groupiePromo ? groupiePromo.note : 'no Groupie promo this week';
 
     // Spellbound + Guffinoes: template copy by design, can't fail. W&G Daily
     // (Twentee's old place) adds the day's rack and degrades to its plain block.
-    const wagdailyPromo = await wp.buildWagDailyPromo(fridayISO).catch(err => {
+    const wagdailyPromo = await legacy(() => wp.buildWagDailyPromo(fridayISO)).catch(err => {
       console.error('rebuild: W&G Daily promo failed, omitting peek:', err.message);
       return wp.buildWagDailyPromo.plain();
     });
@@ -99,7 +104,7 @@ exports.handler = async function(event) {
     const guffinoesPromo = wp.buildGuffinoesPromo();
     // Hexadec: template copy too, but its peek fetches the day's real tiles,
     // so unlike the three above it can fail. It degrades to the plain block.
-    const hexadecPromo = await wp.buildHexadecPromo(fridayISO).catch(err => {
+    const hexadecPromo = await legacy(() => wp.buildHexadecPromo(fridayISO)).catch(err => {
       console.error('Hexadec promo failed, omitting block:', err);
       return null;
     });
@@ -107,7 +112,7 @@ exports.handler = async function(event) {
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo,
+      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo,
     });
     const subject = wp.subjectFor(fridayISO, subjectQ);
 
@@ -129,7 +134,9 @@ exports.handler = async function(event) {
     console.log(`weekly-rebuild: rebuilt + previewed for ${fridayISO} (${questions.length} questions)`);
     return htmlResp(200, 'Rebuilt ✓',
       `Tomorrow's email (${questions.length} questions) has been regenerated and the preview re-sent to your inbox. Friday's 06:30 send will now use this version.` +
-      `<br><br><b>AI intro:</b> ${wp.escapeHtml(aiIntroNote || '')}<br><b>Whenly:</b> ${wp.escapeHtml(aiWhenlyNote || '')}<br><b>What Word:</b> ${wp.escapeHtml(aiWhatWordNote || '')}<br><b>Groupie:</b> ${wp.escapeHtml(aiGroupieNote || '')}`);
+      `<br><br><b>AI intro:</b> ${wp.escapeHtml(aiIntroNote || '')}` + (newShape
+        ? `<br><b>Feature:</b> ${wp.escapeHtml(aiWhenlyNote || '')}`
+        : `<br><b>Whenly:</b> ${wp.escapeHtml(aiWhenlyNote || '')}<br><b>What Word:</b> ${wp.escapeHtml(aiWhatWordNote || '')}<br><b>Groupie:</b> ${wp.escapeHtml(aiGroupieNote || '')}`));
   } catch (e) {
     console.error('weekly-rebuild error:', e);
     return htmlResp(500, 'Rebuild failed', wp.escapeHtml(String((e && e.message) || e)));
