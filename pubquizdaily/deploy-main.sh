@@ -38,7 +38,7 @@ if [ "$CONFIRM" != "y" ]; then
 fi
 
 git merge --no-ff staging -m "Promote staging to main"
-git push origin main
+PROMOTE_OK=1 git push origin main
 
 echo ""
 echo "✅ Pushed to MAIN."
