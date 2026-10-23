@@ -1,0 +1,156 @@
+{
+ "game": "wagdaily",
+ "source": "wagdaily/public/puzzles/*.json (rack, best play, top plays, board history), boards 2026-09-20 to 2026-10-22",
+ "items": [
+  {
+   "prompt": "The rack: E Y Y L T I I D. What's the best word you can make?",
+   "detail": "Already on the board: DISUSED, AVID, PANE, RIVAL and RAKES.",
+   "reveal": "DEVIL, LIVED and LIVID all scored 42, the best on the board."
+  },
+  {
+   "prompt": "Eight tiles: G D O E E U B I. One play only. What would you go for?",
+   "detail": "Already on the board: POSE, ROW, OATS, THROWS, VAT and more.",
+   "reveal": "The best play was DEBUG for 69 points, making MU and AG as well."
+  },
+  {
+   "prompt": "Your rack is G N B F A O R E. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: LIVID, SIRES, FEND, TERMS, CHUM and more.",
+   "reveal": "The best play was GOVERN for 104 points."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: I T W M F Y I O. What's your best word?",
+   "detail": "Already on the board: MIRAGES, EXERT, JUT, LEAN, REACTS and more.",
+   "reveal": "The best play was MISFIT for 96 points."
+  },
+  {
+   "prompt": "The rack: G T I U S T E P. What's the best word you can make?",
+   "detail": "Already on the board: BOSSING, GRIMY, DEVOTE, LOUD and ROAD.",
+   "reveal": "The best play was STIPULATE for 74 points, using seven tiles for the 40-point bonus."
+  },
+  {
+   "prompt": "Eight tiles: G Z N W A R R I. One play only. What would you go for?",
+   "detail": "Already on the board: MOURN, ENTANGLE, GOO and ELK.",
+   "reveal": "The best play was WARRING for 87 points, using seven tiles for the 40-point bonus."
+  },
+  {
+   "prompt": "Your rack is K H U N M T E R. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: JOYS, AVOID, GLAZE, FLAT, FLATTEN and more.",
+   "reveal": "The best play was ENSUING for 40 points, built on SUING already on the board."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: D F U B E P D T. What's your best word?",
+   "detail": "Already on the board: HEY, LEAVE, TRIO, BUG, ROOMY and more.",
+   "reveal": "The best play was BEEF for 63 points."
+  },
+  {
+   "prompt": "The rack: N O P K E V B U. What's the best word you can make?",
+   "detail": "Already on the board: JAM, WAIL, VISA, COERCE, TAXI and more.",
+   "reveal": "The best play was BECKON for 57 points."
+  },
+  {
+   "prompt": "Eight tiles: E I F E Y Z R H. One play only. What would you go for?",
+   "detail": "Already on the board: WIND, LOYAL, AXIS, TOOK, MAD and more.",
+   "reveal": "The best play was FRIEZE for 59 points, making PE as well."
+  },
+  {
+   "prompt": "Your rack is N Q K T T E O M. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: DEFEAT, EGOS, INDEX, COVES, LURID and more.",
+   "reveal": "The best play was MOLTEN for 80 points."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: T E I O N A A F. What's your best word?",
+   "detail": "Already on the board: HIKE, HIVE, BLARE, BARING, DRIFT and more.",
+   "reveal": "The best play was OFTEN for 43 points, making BE and UN as well."
+  },
+  {
+   "prompt": "The rack: T F Z P E S N E. What's the best word you can make?",
+   "detail": "Already on the board: WAX, LAVA, REMAKES, GET, COO and more.",
+   "reveal": "The best play was FEZ for 62 points, making IF and NE as well."
+  },
+  {
+   "prompt": "Eight tiles: P Y C L Q L O I. One play only. What would you go for?",
+   "detail": "Already on the board: HOUND, IMBUE, REINS, TOADS and GRUFF.",
+   "reveal": "The best play was COPY for 76 points, making TO, OP and AY as well."
+  },
+  {
+   "prompt": "Your rack is E W J O L I G O. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: FRAY, DARN, SKI, VIPERS and CITE.",
+   "reveal": "The best play was LOGIC for 52 points."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: Z N T I E K N U. What's your best word?",
+   "detail": "Already on the board: RAISES, PARE, POND, LAMENT, MOOT and more.",
+   "reveal": "The best play was ZETA for 44 points, making RE and UT as well."
+  },
+  {
+   "prompt": "The rack: O A R B R L D T. What's the best word you can make?",
+   "detail": "Already on the board: SMIDGEN, SEASONAL, YEAH, WOVE, ZONE and more.",
+   "reveal": "BOARD and BROAD both scored 61, the best on the board."
+  },
+  {
+   "prompt": "Eight tiles: I Y L R C T I F. One play only. What would you go for?",
+   "detail": "Already on the board: NEWER, REMADE, PARE, AUDIT, SHARE and more.",
+   "reveal": "The best play was LYRICIST for 68 points, using seven tiles for the 40-point bonus."
+  },
+  {
+   "prompt": "Your rack is W F I T N E A O. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: WHIRR, LEE, HURL, GIRDLE, BATON and more.",
+   "reveal": "The best play was OFTEN for 60 points, making LO as well."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: G I G A F S K M. What's your best word?",
+   "detail": "Already on the board: APEX, WON, BOXER, SHYER, VENUE and more.",
+   "reveal": "The best play was SKIM for 73 points, making AVENUES as well."
+  },
+  {
+   "prompt": "The rack: I T S J R L I S. What's the best word you can make?",
+   "detail": "Already on the board: PAW, HIKE, FAD, DREGS, COOS and more.",
+   "reveal": "The best play was STILLS for 72 points."
+  },
+  {
+   "prompt": "Eight tiles: E E N U X T L A. One play only. What would you go for?",
+   "detail": "Already on the board: RESONANT, DAY, YAKS, COPIOUS, PUPIL and more.",
+   "reveal": "The best play was APEX for 96 points."
+  },
+  {
+   "prompt": "Your rack is R O K F C L A E. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: BURP, DOME, GREAT, FISH, MAZES and more.",
+   "reveal": "The best play was FORSAKE for 128 points."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: S Y R L P I A I. What's your best word?",
+   "detail": "Already on the board: BLAH, POUR, HERTZ, OAF, BRED and more.",
+   "reveal": "The best play was PLAYERS for 112 points."
+  },
+  {
+   "prompt": "The rack: A E J N U W R H. What's the best word you can make?",
+   "detail": "Already on the board: POSHER, DUE, OMINOUS, BIT, WOT and more.",
+   "reveal": "The best play was INJURE for 108 points."
+  },
+  {
+   "prompt": "Your rack is T B Y E Y P A O. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: WARTS, MILDEST, FULLS, HUMANE, UNIQUE and more.",
+   "reveal": "The best play was POETRY for 96 points."
+  },
+  {
+   "prompt": "A game already under way, eight tiles, one play: G V D B L A E A. What's your best word?",
+   "detail": "Already on the board: MEND, YEAST, YEW, LIGHT, BIRDS and more.",
+   "reveal": "The best play was SALVAGED for 108 points, using seven tiles for the 40-point bonus."
+  },
+  {
+   "prompt": "The rack: A X I C F T T U. What's the best word you can make?",
+   "detail": "Already on the board: CREWS, VERSES, SPRING, DANDY, JOINS and more.",
+   "reveal": "The best play was CRUX for 99 points."
+  },
+  {
+   "prompt": "Eight tiles: E H A O L T E S. One play only. What would you go for?",
+   "detail": "Already on the board: LOGIC, VERIFY, PUMMEL, PRAWN, DOE and more.",
+   "reveal": "The best play was ECHOES for 104 points."
+  },
+  {
+   "prompt": "Your rack is T I E X V N G W. Can you find the highest-scoring word on the board?",
+   "detail": "Already on the board: MILLER, INFRARED, TWANG, REPROVE, LOCATE and more.",
+   "reveal": "The best play was VEXING for 81 points."
+  }
+ ]
+}

@@ -1,0 +1,214 @@
+{
+  "game": "helmet",
+  "source": "Helmet daily sites for 16 to 22 Oct 2026 (sites #6 to #12), rebuilt with public/engine.js and GuffBot's plan, clues from clues.js; plus rule teasers from the How to play text",
+  "items": [
+    {
+      "prompt": "On the 16 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "B R A [hard hat] N  (clue: organ for thinking)",
+      "reveal": "BRAIN. The hard hat was the I."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 16 October Helmet site, this word set it off and cleared 10 tiles in one go:",
+      "detail": "A _ _ W",
+      "reveal": "ANEW. Boom."
+    },
+    {
+      "prompt": "On the 16 October site, this word sent the girder off on the crane, and 6 tiles went in all:",
+      "detail": "E _ _ D",
+      "reveal": "EYED"
+    },
+    {
+      "prompt": "Hidden in the 16 October site: relating to the eye (5 letters).",
+      "reveal": "OPTIC"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 16 October site in nine words. Three of them:",
+      "detail": "B _ _ O _,  R _ _ T _,  F _ _ T",
+      "reveal": "BROOM, ROOTS, FEET"
+    },
+    {
+      "prompt": "On the 17 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "[hard hat] O O K I E  (clue: new recruit)",
+      "reveal": "ROOKIE. The hard hat was the R."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 17 October Helmet site, this word set it off and cleared 9 tiles in one go:",
+      "detail": "V _ T",
+      "reveal": "VAT. Boom."
+    },
+    {
+      "prompt": "On the 17 October site, this word sent the girder off on the crane, and 6 tiles went in all:",
+      "detail": "V _ _ O",
+      "reveal": "VETO"
+    },
+    {
+      "prompt": "Hidden in the 17 October site: noisy scuffle in a pub (5 letters).",
+      "reveal": "BRAWL"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 17 October site in ten words. Three of them:",
+      "detail": "A _ _ S,  F _ _ D,  G _ _ D",
+      "reveal": "ACES, FEUD, GRID"
+    },
+    {
+      "prompt": "On the 18 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "I N F [hard hat]",
+      "reveal": "INFO. The hard hat was the O."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 18 October Helmet site, this word set it off and cleared 9 tiles in one go:",
+      "detail": "R _ M",
+      "reveal": "RUM. Boom."
+    },
+    {
+      "prompt": "On the 18 October site, this word sent the girder off on the crane, and 6 tiles went in all:",
+      "detail": "B _ _ S",
+      "reveal": "BOWS"
+    },
+    {
+      "prompt": "Hidden in the 18 October site: showing courage (5 letters).",
+      "reveal": "BRAVE"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 18 October site in eleven words. Three of them:",
+      "detail": "G _ _ N,  M _ _ K,  R _ _ R",
+      "reveal": "GOWN, MUSK, ROAR"
+    },
+    {
+      "prompt": "On the 19 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "H A C [hard hat] S",
+      "reveal": "HACKS. The hard hat was the K."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 19 October Helmet site, this word set it off and cleared 9 tiles in one go:",
+      "detail": "V _ _ U _",
+      "reveal": "VAGUE. Boom."
+    },
+    {
+      "prompt": "On the 19 October site, this word sent the girder off on the crane, and 6 tiles went in all:",
+      "detail": "M _ _ E",
+      "reveal": "MALE"
+    },
+    {
+      "prompt": "Hidden in the 19 October site: polite form of address to a woman (5 letters).",
+      "reveal": "MADAM"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 19 October site in nine words. Three of them:",
+      "detail": "F _ _ D _ _,  L _ _ E _,  C _ _ Y",
+      "reveal": "FUNDED, LAYER, CITY"
+    },
+    {
+      "prompt": "On the 20 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "[hard hat] U C H",
+      "reveal": "SUCH. The hard hat was the S."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 20 October Helmet site, this word set it off and cleared 9 tiles in one go:",
+      "detail": "H _ G",
+      "reveal": "HOG. Boom."
+    },
+    {
+      "prompt": "On the 20 October site, this word sent the girder off on the crane, and 7 tiles went in all:",
+      "detail": "S _ _ A _",
+      "reveal": "SQUAT"
+    },
+    {
+      "prompt": "Hidden in the 20 October site: trembled or quivered (5 letters).",
+      "reveal": "SHOOK"
+    },
+    {
+      "prompt": "Hidden in the 20 October site: stop working for good (6 letters).",
+      "reveal": "RETIRE"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 20 October site in ten words. Three of them:",
+      "detail": "C _ _ A,  T _ _ P,  L _ W",
+      "reveal": "COMA, TRIP, LOW"
+    },
+    {
+      "prompt": "On the 21 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "[hard hat] R I M",
+      "reveal": "GRIM. The hard hat was the G."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 21 October Helmet site, this word set it off and cleared 11 tiles in one go:",
+      "detail": "K _ Y",
+      "reveal": "KEY. Boom."
+    },
+    {
+      "prompt": "On the 21 October site, this word sent the girder off on the crane, and 7 tiles went in all:",
+      "detail": "T _ _ P _",
+      "reveal": "TEMPO"
+    },
+    {
+      "prompt": "Hidden in the 21 October site: wide from side to side (5 letters).",
+      "reveal": "THICK"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 21 October site in nine words. Three of them:",
+      "detail": "W _ _ N _ _,  F _ _ S,  G _ _ D",
+      "reveal": "WRONGS, FINS, GLAD"
+    },
+    {
+      "prompt": "On the 22 October Helmet site, GuffBot in his hard hat (a wildcard) stood in for one letter of this word:",
+      "detail": "H A L [hard hat]",
+      "reveal": "HALF. The hard hat was the F."
+    },
+    {
+      "prompt": "Mind the dynamite. On the 22 October Helmet site, this word set it off and cleared 8 tiles in one go:",
+      "detail": "K _ _ W",
+      "reveal": "KNOW. Boom."
+    },
+    {
+      "prompt": "On the 22 October site, this word sent the girder off on the crane, and 6 tiles went in all:",
+      "detail": "R _ _ H",
+      "reveal": "RUSH"
+    },
+    {
+      "prompt": "Hidden in the 22 October site: tap-like control part (5 letters).",
+      "reveal": "VALVE"
+    },
+    {
+      "prompt": "GuffBot cleared all 48 tiles of the 22 October site in ten words. Three of them:",
+      "detail": "J _ _ B _,  A _ _ D,  A _ _ N",
+      "reveal": "JUMBO, AGED, AKIN"
+    },
+    {
+      "prompt": "In Helmet you spell words of three or more letters through touching tiles: across, down or diagonal, and words can bend."
+    },
+    {
+      "prompt": "Every Helmet site has 48 tiles and can always be cleared completely. Your score is tiles cleared, then your time."
+    },
+    {
+      "prompt": "Spell a word and the crane lifts it away. Everything above it falls, so think about what drops and where it lands."
+    },
+    {
+      "prompt": "Mind the dynamite. It goes off when it falls or when something lands on it, clearing the 3 by 3 around it."
+    },
+    {
+      "prompt": "A girder holds up everything on it. Take away what is holding it up and the crane whisks it off, and everything on it falls."
+    },
+    {
+      "prompt": "GuffBot in his hard hat can be any letter. Save him for the word you cannot quite finish."
+    },
+    {
+      "prompt": "Before you press Go, the bar tells you how many tiles that word will clear."
+    },
+    {
+      "prompt": "Undo is there in Helmet, but each one costs 15 seconds on your time."
+    },
+    {
+      "prompt": "If the site can no longer be cleared completely, the beacon turns red. Undo, or keep going for points."
+    },
+    {
+      "prompt": "Stuck on a Helmet site? Pause for a while and a clue may appear."
+    },
+    {
+      "prompt": "A new Helmet site goes up every day at midnight UK time, the same for everyone."
+    },
+    {
+      "prompt": "Three-letter words count in Helmet, and a short word in the right place can set off the dynamite."
+    }
+  ]
+}

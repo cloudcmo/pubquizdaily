@@ -1,0 +1,281 @@
+{
+  "game": "whatword",
+  "source": "What Word D1 database (days table), definition and synonym questions dated 2026-08-01 to 2026-10-14",
+  "items": [
+    {
+      "prompt": "What does APRICITY mean?",
+      "detail": "The warmth of the sun in winter / The sound of wind through trees / A sudden feeling of melancholy / A capacity for sharp perception",
+      "reveal": "Answer: The warmth of the sun in winter. From Latin apricus, 'warmed by the sun'."
+    },
+    {
+      "prompt": "What does GROWLERY mean?",
+      "detail": "A place where animals gather / A complaint or grievance / A private retreat for sulking / A kennel or dog enclosure",
+      "reveal": "Answer: A private retreat for sulking. Dickens coined it in Bleak House for a room where Mr Jarndyce could growl in peace."
+    },
+    {
+      "prompt": "What does VELLEITY mean?",
+      "detail": "A wish so slight it prompts no action / A habit of deferring decisions / The quality of being velvety to the touch / A gentle evening breeze scented with flowers",
+      "reveal": "Answer: A wish so slight it prompts no action. From Latin velle, to wish: wanting something in theory while doing nothing about it."
+    },
+    {
+      "prompt": "What does NITHING mean?",
+      "detail": "A secret meeting held at night / An object of little or no value / The smallest possible amount; a trifle / A worthless or contemptible person; a villain",
+      "reveal": "Answer: A worthless or contemptible person; a villain. From Old Norse, it was one of the worst insults in medieval Scandinavia."
+    },
+    {
+      "prompt": "What does OBNUBILATE mean?",
+      "detail": "To remove or erase completely / To make numb or insensitive / To darken or obscure / To confuse with technicalities",
+      "reveal": "Answer: To darken or obscure. From Latin, it literally means 'to cover with clouds'."
+    },
+    {
+      "prompt": "What does INSOUCIANT mean?",
+      "detail": "Insufficiently caffeinated / Quietly resentful of authority / Blissfully unconcerned or carefree / Deliberately vague or evasive",
+      "reveal": "Answer: Blissfully unconcerned or carefree. From French, literally 'not worrying'."
+    },
+    {
+      "prompt": "What does TRUCULENT mean?",
+      "detail": "Moving with heavy, laboured steps / Honest to the point of rudeness / Aggressively defiant or eager to fight / Stubbornly resistant to change",
+      "reveal": "Answer: Aggressively defiant or eager to fight. From Latin truculentus, 'fierce' or 'savage'."
+    },
+    {
+      "prompt": "What does DIAPHANOUS mean?",
+      "detail": "Ornate and decorative / Scattered and unfocused / Melodious and flowing / Sheer and delicate",
+      "reveal": "Answer: Sheer and delicate. From Greek, literally 'showing through', like gauzy curtains."
+    },
+    {
+      "prompt": "What does VERDIGRIS mean?",
+      "detail": "A greenish-blue coating on copper or brass / A climbing plant with trailing vines / The spiral pattern in a snail's shell / The smell of grass after rain",
+      "reveal": "Answer: A greenish-blue coating on copper or brass. From Old French 'vert de Grece', green of Greece. It gives old copper roofs their colour."
+    },
+    {
+      "prompt": "What does REDOLENT mean?",
+      "detail": "Strongly reminiscent or suggestive of something / Reluctant to speak or act / Tending to repeat the same mistakes / Decorated with elaborate ornaments",
+      "reveal": "Answer: Strongly reminiscent or suggestive of something. From Latin redolere, to give off a scent."
+    },
+    {
+      "prompt": "What does PUSILLANIMOUS mean?",
+      "detail": "Relating to ancient scrolls / Excessively animated in speech / Prone to fidgeting / Lacking courage; timid",
+      "reveal": "Answer: Lacking courage; timid. From Latin, literally 'small-souled'."
+    },
+    {
+      "prompt": "What does OBSTREPEROUS mean?",
+      "detail": "Deliberately awkward / Stubbornly persistent / Quietly defiant / Noisily unruly",
+      "reveal": "Answer: Noisily unruly. From Latin obstrepere, 'to make a loud noise against'."
+    },
+    {
+      "prompt": "What does SOPORIFIC mean?",
+      "detail": "Producing a pleasant, numbing sensation / Tending to induce drowsiness or sleep / Relating to sophisticated or refined taste / Having a soothing or calming voice",
+      "reveal": "Answer: Tending to induce drowsiness or sleep. From Latin sopor (sleep) and facere (to make)."
+    },
+    {
+      "prompt": "What does LACHRYMOSE mean?",
+      "detail": "Slow-moving and lethargic / Tearful or given to weeping / Lacking in moral strength / Excessively sweet or sentimental",
+      "reveal": "Answer: Tearful or given to weeping. From Latin lacrima, a tear."
+    },
+    {
+      "prompt": "What does PEREGRINATION mean?",
+      "detail": "Pursuing several goals at once / Making things worse by meddling / A long or meandering journey / A formal accusation",
+      "reveal": "Answer: A long or meandering journey. Same root as pilgrim, and the peregrine falcon."
+    },
+    {
+      "prompt": "What does OLEAGINOUS mean?",
+      "detail": "Having a strong, unpleasant odour / Prone to sudden bursts of enthusiasm / Relating to ancient trade routes / Excessively flattering or ingratiating",
+      "reveal": "Answer: Excessively flattering or ingratiating. From Latin oleum, oil. Think of Uriah Heep."
+    },
+    {
+      "prompt": "What does QUOTIDIAN mean?",
+      "detail": "Ancient or timeworn / Ordinary or everyday / Numbered or sequential / Mysterious or puzzling",
+      "reveal": "Answer: Ordinary or everyday. From Latin quotidianus, daily."
+    },
+    {
+      "prompt": "What does GELID mean?",
+      "detail": "Slippery or smooth / Thick or viscous / Extremely cold or icy / Transparent or clear",
+      "reveal": "Answer: Extremely cold or icy. From Latin gelidus, icy cold. Same root as gel and gelatine."
+    },
+    {
+      "prompt": "What does LOUCHE mean?",
+      "detail": "Excessively luxurious / Slouching lazily / Disreputable, yet rakishly attractive / Speaking in a secretive whisper",
+      "reveal": "Answer: Disreputable, yet rakishly attractive. From French, meaning 'squinting' or 'shady'."
+    },
+    {
+      "prompt": "What does SESQUIPEDALIAN mean?",
+      "detail": "Given to using long words / Walking with a limp / Measuring exactly one and a half units / Having many feet, like a centipede",
+      "reveal": "Answer: Given to using long words. Literally 'a foot and a half long', and itself a fine example."
+    },
+    {
+      "prompt": "What does PHLEGMATIC mean?",
+      "detail": "Prone to angry outbursts / Calm and unemotional / Speaking thickly or unclearly / Suffering from a heavy cold",
+      "reveal": "Answer: Calm and unemotional. From the old theory of the four humours, where phlegm made you calm."
+    },
+    {
+      "prompt": "What does EXIGUOUS mean?",
+      "detail": "Scanty or meagre in quantity / Existing outside normal boundaries / Gradually worn away by time / Excessively demanding or particular",
+      "reveal": "Answer: Scanty or meagre in quantity. From Latin exiguus, small or petty."
+    },
+    {
+      "prompt": "What does PROLIX mean?",
+      "detail": "Tediously wordy / Having many layers of meaning / Relating to an early draft / Prone to sudden changes of mood",
+      "reveal": "Answer: Tediously wordy. From Latin prolixus, 'poured forth'."
+    },
+    {
+      "prompt": "What does LAMBENT mean?",
+      "detail": "Innocent or naive in character / Quiet and gently sad / Softly bright or glowing, playing lightly over a surface / Moving with a graceful, leaping motion",
+      "reveal": "Answer: Softly bright or glowing, playing lightly over a surface. From Latin lambere, to lick, like flames licking at wood."
+    },
+    {
+      "prompt": "What does INSALUBRIOUS mean?",
+      "detail": "Impossible to keep steady / Unable to be salvaged / Unhealthy or unwholesome / Not fond of salted foods",
+      "reveal": "Answer: Unhealthy or unwholesome. From Latin, literally 'not healthful'."
+    },
+    {
+      "prompt": "What does PROPINQUITY mean?",
+      "detail": "The quality of being proper or fitting / Nearness in place, time, or relationship / A tendency to make inappropriate remarks / An inherited characteristic or trait",
+      "reveal": "Answer: Nearness in place, time, or relationship. From Latin propinquus, near."
+    },
+    {
+      "prompt": "What does EVANESCENT mean?",
+      "detail": "Relating to evening or twilight / Glowing with inner light / Vanishing quickly; fleeting / Growing stronger over time",
+      "reveal": "Answer: Vanishing quickly; fleeting. From Latin evanescere, to vanish."
+    },
+    {
+      "prompt": "What does MELLIFLUOUS mean?",
+      "detail": "Bittersweet and nostalgic / Smooth and honey-sweet in sound / Rich and buttery in texture / Flowing in gentle curves",
+      "reveal": "Answer: Smooth and honey-sweet in sound. Literally 'flowing with honey'."
+    },
+    {
+      "prompt": "What does QUERULOUS mean?",
+      "detail": "Trembling with uncertainty / Inquisitive and probing / Habitually complaining / Speaking in riddles",
+      "reveal": "Answer: Habitually complaining. From Latin queri, to complain, the same root as quarrel."
+    },
+    {
+      "prompt": "What does CREPUSCULAR mean?",
+      "detail": "Active during twilight, at dawn or dusk / Covered in small wrinkles or creases / Making a crackling or rustling sound / Relating to ancient or crumbling structures",
+      "reveal": "Answer: Active during twilight, at dawn or dusk. From Latin crepusculum, twilight. Deer and rabbits are crepuscular."
+    },
+    {
+      "prompt": "What does ERSATZ mean?",
+      "detail": "Excessively formal / Deliberately obscure / Previously mentioned / Artificial substitute",
+      "reveal": "Answer: Artificial substitute. Borrowed from German in the First World War, as in ersatz coffee made from acorns."
+    },
+    {
+      "prompt": "What does THRENODY mean?",
+      "detail": "A three-part harmony / A prophecy of doom / A song of lamentation / A morning prayer",
+      "reveal": "Answer: A song of lamentation. From the Greek words for lament and song."
+    },
+    {
+      "prompt": "What does GARRULOUS mean?",
+      "detail": "Decorated in poor taste / Making harsh, grating sounds / Habitually bad-tempered / Excessively talkative",
+      "reveal": "Answer: Excessively talkative. From Latin garrire, to chatter."
+    },
+    {
+      "prompt": "What does ANFRACTUOUS mean?",
+      "detail": "Rough to the touch / Stiff and inflexible / Broken into fragments / Full of twists and turns",
+      "reveal": "Answer: Full of twists and turns. From Latin anfractus, a bending."
+    },
+    {
+      "prompt": "What does CONTRETEMPS mean?",
+      "detail": "A temporary truce / A moment of perfect timing / A calculated insult / An unexpected, embarrassing mishap",
+      "reveal": "Answer: An unexpected, embarrassing mishap. From French, originally a fencing term for a thrust out of rhythm."
+    },
+    {
+      "prompt": "What does PHILIPPIC mean?",
+      "detail": "A royal decree or proclamation / A philosophical meditation on friendship / A formal apology delivered in public / A bitter verbal attack or denunciation",
+      "reveal": "Answer: A bitter verbal attack or denunciation. Named after Demosthenes' speeches against Philip II of Macedon."
+    },
+    {
+      "prompt": "What does CATERWAUL mean?",
+      "detail": "To whisper conspiratorially / To argue persuasively / To move with exaggerated grace / To make harsh, discordant sounds",
+      "reveal": "Answer: To make harsh, discordant sounds. Originally the yowling of cats in heat."
+    },
+    {
+      "prompt": "What does PERSIFLAGE mean?",
+      "detail": "Filtering through fine cloth / Flattery intended to deceive / Light, bantering talk / A state of bewilderment",
+      "reveal": "Answer: Light, bantering talk. From French persifler, to banter."
+    },
+    {
+      "prompt": "What does PARVENU mean?",
+      "detail": "Someone newly rich who lacks refinement / A small ornamental French garden / A minor legal offence / A delicate cream-filled pastry",
+      "reveal": "Answer: Someone newly rich who lacks refinement. From French, literally 'arrived'. Always said by old money about new."
+    },
+    {
+      "prompt": "What does PHILTRUM mean?",
+      "detail": "A love potion / The soft roof of the mouth / A flourish in calligraphy / The groove between nose and upper lip",
+      "reveal": "Answer: The groove between nose and upper lip. From Greek philtron, a love charm."
+    },
+    {
+      "prompt": "What does INCUNABULA mean?",
+      "detail": "Books printed before 1501 / The innermost chambers of a temple / Ancient prophecies in symbols / Sleeping quarters in monasteries",
+      "reveal": "Answer: Books printed before 1501. From Latin 'in cunabulis', in the cradle: books from printing's infancy."
+    },
+    {
+      "prompt": "What does PECULATION mean?",
+      "detail": "The embezzlement of public funds / Examining something in minute detail / A distinctive way of walking / Hoarding small, worthless objects",
+      "reveal": "Answer: The embezzlement of public funds. It shares a root with peculiar, which once meant privately owned."
+    },
+    {
+      "prompt": "What does FRANGIBLE mean?",
+      "detail": "Easily broken or fragile / Capable of being shaped or moulded / Having a pleasant fragrance / Able to be divided into fractions",
+      "reveal": "Answer: Easily broken or fragile. From Latin frangere, to break, like fracture and fragment."
+    },
+    {
+      "prompt": "What does RAFFISH mean?",
+      "detail": "Slightly disreputable in an appealing way / Relating to a ship's upper rigging / Rough and unfinished in texture / Fond of raffles",
+      "reveal": "Answer: Slightly disreputable in an appealing way. From riff-raff. Raffish people are rogues, not villains."
+    },
+    {
+      "prompt": "What does SATRAP mean?",
+      "detail": "A trap for small rodents / A cloth hung over a throne / A secret hoarder of wealth / A petty, tyrannical local ruler",
+      "reveal": "Answer: A petty, tyrannical local ruler. Satraps were provincial governors in the ancient Persian Empire."
+    },
+    {
+      "prompt": "What does CREPITATE mean?",
+      "detail": "To speak in a whisper or undertone / To crumble or decay gradually / To move with hesitant, shuffling steps / To make repeated crackling or popping sounds",
+      "reveal": "Answer: To make repeated crackling or popping sounds. From Latin crepitare, to crackle. Fires and creaky knees both crepitate."
+    },
+    {
+      "prompt": "What does FLAGITIOUS mean?",
+      "detail": "Prone to dramatic gestures / Extremely wicked or villainous / Relating to flags or banners / Excessively flattering",
+      "reveal": "Answer: Extremely wicked or villainous. From Latin flagitium, a shameful act."
+    },
+    {
+      "prompt": "What does TENEBROUS mean?",
+      "detail": "Pleasantly warm / Cautiously hesitant / Dark and gloomy / Thin and delicate",
+      "reveal": "Answer: Dark and gloomy. From Latin tenebrae, darkness."
+    },
+    {
+      "prompt": "What does PULCHRITUDE mean?",
+      "detail": "Scholarly precision / Excessive ornamentation / Physical beauty / Moral corruption",
+      "reveal": "Answer: Physical beauty. From Latin pulchritudo, beauty. An ungainly word for a lovely thing."
+    },
+    {
+      "prompt": "What does REBARBATIVE mean?",
+      "detail": "Causing disgust or irritation; repellent / Able to grow back after being cut / Relating to beards or facial hair / Speaking in a rough, rasping voice",
+      "reveal": "Answer: Causing disgust or irritation; repellent. It sounds like it should involve beards, but it means off-putting."
+    },
+    {
+      "prompt": "What does SATURNALIA mean?",
+      "detail": "A midnight gathering under a full moon / The sadness that follows great joy / A period of unrestrained revelry / A winter solstice ceremony",
+      "reveal": "Answer: A period of unrestrained revelry. From the Roman winter festival, when social rules were turned upside down."
+    },
+    {
+      "prompt": "What does SYBARITE mean?",
+      "detail": "A devotee of formal debate / A person devoted to luxury and pleasure / A collector of rare gemstones / A scholar of ancient texts",
+      "reveal": "Answer: A person devoted to luxury and pleasure. From Sybaris, an ancient Greek city famed for luxurious living."
+    },
+    {
+      "prompt": "What does RECRUDESCENCE mean?",
+      "detail": "A build-up of crusty deposits / The harmful breaking out of something again after dormancy / The gradual healing of a wound / A revival of crude customs",
+      "reveal": "Answer: The harmful breaking out of something again after dormancy. From Latin, 'to become raw again', like a wound reopening."
+    },
+    {
+      "prompt": "What does FEBRILE mean?",
+      "detail": "Prone to sudden fits of weeping / Relating to February or midwinter coldness / Feverish or marked by intense nervous energy / Fragile and easily broken into fibres",
+      "reveal": "Answer: Feverish or marked by intense nervous energy. From Latin febris, fever."
+    },
+    {
+      "prompt": "What does UXORIOUS mean?",
+      "detail": "Skilled in household management / Suspicious of marriage itself / Excessively devoted to one's wife / Fond of luxury and comfort",
+      "reveal": "Answer: Excessively devoted to one's wife. From Latin uxor, wife. Always used with gentle mockery."
+    }
+  ]
+}

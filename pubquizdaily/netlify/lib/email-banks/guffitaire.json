@@ -1,0 +1,276 @@
+{
+  "game": "guffitaire",
+  "source": "Guffitaire daily deals No. 1 to 28 (25 Sep to 22 Oct 2026), rebuilt with public/deal.js; words and scores checked against its word list and colScore",
+  "items": [
+    {
+      "prompt": "Guffitaire deal No. 1, 25 September: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "E A R E E I R E R E O W",
+      "reveal": "WARRIOR: seven letters, worth 31 points in a column, and it beams in an extra robot. ARROW was there too."
+    },
+    {
+      "prompt": "Deal No. 1 (25 September) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "C _ _ R _ _ N _,  B _ _ A _ _ S,  S _ _ L _ _ W",
+      "reveal": "CHARMING, BEHAVES, SHALLOW. Also in the pack: EXECUTED, RESERVE and WRATH."
+    },
+    {
+      "prompt": "Guffitaire deal No. 2, 26 September: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "A E T S L E R R D S I R",
+      "reveal": "ARRESTED: eight letters, worth 40 points in a column, and it beams in an extra robot. ASSERTED was there too."
+    },
+    {
+      "prompt": "Deal No. 2 (26 September) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "F _ _ C _ _ U _,  S _ _ A _ _ E _,  T _ _ D _ _",
+      "reveal": "FANCIFUL, STRAINER, TRADER. Also in the pack: STEALTHY, TELLERS and PINTS."
+    },
+    {
+      "prompt": "Guffitaire deal No. 3, 27 September: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "K S C D ? E ? D L G E I  (? is a GuffBot wildcard)",
+      "reveal": "DECIDES: seven letters, worth 32 points in a column, and it beams in an extra robot. DECKED was there too."
+    },
+    {
+      "prompt": "Deal No. 3 (27 September) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "E _ _ A _ _ N _,  S _ _ C _ _ E _,  D _ _ K _ _",
+      "reveal": "ENGAGING, SHACKLED, DOCKED. Also in the pack: FLEXIBLE, MUDDLED and CHUTE."
+    },
+    {
+      "prompt": "Guffitaire deal No. 4, 28 September: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "T D S E I I G T D P A E",
+      "reveal": "DIGESTED: eight letters, worth 42 points in a column, and it beams in an extra robot. DESPITE was there too."
+    },
+    {
+      "prompt": "Deal No. 4 (28 September) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "G _ _ O _ _ N _,  D _ _ D _ _ D,  N _ _ A _ _ E",
+      "reveal": "GASOLINE, DREDGED, NOTABLE. Also in the pack: NINETEEN, MARBLES and POLKA."
+    },
+    {
+      "prompt": "Guffitaire deal No. 6, 30 September: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "S Y F ? D U T S I N O N  (? is a GuffBot wildcard)",
+      "reveal": "STUDIOS: seven letters, worth 29 points in a column, and it beams in an extra robot. NOTIFY was there too."
+    },
+    {
+      "prompt": "Deal No. 5 (29 September) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "A _ _ E _ _ L _,  P _ _ I _ _ S _,  B _ _ C _",
+      "reveal": "ASSEMBLE, PACIFISM, BEACH. Also in the pack: ERUPTING, SPACIOUS and SOUTH."
+    },
+    {
+      "prompt": "Guffitaire deal No. 7, 1 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "O ? S T I S A T S R T N  (? is a GuffBot wildcard)",
+      "reveal": "STATIONS: eight letters, worth 40 points in a column, and it beams in an extra robot. ARTISTS was there too."
+    },
+    {
+      "prompt": "Deal No. 6 (30 September) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "D _ _ G _ _ M _,  R _ _ T _ _ G,  M _ _ I _ _",
+      "reveal": "DIAGRAMS, RESTING, MODIFY. Also in the pack: SURROUND, UPSWING and VACANT."
+    },
+    {
+      "prompt": "Guffitaire deal No. 8, 2 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "R R T S D I D O S O R I",
+      "reveal": "SORDID: six letters, worth 23 points in a column. TORRID was there too."
+    },
+    {
+      "prompt": "Deal No. 7 (1 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "S _ _ C _ _ U _,  F _ _ T _ _ Y,  R _ _ A _ _ S",
+      "reveal": "SPACIOUS, FANTASY, REMAKES. Also in the pack: CALLING, JOINTED and EDITOR."
+    },
+    {
+      "prompt": "Guffitaire deal No. 9, 3 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "N S W S C P G U E E U R",
+      "reveal": "UPSURGE: seven letters, worth 31 points in a column, and it beams in an extra robot. CENSURE was there too."
+    },
+    {
+      "prompt": "Deal No. 8 (2 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "A _ _ E _ _ O _,  I _ _ O _ _ T _,  T _ _ E _",
+      "reveal": "ASSESSOR, IMPOLITE, TOKEN. Also in the pack: FORTRESS and FENDER."
+    },
+    {
+      "prompt": "Guffitaire deal No. 10, 4 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "D A ? G ? S V D E I A I  (? is a GuffBot wildcard)",
+      "reveal": "ADVISED: seven letters, worth 33 points in a column, and it beams in an extra robot. DIVIDES was there too."
+    },
+    {
+      "prompt": "Deal No. 9 (3 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "D _ _ P _ _ E _,  P _ _ C _ _ A _,  G _ _ R _ _",
+      "reveal": "DISPUTES, PUNCTUAL, GUARDS. Also in the pack: HELPLESS, WHATEVER and VETO."
+    },
+    {
+      "prompt": "Guffitaire deal No. 11, 5 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "T S S E C S U E C E H R",
+      "reveal": "CRUTCHES: eight letters, worth 49 points in a column, and it beams in an extra robot. RECESSES was there too."
+    },
+    {
+      "prompt": "Deal No. 10 (4 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "D _ _ P _ _ C _,  W _ _ E _ _ N _,  P _ _ I _ _",
+      "reveal": "DISPATCH, WIDENING, PINION. Also in the pack: INTERACT, STORING and SAVED."
+    },
+    {
+      "prompt": "Guffitaire deal No. 12, 6 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "A S S N A C H S B V E C",
+      "reveal": "CANVASES: eight letters, worth 45 points in a column, and it beams in an extra robot. CHANCES was there too."
+    },
+    {
+      "prompt": "Deal No. 11 (5 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "R _ _ U _ _ E _,  T _ _ C _ _ R _,  A _ _ S _ _",
+      "reveal": "REFUGEES, TRUCKERS, ARISEN. Also in the pack: THOUSAND, CHALICE and CREEK."
+    },
+    {
+      "prompt": "Guffitaire deal No. 13, 7 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "E N W L B D I C B G C A",
+      "reveal": "DABBLING: eight letters, worth 46 points in a column, and it beams in an extra robot. WEBBING was there too."
+    },
+    {
+      "prompt": "Deal No. 12 (6 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "C _ _ O _ _ N _,  C _ _ J _ _ E _,  V _ _ A _ _",
+      "reveal": "CHOOSING, CONJURES, VOCALS. Also in the pack: COMBINES, PLEASANT and APES."
+    },
+    {
+      "prompt": "Guffitaire deal No. 14, 8 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "A E N J I A C D I O L N",
+      "reveal": "INCLINED: eight letters, worth 42 points in a column, and it beams in an extra robot. JAILED was there too."
+    },
+    {
+      "prompt": "Deal No. 13 (7 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "A _ _ R _ _ N _,  B _ _ G _ _ N,  C _ _ R _ _",
+      "reveal": "AWARDING, BARGAIN, CHURCH. Also in the pack: CONCEDES, EDIBLES and SHADOW."
+    },
+    {
+      "prompt": "Guffitaire deal No. 15, 9 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "L ? A R E E B O T N S C  (? is a GuffBot wildcard)",
+      "reveal": "BRACELET: eight letters, worth 45 points in a column, and it beams in an extra robot. OBSTACLE was there too."
+    },
+    {
+      "prompt": "Deal No. 14 (8 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "F _ _ C _ _ O _,  A _ _ E _ _ M,  Q _ _ E _",
+      "reveal": "FRICTION, ATHEISM, QUIET. Also in the pack: NOTIONAL and TACKLED."
+    },
+    {
+      "prompt": "Guffitaire deal No. 16, 10 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "E E O C R N R R A C L E",
+      "reveal": "CONCEAL: seven letters, worth 33 points in a column, and it beams in an extra robot. CLEANER was there too."
+    },
+    {
+      "prompt": "Deal No. 15 (9 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "B _ _ T _ _ I _,  P _ _ M _ _ E,  A _ _ O _ _",
+      "reveal": "BACTERIA, PREMISE, ALLOWS. Also in the pack: CONTINUE, TANGLED and SIMPLE."
+    },
+    {
+      "prompt": "Guffitaire deal No. 18, 12 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "D L S L P ? R C E E B S  (? is a GuffBot wildcard)",
+      "reveal": "BLESSED: seven letters, worth 31 points in a column, and it beams in an extra robot. DEPRESS was there too."
+    },
+    {
+      "prompt": "Deal No. 16 (10 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "E _ _ O _ _ E _,  A _ _ O _ _ T,  C _ _ F _ _",
+      "reveal": "ENROLLED, ACROBAT, COFFEE. Also in the pack: REVIEWER, COURAGE and DIVEST."
+    },
+    {
+      "prompt": "Guffitaire deal No. 19, 13 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "H ? L E S O E A W I T D  (? is a GuffBot wildcard)",
+      "reveal": "WHISTLED: eight letters, worth 48 points in a column, and it beams in an extra robot. DESOLATE was there too."
+    },
+    {
+      "prompt": "Deal No. 17 (11 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "S _ _ P _ _ E _,  D _ _ M _ _ T,  R _ _ L _ _ G",
+      "reveal": "SUPPLIER, DORMANT, ROLLING. Also in the pack: WINDFALL, PENNING and DOGMA."
+    },
+    {
+      "prompt": "Guffitaire deal No. 20, 14 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "H E I ? E G T N R T O A  (? is a GuffBot wildcard)",
+      "reveal": "TEETHING: eight letters, worth 45 points in a column, and it beams in an extra robot. TOGETHER was there too."
+    },
+    {
+      "prompt": "Deal No. 18 (12 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "P _ _ T _ _ R _,  C _ _ D _ _ T,  R _ _ B _ _ G",
+      "reveal": "PLATTERS, CONDUCT, ROBBING. Also in the pack: BATTLED, MARVELS and VANDAL."
+    },
+    {
+      "prompt": "Guffitaire deal No. 21, 15 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "G G B R M L E D E T H G",
+      "reveal": "TREMBLE: seven letters, worth 34 points in a column, and it beams in an extra robot. HELMET was there too."
+    },
+    {
+      "prompt": "Deal No. 19 (13 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "E _ _ A _ _ T _,  M _ _ I _ _ S,  V _ _ I _ _ A",
+      "reveal": "ESCALATE, MEDIUMS, VANILLA. Also in the pack: HEDGEHOG, MINNOWS and YACHT."
+    },
+    {
+      "prompt": "Guffitaire deal No. 22, 16 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "N A Y C R G S U C I I U",
+      "reveal": "ACCUSING: eight letters, worth 45 points in a column, and it beams in an extra robot. CRUISING was there too."
+    },
+    {
+      "prompt": "Deal No. 20 (14 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "C _ _ R _ _ N _,  I _ _ I _ _ T _,  M _ _ T _ _",
+      "reveal": "COURTING, INTIMATE, METTLE. Also in the pack: GRAPHICS, MARVELS and JUMBO."
+    },
+    {
+      "prompt": "Guffitaire deal No. 23, 17 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "S D N N D R R G Y A F H",
+      "reveal": "GRANNY: six letters, worth 26 points in a column. GRANDS was there too."
+    },
+    {
+      "prompt": "Deal No. 21 (15 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "F _ _ G _ _ E _,  R _ _ S _ _ S,  B _ _ Z _ _",
+      "reveal": "FRIGHTEN, RAISINS, BRAZEN. Also in the pack: OUTGOING, STIRRED and CLIMBS."
+    },
+    {
+      "prompt": "Guffitaire deal No. 24, 18 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "O C A E T E L ? E C F R  (? is a GuffBot wildcard)",
+      "reveal": "RELOCATE: eight letters, worth 42 points in a column, and it beams in an extra robot. REFLECT was there too."
+    },
+    {
+      "prompt": "Deal No. 22 (16 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "J _ _ C _ _ R _,  T _ _ U _ _ N _,  M _ _ S _ _",
+      "reveal": "JUNCTURE, THOUSAND, MISSES. Also in the pack: SURVEYED, CALLING and DREAD."
+    },
+    {
+      "prompt": "Guffitaire deal No. 25, 19 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "E T G A H H M T O P I N",
+      "reveal": "TEMPTING: eight letters, worth 47 points in a column, and it beams in an extra robot. PHANTOM was there too."
+    },
+    {
+      "prompt": "Deal No. 23 (17 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "O _ _ R _ _ E _,  D _ _ K _ _ S,  A _ _ E _ _",
+      "reveal": "OUTRAGED, DONKEYS, ANGERS. Also in the pack: SHRUNKEN, DWINDLE and FILING."
+    },
+    {
+      "prompt": "Guffitaire deal No. 26, 20 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "L T C U R N T Y A T R A",
+      "reveal": "ATTRACT: seven letters, worth 33 points in a column, and it beams in an extra robot. NATURAL was there too."
+    },
+    {
+      "prompt": "Deal No. 24 (18 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "R _ _ A _ _ E _,  P _ _ T _ _ S,  T _ _ K _ _ D",
+      "reveal": "RECALLED, PUNTERS, TACKLED. Also in the pack: FANCIED, REASONS and SEASON."
+    },
+    {
+      "prompt": "Guffitaire deal No. 27, 21 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "G I L I M H H N P O I P",
+      "reveal": "HOPPING: seven letters, worth 38 points in a column, and it beams in an extra robot. MOPPING was there too."
+    },
+    {
+      "prompt": "Deal No. 25 (19 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "A _ _ E _ _ A _,  G _ _ S _ _ D,  V _ _ I _ _ Y",
+      "reveal": "ANTENNAS, GHOSTED, VISIBLY. Also in the pack: CHAINED, SYMPTOM and INPUTS."
+    },
+    {
+      "prompt": "Guffitaire deal No. 28, 22 October: the first 12 cards off the pile. What could you build from just these?",
+      "detail": "G S E R O E A R N E S R",
+      "reveal": "GREENER: seven letters, worth 28 points in a column, and it beams in an extra robot. ORANGES was there too."
+    },
+    {
+      "prompt": "Deal No. 26 (20 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "H _ _ R _ _ L _,  S _ _ L _ _ O _,  T _ _ O _ _",
+      "reveal": "HEARTILY, SCULPTOR, TUMOUR. Also in the pack: NICKNAME, GUITARS and FAINT."
+    },
+    {
+      "prompt": "Deal No. 27 (21 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "S _ _ L _ _ N _,  D _ _ I _ _ S,  M _ _ T _ _ E",
+      "reveal": "SHELVING, DEPICTS, MISTAKE. Also in the pack: SHOPPERS, INSERTS and TUNIC."
+    },
+    {
+      "prompt": "Deal No. 28 (22 October) shuffled 40 letters from six hidden everyday words, plus two wildcards. Three of the words:",
+      "detail": "F _ _ E _ _ N _,  R _ _ O _ _ E,  T _ _ K _ _ S",
+      "reveal": "FLEETING, RESOLVE, TURKEYS. Also in the pack: REPENTED, STAGING and PANGS."
+    }
+  ]
+}
