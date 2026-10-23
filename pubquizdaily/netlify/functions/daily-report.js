@@ -76,13 +76,21 @@ exports.handler = async function(event) {
       fetchWorkerStats(HEXADEC_URL, process.env.HEXADEC_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Hexadec stats failed:', e.message); return null; }),
     ]);
 
+    // Queue depth for the two games whose puzzles are written ahead by Claude
+    // scheduled tasks (since 23 Oct 2026; no API generator any more). A low
+    // number means the weekly task has stopped running.
+    const [wwQueue, groupieQueue] = await Promise.all([
+      fetchHealth(WHATWORD_URL).catch(e => { console.error('What Word health failed:', e.message); return null; }),
+      fetchHealth(GROUPIE_URL).catch(e => { console.error('Groupie health failed:', e.message); return null; }),
+    ]);
+
     // Where they came from, and the weekly Best-of (which the email links to).
     const [sources, weekly] = await Promise.all([
       fetchSources(GROUPIE_URL, yesterdayISO).catch(e => { console.error('Sources failed:', e.message); return null; }),
       fetchWeeklyPlays(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('Weekly plays failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, sources, weekly });
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, sources, weekly, wwQueue, groupieQueue });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
     const fromEmail = emailTotals(sources);
@@ -194,6 +202,23 @@ async function fetchWorkerStats(baseUrl, adminToken, dayISO) {
   return await res.json();
 }
 
+// Public /api/health: { today, queued, through } = puzzles on file from today.
+async function fetchHealth(baseUrl) {
+  const res = await fetch(`${baseUrl}/api/health`);
+  if (!res.ok) throw new Error(`health API ${res.status}`);
+  return await res.json();
+}
+
+// One line under a game card: how far ahead its puzzles run, in red when
+// it is time to check the scheduled task that writes them.
+function queueLine(q, lowAt, taskName) {
+  if (!q) return `<div style="margin-top:10px;font-size:12px;color:#c0622e;">Puzzle queue unreachable (/api/health)</div>`;
+  const low = (q.queued || 0) < lowAt;
+  const colour = low ? '#c0622e' : '#8a857d';
+  const warn = low ? ` · <strong>low: check the "${taskName}" scheduled task</strong>` : '';
+  return `<div style="margin-top:10px;font-size:12px;color:${colour};">Puzzles on file to ${q.through || '—'} (${q.queued || 0} days)${warn}</div>`;
+}
+
 // ── Sources: the guff-bar visit pings, aggregated by groupie ─────────────────
 // { date, games: { pqd: { visits, completed, refs: { friday: { visits, completed } } }, … } }
 
@@ -278,7 +303,7 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, sources, weekly }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, sources, weekly, wwQueue, groupieQueue }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
   // Summary strip: the six player counts side by side.
@@ -372,13 +397,15 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
 
   const wwCard = whatword
     ? gameCard('What Word', '#ff48b0', 'what-word',
-        tile(whatword.players, 'players', 'big') + tile(whatword.avgScore === null ? null : whatword.avgScore + '/3', 'avg score') + tile(whatword.allTime ? whatword.allTime.players : null, 'all-time plays'))
-    : gameCard('What Word', '#ff48b0', 'what-word', tile(null, 'unreachable', 'big'));
+        tile(whatword.players, 'players', 'big') + tile(whatword.avgScore === null ? null : whatword.avgScore + '/3', 'avg score') + tile(whatword.allTime ? whatword.allTime.players : null, 'all-time plays'),
+        queueLine(wwQueue, 14, 'Weekly What Word top-up'))
+    : gameCard('What Word', '#ff48b0', 'what-word', tile(null, 'unreachable', 'big'), queueLine(wwQueue, 14, 'Weekly What Word top-up'));
 
   const groupieCard = groupie
     ? gameCard('Groupie', '#00c2cc', 'groupie.fun',
-        tile(groupie.players, 'players', 'big') + tile(groupie.solveRate === null || groupie.solveRate === undefined ? null : groupie.solveRate + '%', 'solved it') + tile(groupie.avgMistakes ?? null, 'avg slips') + tile(groupie.allTime ? groupie.allTime.players : null, 'all-time plays'))
-    : gameCard('Groupie', '#00c2cc', 'groupie.fun', tile(null, 'unreachable', 'big'));
+        tile(groupie.players, 'players', 'big') + tile(groupie.solveRate === null || groupie.solveRate === undefined ? null : groupie.solveRate + '%', 'solved it') + tile(groupie.avgMistakes ?? null, 'avg slips') + tile(groupie.allTime ? groupie.allTime.players : null, 'all-time plays'),
+        queueLine(groupieQueue, 8, 'Groupie weekly grids'))
+    : gameCard('Groupie', '#00c2cc', 'groupie.fun', tile(null, 'unreachable', 'big'), queueLine(groupieQueue, 8, 'Groupie weekly grids'));
 
   // Words and Guff Daily (took Twentee's place 20 Sept 2026): how many found the day's best
   // play, and the board's best under the tiles. boardsThrough is when the puzzle files run out.
