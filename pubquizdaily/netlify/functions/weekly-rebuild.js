@@ -70,13 +70,17 @@ exports.handler = async function(event) {
     // From 23 Oct 2026 only the featured game is fetched (see weekly-preview.js).
     const newShape = fridayISO >= wp.NEW_SHAPE_FROM;
     const featurePromo = newShape ? await wp.buildFeaturePromo(fridayISO) : null;
+    const cheeredPromo = newShape ? await wp.buildCheeredPromo(fridayISO).catch(err => {
+      console.error('rebuild: most-cheered line failed, omitting it:', err.message);
+      return null;
+    }) : null;
     const legacy = (fn) => newShape ? Promise.resolve(null) : fn();
 
     const whenlyPromo = await legacy(() => wp.buildWhenlyPromo(fridayISO)).catch(err => {
       console.error('rebuild: Whenly promo failed, omitting block:', err.message);
       return null;
     });
-    const aiWhenlyNote = newShape ? `${week.lineupNote}; ${featurePromo.note}` : whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
+    const aiWhenlyNote = newShape ? `${week.lineupNote}; ${featurePromo.note}; ${cheeredPromo ? cheeredPromo.note : 'no most-cheered line this week'}` : whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
 
     const whatwordPromo = await legacy(() => wp.buildWhatWordPromo(fridayISO)).catch(err => {
       console.error('rebuild: What Word promo failed, omitting block:', err.message);
@@ -108,7 +112,7 @@ exports.handler = async function(event) {
     const cleanHtml = wp.buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo,
+      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo, cheeredPromo,
       plan: week.plan, taster: copy.taster, tasterLabel: copy.tasterLabel, pqdOpener: week.pqdOpener,
     });
     const subject = wp.subjectFor(fridayISO, subjectQ);
