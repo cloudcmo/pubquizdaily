@@ -1,0 +1,211 @@
+{
+ "game": "hexadec",
+ "source": "hexadec/public/days.js tiles; the four source words regenerated with tools/day.mjs buildDay (each matches the shipped tiles), past days 2026-09-11 to 2026-10-22",
+ "items": [
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "C I B L C U Y M K S A H B A A L",
+   "reveal": "The four words it was built from: BULK, SCAM, ACHY, BAIL."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "S I L E C G A T S H G E F V U I",
+   "reveal": "The four words it was built from: FILE, VICE, TAGS, GUSH."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "E A S I C N S F R R U W E T E P",
+   "reveal": "The four words it was built from: STEW, FEAR, RICE, PUNS."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "E A R X H C U V K P O S D I A E",
+   "reveal": "The four words it was built from: RAVE, OUCH, APEX, KIDS."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "H A R P P F M U T E O W G I B E",
+   "reveal": "The four words it was built from: BEEF, POUT, WHAM, GRIP."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "D A E D A M D K D I W S S C O B",
+   "reveal": "The four words it was built from: SWAB, DADS, DIME, DOCK."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "C D O G S O S I S O B L R O P N",
+   "reveal": "One way to use every tile: BIDS, CLOG, POOR, SONS."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "I T M R W P F O E S O I O P L G",
+   "reveal": "The four words it was built from: PRIM, WITS, POLE, GOOF."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "K S R O D M O O N A N O R T B K",
+   "reveal": "The four words it was built from: SORT, BONK, DOOM, NARK."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "E G E N N I S D R I S T G W S U",
+   "reveal": "The four words it was built from: GIGS, WREN, TIDE, SUNS."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "E C H U D M U I N P M T I A Y R",
+   "reveal": "The four words it was built from: MINE, PAIR, DUTY, MUCH."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "P T H E A E E L Y M Y H N R C V",
+   "reveal": "The four words it was built from: HEEL, MYTH, CARP, ENVY."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "O G R F V R Y S M C E A K S A P",
+   "reveal": "The four words it was built from: FROG, YAKS, CAMP, REVS."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "O W S E Y R H K L U L N E I O K",
+   "reveal": "The four words it was built from: LOOK, HUNK, RELY, WISE."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "T E T E A L D Z L E A S I B D L",
+   "reveal": "The four words it was built from: EAST, BELL, DITZ, LEAD."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "E T P R P T W O P S U N P N E O",
+   "reveal": "The four words it was built from: PUPS, WENT, TONE, PROP."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "F F A L S E B D S Y E S P F O X",
+   "reveal": "The four words it was built from: FOBS, PAYS, FLEX, FEDS."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "A M E N I K E E D S I Y R I L L",
+   "reveal": "The four words it was built from: LIKE, YARN, DIES, MILE."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "Y G S U E H R T V E L A Y E W A",
+   "reveal": "The four words it was built from: TEAR, SWAY, HUGE, LEVY."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "E M L R V N I A A M G E E T H R",
+   "reveal": "One way to use every tile: AHEM, EARL, GRIM, VENT."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "M T R R S O E C E V E V O I K F",
+   "reveal": "The four words it was built from: EVES, VETO, FIRM, ROCK."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "R N A F T M P K F D A A C F I U",
+   "reveal": "The four words it was built from: PAIN, DAFT, CUFF, MARK."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "F U F E O A G K B O W S U F R R",
+   "reveal": "The four words it was built from: GAFF, RUBS, FOUR, WOKE."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "F F X E I E U E A R L D F I T T",
+   "reveal": "The four words it was built from: FIRE, FLAT, FEUD, EXIT."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "H T R E R W Y I R I Z T A A E C",
+   "reveal": "The four words it was built from: RAZE, TIRE, WARY, ITCH."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "A A Q P O E O Y P U E C S H I P",
+   "reveal": "The four words it was built from: QUIP, AHOY, COPE, APES."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "V M L O T T E I A E V I A D E L",
+   "reveal": "The four words it was built from: VILE, DOVE, TEAM, TAIL."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "C S S A S P U Y N R S W P A T E",
+   "reveal": "The four words it was built from: PUNS, REPS, CATS, SWAY."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "M E U R B S S E S G O W U F M S",
+   "reveal": "The four words it was built from: RUGS, MUMS, FEES, BOWS."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "B O R O N E T Y B A P W E K S A",
+   "reveal": "The four words it was built from: BABY, SOAP, TOWN, REEK."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "P E O R L B T V L R E A O K L F",
+   "reveal": "The four words it was built from: BLOT, FALL, PORK, VEER."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "E X S O O D Y P T B W S R Y I A",
+   "reveal": "The four words it was built from: RIOT, SWAB, DOPY, SEXY."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "B P S D K U P R R Y B O O E O E",
+   "reveal": "One way to use every tile: BEDS, BOOK, POUR, PREY."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "P E H U B T E C U N A A M D T R",
+   "reveal": "The four words it was built from: DUCT, BATH, NAME, PURE."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "M D O E L S W T O U K T B I S O",
+   "reveal": "The four words it was built from: SWIM, TOLD, TUSK, OBOE."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "G P A P N E L O R E I G S Y O H",
+   "reveal": "The four words it was built from: GIGS, HYPE, LOON, PARE."
+  },
+  {
+   "prompt": "Hidden in these sixteen tiles: four four-letter words, every tile used once. How quickly can you spot them?",
+   "detail": "E C C A K K E O M T R A L T E A",
+   "reveal": "The four words it was built from: COMA, TALE, CAKE, TREK."
+  },
+  {
+   "prompt": "Sixteen letters, four words of four. No tile left over. Fancy a go?",
+   "detail": "R M E O M T I S U F N R H Y R E",
+   "reveal": "The four words it was built from: HERS, FURY, EMIT, NORM."
+  },
+  {
+   "prompt": "Can you split these sixteen tiles into four four-letter words?",
+   "detail": "U B T C S O S T R Y L I S A H A",
+   "reveal": "The four words it was built from: TAIL, YOBS, SUCH, ARTS."
+  },
+  {
+   "prompt": "Sixteen tiles, four hidden four-letter words. Can you see them?",
+   "detail": "L Y P I U E C U T A C D S D K S",
+   "reveal": "The four words it was built from: CUTE, DUDS, CLAY, SKIP."
+  },
+  {
+   "prompt": "Four four-letter words use every one of these sixteen tiles exactly once. Can you find them?",
+   "detail": "E R D S E A O E C N O S Y H N S",
+   "reveal": "One way to use every tile: ACED, EONS, HENS, ROSY."
+  }
+ ]
+}

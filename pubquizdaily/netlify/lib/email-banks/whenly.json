@@ -1,0 +1,222 @@
+{
+ "game": "whenly",
+ "source": "Whenly published questions from the Google Sheet (local backup sheet-backup-2026-10-06), dated 2026-07-26 to 2026-10-05",
+ "items": [
+  {
+   "prompt": "When was Doctor Who first broadcast on the BBC?",
+   "reveal": "Answer: 1963. The day after JFK was shot, which rather stole its thunder."
+  },
+  {
+   "prompt": "When was the National Health Service founded?",
+   "reveal": "Answer: 1948. Aneurin Bevan's big idea."
+  },
+  {
+   "prompt": "When did Tim Berners-Lee write the proposal that became the World Wide Web?",
+   "reveal": "Answer: 1989. \"Vague but exciting,\" wrote his boss on the cover."
+  },
+  {
+   "prompt": "When did the original Mini go on sale?",
+   "reveal": "Answer: 1959. Designed by Alec Issigonis. Four wheels, next to no boot, and endless charm."
+  },
+  {
+   "prompt": "When did Live Aid fill Wembley Stadium for famine relief?",
+   "reveal": "Answer: 1985. Queen stole the show in twenty minutes flat."
+  },
+  {
+   "prompt": "When did Coronation Street air its very first episode?",
+   "reveal": "Answer: 1960. Still going strong."
+  },
+  {
+   "prompt": "When did Alexander Fleming spot the stray mould that gave us penicillin?",
+   "reveal": "Answer: 1928. The tidiest accident in medical history began in a very untidy lab."
+  },
+  {
+   "prompt": "When did Big Ben, the bell, ring out for the first time?",
+   "reveal": "Answer: 1859. The bell, not the tower. That one's worth points down the pub."
+  },
+  {
+   "prompt": "When did Queen release Bohemian Rhapsody as a single?",
+   "reveal": "Answer: 1975. Six minutes long. The record company nearly fainted."
+  },
+  {
+   "prompt": "When did Sir Clive Sinclair's ZX Spectrum go on sale?",
+   "reveal": "Answer: 1982. 48K of memory and a loading screech you can still hear now."
+  },
+  {
+   "prompt": "When did the Spice Girls release their debut single, Wannabe?",
+   "reveal": "Answer: 1996. Girl power arrived."
+  },
+  {
+   "prompt": "When did Monty Python's Flying Circus first appear on the BBC?",
+   "reveal": "Answer: 1969. And now for something completely different."
+  },
+  {
+   "prompt": "When was Louise Brown, the world's first IVF baby, born in Oldham?",
+   "reveal": "Answer: 1978."
+  },
+  {
+   "prompt": "When did Blackpool Tower open to the public?",
+   "reveal": "Answer: 1894. The Eiffel Tower, but with more rock and donkeys."
+  },
+  {
+   "prompt": "When did the United Kingdom join the European Economic Community?",
+   "reveal": "Answer: 1973. In on New Year's Day. Leaving took rather longer."
+  },
+  {
+   "prompt": "When did Concorde make its maiden flight?",
+   "reveal": "Answer: 1969. Mach 2, a droopy nose, and dinner in New York before you left."
+  },
+  {
+   "prompt": "When did Fawlty Towers first check in on BBC Two?",
+   "reveal": "Answer: 1975. Twelve episodes. Not one of them wasted."
+  },
+  {
+   "prompt": "When did Cadbury launch its Dairy Milk bar?",
+   "reveal": "Answer: 1905. A glass and a half of full-cream milk, and a nation hooked."
+  },
+  {
+   "prompt": "When did Rick Astley's Never Gonna Give You Up hit number one in the UK?",
+   "reveal": "Answer: 1987. Decades early for its true calling: the internet's oldest prank."
+  },
+  {
+   "prompt": "When did The Great British Bake Off first air?",
+   "reveal": "Answer: 2010. Cakes, a tent, and the gentlest reality TV ever made."
+  },
+  {
+   "prompt": "When was the Penny Black, the world's first adhesive postage stamp, issued?",
+   "reveal": "Answer: 1840. Rowland Hill's idea. Lick, stick, and away it went."
+  },
+  {
+   "prompt": "When was the Angel of the North installed near Gateshead?",
+   "reveal": "Answer: 1998. 175 tonnes of rusty steel, with wings wider than a jumbo jet."
+  },
+  {
+   "prompt": "When did Wham! release Last Christmas?",
+   "reveal": "Answer: 1984. Kept off number one at the time. Utterly immortal since."
+  },
+  {
+   "prompt": "When did Decimal Day arrive, swapping shillings for new pence?",
+   "reveal": "Answer: 1971. Farewell half-crowns, farthings and thruppenny bits."
+  },
+  {
+   "prompt": "When did The Beano publish its very first issue?",
+   "reveal": "Answer: 1938."
+  },
+  {
+   "prompt": "When did the Eden Project open its giant biomes in a Cornish clay pit?",
+   "reveal": "Answer: 2001. The world's biggest greenhouses, dropped into a hole near St Austell."
+  },
+  {
+   "prompt": "When did the world's first underground railway open, in London?",
+   "reveal": "Answer: 1863. Steam trains. Underground. The Victorians feared absolutely nothing."
+  },
+  {
+   "prompt": "When did the first Raspberry Pi, a tiny British computer, go on sale?",
+   "reveal": "Answer: 2012. A credit-card-sized computer for about 25 pounds. It sold out in hours."
+  },
+  {
+   "prompt": "When did Halley's Comet last swing past Earth?",
+   "reveal": "Answer: 1986. Next due in 2061."
+  },
+  {
+   "prompt": "When did London introduce its congestion charge?",
+   "reveal": "Answer: 2003. Ken Livingstone's fiver to drive into town."
+  },
+  {
+   "prompt": "When did the Sinclair C5 battery tricycle go on sale?",
+   "reveal": "Answer: 1985. 15mph, and terrifying next to a lorry."
+  },
+  {
+   "prompt": "When was Marmite first produced, in Burton-on-Trent?",
+   "reveal": "Answer: 1902. Yeast extract from brewers' leftovers. Divisive from day one."
+  },
+  {
+   "prompt": "When was Three Lions first released?",
+   "reveal": "Answer: 1996. For the European Championship held in England."
+  },
+  {
+   "prompt": "When did England bring in the 5p charge for carrier bags?",
+   "reveal": "Answer: 2015. And suddenly everyone owned nineteen bags for life."
+  },
+  {
+   "prompt": "When did The Italian Job, with its Mini getaway, open in cinemas?",
+   "reveal": "Answer: 1969. Michael Caine, three Minis and a coach left hanging over a cliff."
+  },
+  {
+   "prompt": "When did the Sony Walkman go on sale?",
+   "reveal": "Answer: 1979. Suddenly your music came with you."
+  },
+  {
+   "prompt": "When did Waddingtons of Leeds launch the board game Cluedo?",
+   "reveal": "Answer: 1949. Dreamed up in wartime Britain to pass the hours indoors."
+  },
+  {
+   "prompt": "When was the very first FA Cup final played?",
+   "reveal": "Answer: 1872. Wanderers lifted it, at the Kennington Oval."
+  },
+  {
+   "prompt": "When did Dr. No, the very first James Bond film, reach cinemas?",
+   "reveal": "Answer: 1962. Sean Connery, a Walther PPK, and sixty-odd years of sequels."
+  },
+  {
+   "prompt": "When did Channel 4 launch, opening with Countdown?",
+   "reveal": "Answer: 1982. A new channel, and a clock that's been ticking ever since."
+  },
+  {
+   "prompt": "When was the famous surgeon's photograph of the Loch Ness Monster published?",
+   "reveal": "Answer: 1934. Much later, it was confessed to be a hoax."
+  },
+  {
+   "prompt": "When was Dolly the Sheep, the first cloned mammal, born?",
+   "reveal": "Answer: 1996. Named after Dolly Parton, for reasons best not dwelt upon."
+  },
+  {
+   "prompt": "When did Arsenal go through an entire league season unbeaten?",
+   "reveal": "Answer: 2004. Thirty-eight games, not a single defeat."
+  },
+  {
+   "prompt": "When did Frankie Dettori ride all seven winners on a single card at Ascot?",
+   "reveal": "Answer: 1996. The bookies wept."
+  },
+  {
+   "prompt": "When were the world's first traffic lights installed outside Parliament?",
+   "reveal": "Answer: 1868. Gas-powered, and they promptly exploded."
+  },
+  {
+   "prompt": "When did Stephen Hawking publish A Brief History of Time?",
+   "reveal": "Answer: 1988. The best-selling book that almost nobody actually finished."
+  },
+  {
+   "prompt": "When did a British-invented CT scanner scan its first patient?",
+   "reveal": "Answer: 1971. Funded, improbably, by profits from the Beatles' record label."
+  },
+  {
+   "prompt": "When was Bagpuss first shown on children's television?",
+   "reveal": "Answer: 1974. Only thirteen episodes were ever made."
+  },
+  {
+   "prompt": "When was the first London Marathon run?",
+   "reveal": "Answer: 1981. The two leaders crossed the line holding hands. Very British."
+  },
+  {
+   "prompt": "When did John Logie Baird demonstrate the first working television?",
+   "reveal": "Answer: 1926. A ventriloquist's dummy, flickering, in a Soho attic."
+  },
+  {
+   "prompt": "When did the London Eye open to the public?",
+   "reveal": "Answer: 2000. Meant to be temporary."
+  },
+  {
+   "prompt": "When was Harry Potter and the Philosopher's Stone first published?",
+   "reveal": "Answer: 1997. A first print run of just 500 copies."
+  },
+  {
+   "prompt": "When did Dennis Taylor beat Steve Davis on the final black?",
+   "reveal": "Answer: 1985. 18.5 million watched him wag his finger, past midnight."
+  },
+  {
+   "prompt": "When did Helen Sharman become the first Briton in space?",
+   "reveal": "Answer: 1991. A chemist from Sheffield who answered an advert on the radio."
+  }
+ ]
+}

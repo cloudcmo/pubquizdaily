@@ -1,0 +1,271 @@
+{
+  "game": "groupie",
+  "source": "Groupie D1 database (days table), grids dated 2026-08-01 to 2026-10-22",
+  "items": [
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "SPACED · RICE · PORRIDGE · LOAF · COB · BLACKADDER · MIRANDA · BLACK",
+      "reveal": "British sitcoms: PORRIDGE, BLACKADDER, MIRANDA, SPACED"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BOWIE · WHITTAKER · BECKHAM · ECCLESTON · HOCKNEY · AGENT · CAPALDI · TENNANT",
+      "reveal": "Doctor Who actors: TENNANT, ECCLESTON, WHITTAKER, CAPALDI"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "MAIDEN · GULLY · DUCK · SWIFT · MAY · SLIP · PONY · ROBIN",
+      "reveal": "Cricket terms: DUCK, GULLY, SLIP, MAIDEN"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BABY · BACON · MOUSY · BOUNCY · BLONDE · SPORTY · SCARY · POSH",
+      "reveal": "Spice Girls: POSH, SCARY, BABY, SPORTY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "HOBNOB · SAUSAGE · LOO · OLD KENT ROAD · BOURBON · STRAND · ANGEL · MAYFAIR",
+      "reveal": "On the Monopoly board: MAYFAIR, STRAND, ANGEL, OLD KENT ROAD"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "HILL · THISTLE · COXON · CHAPMAN · GRIN · ROSE · NORTON · DALE",
+      "reveal": "Famous Grahams: NORTON, COXON, CHAPMAN, HILL"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BOOT · BEEF · WOGAN · SCAMPI · MATCH · COD · DUKE · BOMBER",
+      "reveal": "What Wellington might refer to: BOOT, BEEF, DUKE, BOMBER"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "QUID · TOOTHPASTE · TEACUP · BELLY · ZEBRA · TROPHY · WASP · BADGER",
+      "reveal": "Things that are striped: BADGER, ZEBRA, WASP, TOOTHPASTE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "DEKKO · TINFOIL · LIP · STEAK · CRUST · SHUFTI · BUTCHERS · GANDER",
+      "reveal": "British slang for 'look': BUTCHERS, GANDER, SHUFTI, DEKKO"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BULL · FUR · TEBAY · WIRE · RIVER · MEMBURY · LEICESTER FOREST · GORDANO",
+      "reveal": "Motorway service stations: LEICESTER FOREST, MEMBURY, GORDANO, TEBAY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "COTTAGE · SHOULDER · CASINO · HUMBLE · SALAD · CHOCOLATE · POTATO · CRACKING",
+      "reveal": "What 'chip' might refer to: POTATO, CASINO, SHOULDER, CHOCOLATE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BOWL · YARM · PORTS · ALE · BOURNE · UNION · TWIRL · DART",
+      "reveal": "Words before MOUTH (British towns): PORTS, DART, BOURNE, YARM"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "MARR · FLINTOFF · MURRAY · BEST · LEEK · ROAST · LLOYD WEBBER · OXTAIL",
+      "reveal": "Famous Andrews: MURRAY, MARR, FLINTOFF, LLOYD WEBBER"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "SCARFACE · HATSTAND · NUTS · SPANNER · HAMMER · SUITABLE · CRISPS · COATTAILS",
+      "reveal": "Starting with items of clothing: HATSTAND, COATTAILS, SCARFACE, SUITABLE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "CABBAGE · PLACE · DUST · BASE · SOUL · SUPER · PEAS · RAZE",
+      "reveal": "Homophones of British fish: PLACE, SOUL, BASE, RAZE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "LUSH · MEERKAT · PENGUIN · TIDY · KNOCK · FIT · PENG · NAFF",
+      "reveal": "British slang for 'attractive': FIT, TIDY, LUSH, PENG"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "COLD · TOSH · BALDERDASH · BACON · CODSWALLOP · PONDEROUS · POPPYCOCK · SENSE",
+      "reveal": "British slang for 'nonsense': CODSWALLOP, BALDERDASH, TOSH, POPPYCOCK"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "RICH · WAND · BARK · CHOP · SOFA · TAXI · BELT · HACK",
+      "reveal": "Starts of London boroughs: HACK, BARK, WAND, RICH"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "THUMB · NOD · SUBTLE · DEBT · LAMB · SPADE · RIB · RAKE",
+      "reveal": "Silent B: LAMB, THUMB, DEBT, SUBTLE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "LEMON · MORECAMBE · CLUE · CLEESE · BULLETIN · MISLEAD · MARIGOLD · GRIDIRON",
+      "reveal": "Ending in metals: BULLETIN, GRIDIRON, MISLEAD, MARIGOLD"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BRIGHTON · SEVERN · PUNK · TRIFLE · BATH · THAMES · STONE · MUSIC",
+      "reveal": "What rock might refer to: BRIGHTON, MUSIC, STONE, PUNK"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "SUPPER · BUILDER'S · MADEIRA · BREW · DEAL · ROOT · BATTENBERG · GOSSIP",
+      "reveal": "What 'tea' might refer to: BREW, SUPPER, BUILDER'S, GOSSIP"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "FOG · STAG · LIPSTICK · HORN · TOAST · WINDOWS · KEYS · POLISH",
+      "reveal": "Things that can be 'French': TOAST, HORN, WINDOWS, POLISH"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "FLEET · TIDE · BAKER · HARLEY · FISH · DOWNING · RULER · COURT",
+      "reveal": "Words before 'street' (British place names): DOWNING, HARLEY, BAKER, FLEET"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "JACKET · PRINGLES · GENTRY · QUEENDOM · ACETATE · HP · WALKERS · KINGSWAY",
+      "reveal": "Starting with playing cards: ACETATE, JACKET, QUEENDOM, KINGSWAY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "CHERRY · PIT · BEEF · COAL · GRAY · LAMB · PEAL · BLARE",
+      "reveal": "Homophones of British Prime Ministers: BLARE, PIT, PEAL, GRAY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "DRAGON · MUPPET · TESCO · RAREBIT · DRESSER · MISTY · WALLY · CAKES",
+      "reveal": "Things that can be 'Welsh': CAKES, DRAGON, DRESSER, RAREBIT"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "CAT · BEER · BRASS · NUT · ELASTIC · CURD · SNAP · FRUIT",
+      "reveal": "Things that can be 'ginger': BEER, CAT, NUT, SNAP"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "GLENN · FLEE · WHIST · RUMMY · ARTHUR · SIENNA · BARNEY · HENRY",
+      "reveal": "___ Miller: GLENN, ARTHUR, SIENNA, HENRY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BROWN · SHELLEY · BLAKE · KEATS · MINT · TUNA · SPEECH · BYRON",
+      "reveal": "British Romantic poets (surnames): KEATS, BLAKE, BYRON, SHELLEY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "HONEY · SAILOR · CELERY · JOKE · TWIG · MOO · HARVEST · BLUE",
+      "reveal": "___ moon: HONEY, BLUE, HARVEST, SAILOR"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "GRAVY · DIVE · MERCHANT · WEST · BOTTLE · KICK · LEFT · BANGERS",
+      "reveal": "___ bank: LEFT, BOTTLE, MERCHANT, WEST"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "SHAMPOO · CHAIN · BUNGALOW · SPIKE · PYJAMAS · CIRRUS · STONE · JUNGLE",
+      "reveal": "Words English borrowed from Hindi and Urdu: SHAMPOO, BUNGALOW, JUNGLE, PYJAMAS"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "DUST · ZIP · SANCTION · GOD · COG · CLEAVE · OVERSIGHT · PENNE",
+      "reveal": "Words that can mean their own opposite: CLEAVE, SANCTION, DUST, OVERSIGHT"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "TANGERINE · MARATHON · BIKINI · INK · HARP · NIKE · DENIM · CELLO",
+      "reveal": "Named after places: DENIM, BIKINI, MARATHON, TANGERINE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "SATURNINE · BOWLINE · GRANNY · MERCURIAL · JOVIAL · REEF · MARTIAL · TINSEL",
+      "reveal": "Adjectives that come from the planets: JOVIAL, MARTIAL, MERCURIAL, SATURNINE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "CHINA · MUG · DRAKE · WHIPPET · BEAGLE · TOM · JACK · BILLY",
+      "reveal": "Names for male animals: TOM, BILLY, JACK, DRAKE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "TOOTH · DOGGER · SLEET · VIKING · BAILEY · FOG · FISHER · JACKAL",
+      "reveal": "Shipping Forecast sea areas: VIKING, DOGGER, FISHER, BAILEY"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "ROOK · MURDER · BUSINESS · PRIDE · LIVID · PARLIAMENT · WIND · PAWN",
+      "reveal": "Collective nouns for animals: PARLIAMENT, MURDER, BUSINESS, PRIDE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "HOOVER · SANDWICH · RAGLAN · BIRO · CARDIGAN · SECOND · WELLINGTON · ESSAY",
+      "reveal": "Named after British aristocrats: CARDIGAN, WELLINGTON, SANDWICH, RAGLAN"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "PRESTO · BROGUE · ALLEGRO · SLOB · LARGO · ADAGIO · LOAFER · WHEEL",
+      "reveal": "Musical tempo markings: LARGO, PRESTO, ALLEGRO, ADAGIO"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "MAST · YACHT · TROUT · SKIPPER · EASEL · LANDSCAPE · WATT · STERN",
+      "reveal": "Words English borrowed from Dutch: YACHT, EASEL, LANDSCAPE, SKIPPER"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "FOAL · CYGNET · KID · JERSEY · ANGUS · LEVERET · BACON · TURNER",
+      "reveal": "Names for young animals: CYGNET, LEVERET, FOAL, KID"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BATED · SINS · DINT · HERO · MILD · KITH · PORTER · SHRIFT",
+      "reveal": "Found almost only in one fixed phrase: KITH, DINT, SHRIFT, BATED"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "BUCKET · DUST · ADMIRAL · VELVET · TWEED · BEGIN · CLOGS · DAISIES",
+      "reveal": "Last words of idioms meaning to die: BUCKET, CLOGS, DUST, DAISIES"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "CHORTLE · TOPAZ · SMOG · SCOWL · GLAMPING · BRUNCH · JULIAN · OPAL",
+      "reveal": "Blends of two words: SMOG, BRUNCH, CHORTLE, GLAMPING"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "RUMBA · SALVAGE · SPANNER · CAN · ROPE · CANDLESTICK · DAGGER · WALTZ",
+      "reveal": "Weapons in Cluedo: ROPE, DAGGER, CANDLESTICK, SPANNER"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "GEORGIA · HELVETICA · GORMLESS · JAGUAR · LYNX · ARIAL · COURIER · MALT",
+      "reveal": "Typefaces: COURIER, GEORGIA, ARIAL, HELVETICA"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "KILO · ROMEO · OXEN · LEAR · HAMLET · HOTEL · HEAVEN · OSCAR",
+      "reveal": "Words in the NATO phonetic alphabet: ROMEO, KILO, HOTEL, OSCAR"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "ONION · BALL · FOOD · TENNIS · CROWN · DEER · KANGAROO · CARROT",
+      "reveal": "What court might refer to: TENNIS, CROWN, FOOD, KANGAROO"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "HOME · BUNK · LEG IT · SALT · PRAWN · BOLT · SCARPER · LIBRARY",
+      "reveal": "British slang for 'run away': SCARPER, BOLT, LEG IT, BUNK"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "SORE · BOAT · SHIRT · LEGAL · KETCHUP · PROOF · BLOOD · CHICKEN",
+      "reveal": "What 'tender' might refer to: LEGAL, CHICKEN, BOAT, SORE"
+    },
+    {
+      "prompt": "Four of these eight go together. Which?",
+      "detail": "VOTES · CREAM · DOG · TANTRUM · SPECS · FRENZY · WELL · PROPER",
+      "reveal": "Things that can be 'whipped': CREAM, FRENZY, VOTES, DOG"
+    }
+  ]
+}

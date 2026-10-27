@@ -1,0 +1,34 @@
+name: Weekly promote staging to main
+
+# Netlify charges 15 credits per production deploy, so main is only updated
+# once a week. Thursday 08:00 UTC is 09:00 UK in summer, 08:00 in winter,
+# well before the Thursday 18:30 UK preview email runs.
+on:
+  schedule:
+    - cron: "0 8 * * 4"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: Merge staging into main if it has anything new
+        run: |
+          git config user.name "weekly-promote"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch origin staging
+          NEW=$(git rev-list --count main..origin/staging)
+          if [ "$NEW" = "0" ]; then
+            echo "Nothing new on staging. No deploy this week."
+            exit 0
+          fi
+          echo "$NEW new commit(s) on staging. Promoting."
+          git merge --no-ff origin/staging -m "Weekly promote staging to main"
+          git push origin main

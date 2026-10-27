@@ -1,0 +1,246 @@
+{
+  "game": "spellbound",
+  "source": "Spellbound v1 buildDay (live until 21 Oct 2026) run in Node for each date's seed, with public/words.js, days 2026-08-31 to 2026-10-21",
+  "items": [
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with P and ended in S. Can you name it?",
+      "detail": "Also hiding that day: STATIC, TALENT, TIGHT, VITAL, BRASS and HAIL.",
+      "reveal": "It was PUZZLES. The rest of the dozen: MIST, DUAL, VEND, PAN and NOT."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from C to T. Got it?",
+      "detail": "Also hiding that day: ERASER, DEPEND, THEFT, FENCE, PLAIN and TACK.",
+      "reveal": "It was CONNECT. The rest of the dozen: BOUT, VICE, EATS, LIE and DID."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with D and ends with C?",
+      "detail": "Also hiding that day: ROCKET, NUMBER, SOUND, READS, CURRY and FOOL.",
+      "reveal": "It was DRASTIC. The rest of the dozen: RING, BEEF, SAKI, JAM and SIX."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting C, ending E. Any ideas?",
+      "detail": "Also hiding that day: OTHERS, REVOLT, CROSS, HARSH, LEARN and DIET.",
+      "reveal": "It was COMPETE. The rest of the dozen: AXES, COME, LACK, ROD and PAN."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with C and ended in S. Can you name it?",
+      "detail": "Also hiding that day: HASSLE, INSIDE, READS, PRIOR, STATE and CURE.",
+      "reveal": "It was CHEQUES. The rest of the dozen: PENS, PLEA, GREY, DOT and BAN."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from B to T. Got it?",
+      "detail": "Also hiding that day: DONATE, PRISON, RANTS, PICKS, LAYER and MILD.",
+      "reveal": "It was BENEFIT. The rest of the dozen: LEAN, KEEN, WELL, DUE and TEN."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with T and ends with Y?",
+      "detail": "Also hiding that day: URGING, DIFFER, GOALS, MORAL, DRIVE and VERY.",
+      "reveal": "It was TIGHTLY. The rest of the dozen: MORE, MAKE, SWUM, FIX and ARM."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting S, ending S. Any ideas?",
+      "detail": "Also hiding that day: FISHES, MINUTE, GIVES, SLEPT, SHOUT and LEAK.",
+      "reveal": "It was SUBWAYS. The rest of the dozen: PEER, WADE, DOGS, ROW and TOY."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with P and ended in S. Can you name it?",
+      "detail": "Also hiding that day: NATION, MOTIVE, HATES, SUNNY, CURSE and HASH.",
+      "reveal": "It was PLAYERS. The rest of the dozen: OPUS, UNDO, FELT, LAG and FAR."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from S to G. Got it?",
+      "detail": "Also hiding that day: BASHED, SCALED, CLOSE, GIVEN, TOOTH and TINY.",
+      "reveal": "It was SHINING. The rest of the dozen: HOST, RACE, SAIL, EAT and WAR."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with D and ends with Y?",
+      "detail": "Also hiding that day: VENDOR, TOPICS, FEWER, DRIVE, NAMED and BASH.",
+      "reveal": "It was DISPLAY. The rest of the dozen: SUMS, WADE, VANS, ROT and LAG."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting M, ending S. Any ideas?",
+      "detail": "Also hiding that day: BUILDS, ATOMIC, HOOKS, BURST, LUNCH and OPTS.",
+      "reveal": "It was MOMENTS. The rest of the dozen: GRAB, FUEL, ONUS, TIN and GET."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with V and ended in R. Can you name it?",
+      "detail": "Also hiding that day: NEWEST, INCURS, SHOOT, SPEND, LOVER and FOOD.",
+      "reveal": "It was VISITOR. The rest of the dozen: THAN, TOWN, BUSS, HAS and CAP."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from H to G. Got it?",
+      "detail": "Also hiding that day: BLAMES, PUTTED, ERROR, FORTY, TITLE and TINY.",
+      "reveal": "It was HANGING. The rest of the dozen: SPAN, WAIT, BOSS, VAN and SIT."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with T and ends with Y?",
+      "detail": "Also hiding that day: TACTIC, CONCUR, TENDS, DODGE, JOINT and THEY.",
+      "reveal": "It was TERRIFY. The rest of the dozen: JEST, SOME, ONTO, BUS and AGO."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting R, ending D. Any ideas?",
+      "detail": "Also hiding that day: TRADES, IMPAIR, HAIRS, BROWN, TESTS and ONCE.",
+      "reveal": "It was RELAXED. The rest of the dozen: JOBS, FELT, WOOD, AIR and GUY."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with U and ended in Y. Can you name it?",
+      "detail": "Also hiding that day: TESTED, AROUND, EDGES, LAUGH, WOODS and AIMS.",
+      "reveal": "It was UTILITY. The rest of the dozen: PUNT, HEAP, VOTE, DOE and MUD."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from R to S. Got it?",
+      "detail": "Also hiding that day: MUMBLE, HATING, THUMB, DREAM, MERGE and TELL.",
+      "reveal": "It was RESULTS. The rest of the dozen: WHIM, NODE, NINE, INK and RAT."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with M and ends with S?",
+      "detail": "Also hiding that day: DINING, UNTIDY, VAGUE, WORKS, BOXES and SUMS.",
+      "reveal": "It was MOTHERS. The rest of the dozen: TOAD, LEAN, EGGS, CUP and TAB."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting W, ending D. Any ideas?",
+      "detail": "Also hiding that day: VICTIM, SHADES, VENDS, POEMS, LENDS and TOME.",
+      "reveal": "It was WRECKED. The rest of the dozen: GRID, RODE, MOVE, TAG and PUT."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with A and ended in S. Can you name it?",
+      "detail": "Also hiding that day: COPING, ECHOED, GREEN, FRIES, MOONS and HIDE.",
+      "reveal": "It was ARRESTS. The rest of the dozen: SLIM, FLAT, UPON, BOY and PAT."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from R to Y. Got it?",
+      "detail": "Also hiding that day: ORIGIN, LOCALS, POURS, FORMS, TANKS and PLEA.",
+      "reveal": "It was RAILWAY. The rest of the dozen: ORAL, CAVE, LOAN, NOR and SAT."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with K and ends with D?",
+      "detail": "Also hiding that day: SWEARS, RAREST, USERS, FILES, FATAL and DROP.",
+      "reveal": "It was KNOCKED. The rest of the dozen: SMUG, WILD, DEAD, NEW and MAN."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting M, ending S. Any ideas?",
+      "detail": "Also hiding that day: IGNORE, PENCIL, WORSE, RISEN, DRINK and WREN.",
+      "reveal": "It was MONKEYS. The rest of the dozen: BEAT, WORN, PART, TON and WHY."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with A and ended in Y. Can you name it?",
+      "detail": "Also hiding that day: HUMBLY, PAUSED, FAULT, MINES, POLLS and SONS.",
+      "reveal": "It was ANYBODY. The rest of the dozen: TIED, MARK, WEEK, DON and CON."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from G to R. Got it?",
+      "detail": "Also hiding that day: DEFECT, SOUNDS, GEARS, DOORS, CARDS and JUST.",
+      "reveal": "It was GRAMMAR. The rest of the dozen: BATH, CHAP, PLUS, RUN and EAR."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with S and ends with G?",
+      "detail": "Also hiding that day: THINKS, CHOSEN, POWER, STARE, JUMPS and INFO.",
+      "reveal": "It was SACKING. The rest of the dozen: WIND, LIMB, JUMP, WAY and LOW."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting Q, ending R. Any ideas?",
+      "detail": "Also hiding that day: DROWNS, FLOORS, TESTS, HOBBY, FOUND and CULT.",
+      "reveal": "It was QUARTER. The rest of the dozen: DOES, EDGE, TALL, RAN and TEA."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with M and ended in S. Can you name it?",
+      "detail": "Also hiding that day: SIGNED, NESTED, WAITS, STAND, OMITS and FACT.",
+      "reveal": "It was MUSEUMS. The rest of the dozen: PINK, LIPS, SAYS, ARM and VET."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from I to R. Got it?",
+      "detail": "Also hiding that day: WEEKLY, RECORD, LUCKY, TEACH, SHIFT and FLAG.",
+      "reveal": "It was INSOFAR. The rest of the dozen: HAND, DARE, BUSY, LEG and GUT."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with D and ends with D?",
+      "detail": "Also hiding that day: FALLEN, BULLET, LUMPS, ROADS, TOWER and DOLE.",
+      "reveal": "It was DRIPPED. The rest of the dozen: SOME, VICE, SPIT, BYE and TOP."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting W, ending G. Any ideas?",
+      "detail": "Also hiding that day: MANUAL, CRIMES, FORMS, DRIED, TIGER and WEAR.",
+      "reveal": "It was WASTING. The rest of the dozen: ONUS, ORAL, HEAR, PAR and BEG."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with P and ended in D. Can you name it?",
+      "detail": "Also hiding that day: AGENCY, JOINED, CHAOS, FIFTH, DITTO and HERO.",
+      "reveal": "It was PLUGGED. The rest of the dozen: BOOK, YEAR, PADS, RAW and SHE."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from S to G. Got it?",
+      "detail": "Also hiding that day: AWARDS, SNEAKY, SCOPE, RAINS, LYING and INCH.",
+      "reveal": "It was SPACING. The rest of the dozen: SWIM, ACTS, LAWN, NAY and CUT."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with C and ends with L?",
+      "detail": "Also hiding that day: MUDDLE, DOOMED, RACED, BEARD, HABIT and FISH.",
+      "reveal": "It was COUNCIL. The rest of the dozen: MIST, DINE, SEED, PEN and GUM."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting E, ending S. Any ideas?",
+      "detail": "Also hiding that day: TACTIC, HORDES, FROZE, PAPER, SUITE and SINK.",
+      "reveal": "It was ENGINES. The rest of the dozen: DASH, TOPS, AXES, DRY and MAN."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with H and ended in G. Can you name it?",
+      "detail": "Also hiding that day: VOTERS, TICKET, FLAGS, THICK, SALES and UGLY.",
+      "reveal": "It was HANDING. The rest of the dozen: LONG, OWED, DRAG, RUN and AXE."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from C to N. Got it?",
+      "detail": "Also hiding that day: BASKET, RUSHES, ORGAN, LUCKY, SLICE and POET.",
+      "reveal": "It was CURTAIN. The rest of the dozen: AKIN, RISK, DREW, WHY and HER."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with I and ends with S?",
+      "detail": "Also hiding that day: SHOCKS, PURELY, SONGS, FLASH, COATS and RUIN.",
+      "reveal": "It was IGNORES. The rest of the dozen: TAKE, NEAR, BILL, LAD and BOW."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting S, ending D. Any ideas?",
+      "detail": "Also hiding that day: NEATLY, HASTEN, METRO, LEADS, FEWER and EACH.",
+      "reveal": "It was SHIPPED. The rest of the dozen: SHOW, DOSE, NECK, PET and FRY."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with F and ended in H. Can you name it?",
+      "detail": "Also hiding that day: FORMAL, EXPORT, CHEAP, QUERY, POINT and SUED.",
+      "reveal": "It was FOOLISH. The rest of the dozen: WIPE, DUTY, RARE, BAY and HUM."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from V to S. Got it?",
+      "detail": "Also hiding that day: EQUATE, DOCTOR, SPITE, CLOSE, TITLE and WIPE.",
+      "reveal": "It was VIRUSES. The rest of the dozen: WILD, ALSO, HEEL, BED and BIG."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with S and ends with D?",
+      "detail": "Also hiding that day: TREATS, ELEVEN, JOLLY, SMITH, WAVES and DUMP.",
+      "reveal": "It was SKILLED. The rest of the dozen: PUTS, HEAR, FANS, OAR and ART."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting B, ending S. Any ideas?",
+      "detail": "Also hiding that day: REGION, WORLDS, MINED, COULD, UNITY and HEAP.",
+      "reveal": "It was BULLETS. The rest of the dozen: BARE, CAGE, SHIP, ACE and OWN."
+    },
+    {
+      "prompt": "Twelve words hid in one day's falling letters. The longest had seven letters, began with G and ended in S. Can you name it?",
+      "detail": "Also hiding that day: CUDDLY, ARTIST, COOKS, PATCH, JEANS and LOOK.",
+      "reveal": "It was GATHERS. The rest of the dozen: LEGS, SELL, PINT, ERR and TOE."
+    },
+    {
+      "prompt": "One day's drop hid a dozen words. The big one was seven letters long, from P to G. Got it?",
+      "detail": "Also hiding that day: BOOKED, TOMATO, ENTER, MOUTH, SPOUT and WONT.",
+      "reveal": "It was PULLING. The rest of the dozen: RAID, CURE, PLUS, PAR and MUD."
+    },
+    {
+      "prompt": "Letters fell, and twelve words were hiding in them. Can you guess the seven-letter one that starts with O and ends with S?",
+      "detail": "Also hiding that day: THREAT, BLOCKS, RIGHT, PILLS, SMITH and ONCE.",
+      "reveal": "It was OBLIGES. The rest of the dozen: SPOT, BUCK, OBEY, FAT and GOT."
+    },
+    {
+      "prompt": "A dozen words were woven into one day's drop. The longest: seven letters, starting P, ending G. Any ideas?",
+      "detail": "Also hiding that day: SPEEDS, MISUSE, SHOWN, MOUTH, RAVED and WHAT.",
+      "reveal": "It was POPPING. The rest of the dozen: BENT, TORN, FEEL, AND and DIE."
+    }
+  ]
+}

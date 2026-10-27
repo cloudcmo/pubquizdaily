@@ -1,0 +1,281 @@
+{
+  "game": "wordminer",
+  "source": "Wordminer daily boards #1 to #28 (25 Sep to 22 Oct 2026), rebuilt with the game's own generator (public/app.js + themes.js)",
+  "items": [
+    {
+      "prompt": "On 25 September the Wordminer theme was Kitchen. The board hid words like these:",
+      "detail": "G _ _ T _ _,  W _ _ S _,  J _ G",
+      "reveal": "GRATER, WHISK, JUG"
+    },
+    {
+      "prompt": "Board #1 (Kitchen) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "T _ _ S _,  O _ _ N,  P _ N",
+      "reveal": "TOAST, OVEN, PAN"
+    },
+    {
+      "prompt": "On 26 September the Wordminer theme was Garden. The board hid words like these:",
+      "detail": "H _ _ G _,  M _ _ S,  R _ _ E",
+      "reveal": "HEDGE, MOSS, ROSE"
+    },
+    {
+      "prompt": "Board #2 (Garden) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ D _,  P _ _ D,  S _ _ D",
+      "reveal": "SPADE, POND, SHED"
+    },
+    {
+      "prompt": "On 27 September the Wordminer theme was Weather. The board hid words like these:",
+      "detail": "C _ _ U _,  S _ _ R _,  S _ _ W",
+      "reveal": "CLOUD, STORM, SNOW"
+    },
+    {
+      "prompt": "Board #3 (Weather) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ E _,  R _ _ N,  S _ N",
+      "reveal": "SLEET, RAIN, SUN"
+    },
+    {
+      "prompt": "On 28 September the Wordminer theme was the seaside. The board hid words like these:",
+      "detail": "B _ _ C _,  D _ _ E,  T _ _ E",
+      "reveal": "BEACH, DUNE, TIDE"
+    },
+    {
+      "prompt": "Board #4 (the seaside) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ L _,  S _ _ D,  W _ _ E",
+      "reveal": "SHELL, SAND, WAVE"
+    },
+    {
+      "prompt": "On 29 September the Wordminer theme was Pub. The board hid words like these:",
+      "detail": "C _ _ E _,  S _ _ U _,  S _ _ G",
+      "reveal": "CIDER, STOUT, SNUG"
+    },
+    {
+      "prompt": "Board #5 (Pub) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "D _ _ T _,  P _ _ T,  A _ E",
+      "reveal": "DARTS, PINT, ALE"
+    },
+    {
+      "prompt": "On 30 September the Wordminer theme was Birds. The board hid words like these:",
+      "detail": "F _ _ C _,  C _ _ W,  S _ _ N",
+      "reveal": "FINCH, CROW, SWAN"
+    },
+    {
+      "prompt": "Board #6 (Birds) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "R _ _ I _,  R _ _ K,  W _ _ N",
+      "reveal": "ROBIN, ROOK, WREN"
+    },
+    {
+      "prompt": "On 1 October the Wordminer theme was Tools. The board hid words like these:",
+      "detail": "H _ _ M _ _,  F _ _ E,  V _ _ E",
+      "reveal": "HAMMER, FILE, VICE"
+    },
+    {
+      "prompt": "Board #7 (Tools) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "L _ _ E _,  N _ _ L,  S _ W",
+      "reveal": "LEVEL, NAIL, SAW"
+    },
+    {
+      "prompt": "On 2 October the Wordminer theme was Music. The board hid words like these:",
+      "detail": "T _ _ P _,  B _ _ T,  O _ _ E",
+      "reveal": "TEMPO, BEAT, OBOE"
+    },
+    {
+      "prompt": "Board #8 (Music) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "V _ _ L _,  N _ _ E,  T _ _ E",
+      "reveal": "VIOLA, NOTE, TUNE"
+    },
+    {
+      "prompt": "On 3 October the Wordminer theme was Space. The board hid words like these:",
+      "detail": "C _ _ E _,  P _ _ T _,  M _ _ S",
+      "reveal": "COMET, PLUTO, MARS"
+    },
+    {
+      "prompt": "Board #9 (Space) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "O _ _ I _,  D _ _ T,  S _ N",
+      "reveal": "ORBIT, DUST, SUN"
+    },
+    {
+      "prompt": "On 4 October the Wordminer theme was Breakfast. The board hid words like these:",
+      "detail": "C _ _ M _ _ T,  J _ _ C _,  J _ M",
+      "reveal": "CRUMPET, JUICE, JAM"
+    },
+    {
+      "prompt": "Board #10 (Breakfast) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "B _ _ O _,  E _ G,  T _ A",
+      "reveal": "BACON, EGG, TEA"
+    },
+    {
+      "prompt": "On 5 October the Wordminer theme was Bakery. The board hid words like these:",
+      "detail": "S _ _ N _,  C _ _ E,  R _ _ L",
+      "reveal": "SCONE, CAKE, ROLL"
+    },
+    {
+      "prompt": "Board #11 (Bakery) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "Y _ _ S _,  L _ _ F,  T _ _ T",
+      "reveal": "YEAST, LOAF, TART"
+    },
+    {
+      "prompt": "On 6 October the Wordminer theme was Farm. The board hid words like these:",
+      "detail": "T _ _ C _ _ R,  C _ _ P,  C _ W",
+      "reveal": "TRACTOR, CROP, COW"
+    },
+    {
+      "prompt": "Board #12 (Farm) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ E _,  G _ _ T,  H _ N",
+      "reveal": "SHEEP, GOAT, HEN"
+    },
+    {
+      "prompt": "On 7 October the Wordminer theme was Trees. The board hid words like these:",
+      "detail": "W _ _ L _ _,  R _ _ A _,  E _ M",
+      "reveal": "WILLOW, ROWAN, ELM"
+    },
+    {
+      "prompt": "Board #13 (Trees) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "H _ _ E _,  P _ _ E,  Y _ W",
+      "reveal": "HAZEL, PINE, YEW"
+    },
+    {
+      "prompt": "On 8 October the Wordminer theme was Rivers. The board hid words like these:",
+      "detail": "B _ _ D _ _,  B _ _ D,  F _ _ W",
+      "reveal": "BRIDGE, BEND, FLOW"
+    },
+    {
+      "prompt": "Board #14 (Rivers) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "B _ _ K,  E _ _ Y,  W _ _ R",
+      "reveal": "BANK, EDDY, WEIR"
+    },
+    {
+      "prompt": "On 9 October the Wordminer theme was Chess. The board hid words like these:",
+      "detail": "B _ _ H _ _,  D _ _ W,  P _ _ N",
+      "reveal": "BISHOP, DRAW, PAWN"
+    },
+    {
+      "prompt": "Board #15 (Chess) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "B _ _ R _,  M _ _ E,  R _ _ K",
+      "reveal": "BOARD, MOVE, ROOK"
+    },
+    {
+      "prompt": "On 10 October the Wordminer theme was Cricket. The board hid words like these:",
+      "detail": "U _ _ I _ _,  B _ _ L,  S _ _ N",
+      "reveal": "UMPIRE, BAIL, SPIN"
+    },
+    {
+      "prompt": "Board #16 (Cricket) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ M _,  O _ _ R,  R _ N",
+      "reveal": "STUMP, OVER, RUN"
+    },
+    {
+      "prompt": "On 11 October the Wordminer theme was Cheese. The board hid words like these:",
+      "detail": "R _ _ N _ _,  B _ _ E,  F _ _ A",
+      "reveal": "RENNET, BRIE, FETA"
+    },
+    {
+      "prompt": "Board #17 (Cheese) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "B _ _ E,  E _ _ M,  R _ _ D",
+      "reveal": "BLUE, EDAM, RIND"
+    },
+    {
+      "prompt": "On 12 October the Wordminer theme was Camping. The board hid words like these:",
+      "detail": "F _ _ S _,  S _ _ V _,  R _ _ E",
+      "reveal": "FLASK, STOVE, ROPE"
+    },
+    {
+      "prompt": "Board #18 (Camping) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ E _,  P _ _ E,  P _ G",
+      "reveal": "SLEEP, POLE, PEG"
+    },
+    {
+      "prompt": "On 13 October the Wordminer theme was the office. The board hid words like these:",
+      "detail": "B _ _ G _,  P _ _ N _,  M _ _ O",
+      "reveal": "BADGE, PRINT, MEMO"
+    },
+    {
+      "prompt": "Board #19 (the office) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "I _ _ O _,  D _ _ K,  P _ N",
+      "reveal": "INBOX, DESK, PEN"
+    },
+    {
+      "prompt": "On 14 October the Wordminer theme was Hats. The board hid words like these:",
+      "detail": "B _ _ N _ _,  B _ _ E _,  C _ P",
+      "reveal": "BEANIE, BERET, CAP"
+    },
+    {
+      "prompt": "Board #20 (Hats) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "B _ _ L _ _,  V _ _ O _,  F _ Z",
+      "reveal": "BOWLER, VISOR, FEZ"
+    },
+    {
+      "prompt": "On 15 October the Wordminer theme was Pond life. The board hid words like these:",
+      "detail": "H _ _ O _,  L _ _ Y,  R _ _ D",
+      "reveal": "HERON, LILY, REED"
+    },
+    {
+      "prompt": "Board #21 (Pond life) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ I _,  N _ _ T,  T _ _ D",
+      "reveal": "SNAIL, NEWT, TOAD"
+    },
+    {
+      "prompt": "On 16 October the Wordminer theme was Pasta. The board hid words like these:",
+      "detail": "G _ _ C _ _ I,  P _ _ N _,  Z _ _ I",
+      "reveal": "GNOCCHI, PENNE, ZITI"
+    },
+    {
+      "prompt": "On 17 October the Wordminer theme was Railway. The board hid words like these:",
+      "detail": "S _ _ N _ _,  S _ _ A _,  R _ _ L",
+      "reveal": "SIGNAL, STEAM, RAIL"
+    },
+    {
+      "prompt": "Board #23 (Railway) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "D _ _ O _,  T _ _ I _",
+      "reveal": "DEPOT, TRAIN"
+    },
+    {
+      "prompt": "On 18 October the Wordminer theme was Knitting. The board hid words like these:",
+      "detail": "S _ _ T _ _,  K _ _ T,  Y _ _ N",
+      "reveal": "STITCH, KNIT, YARN"
+    },
+    {
+      "prompt": "Board #24 (Knitting) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "C _ _ L _,  W _ _ L,  R _ W",
+      "reveal": "CABLE, WOOL, ROW"
+    },
+    {
+      "prompt": "On 19 October the Wordminer theme was Board games. The board hid words like these:",
+      "detail": "B _ _ R _,  D _ _ E,  R _ _ E",
+      "reveal": "BOARD, DICE, RULE"
+    },
+    {
+      "prompt": "Board #25 (Board games) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "T _ _ E _,  P _ _ N,  T _ _ N",
+      "reveal": "TOKEN, PAWN, TURN"
+    },
+    {
+      "prompt": "On 20 October the Wordminer theme was Gardening tools. The board hid words like these:",
+      "detail": "S _ _ A _ _,  S _ _ D _,  C _ N",
+      "reveal": "SHEARS, SPADE, CAN"
+    },
+    {
+      "prompt": "Board #26 (Gardening tools) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "S _ _ V _,  H _ _ E,  H _ E",
+      "reveal": "SIEVE, HOSE, HOE"
+    },
+    {
+      "prompt": "On 21 October the Wordminer theme was Body. The board hid words like these:",
+      "detail": "E _ _ O _,  B _ _ W,  S _ _ N",
+      "reveal": "ELBOW, BROW, SHIN"
+    },
+    {
+      "prompt": "Board #27 (Body) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "W _ _ S _,  H _ _ L,  L _ G",
+      "reveal": "WRIST, HEEL, LEG"
+    },
+    {
+      "prompt": "On 22 October the Wordminer theme was Colours. The board hid words like these:",
+      "detail": "A _ _ E _,  G _ _ Y,  N _ _ Y",
+      "reveal": "AMBER, GREY, NAVY"
+    },
+    {
+      "prompt": "Board #28 (Colours) tucked these words between the mines. Can you fill the gaps?",
+      "detail": "O _ _ R _,  J _ _ E,  R _ _ E",
+      "reveal": "OCHRE, JADE, ROSE"
+    }
+  ]
+}
