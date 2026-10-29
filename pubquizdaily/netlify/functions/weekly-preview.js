@@ -255,6 +255,10 @@ exports.handler = async function() {
     // per-game promos below are for sends in the old shape.
     const newShape = fridayISO >= NEW_SHAPE_FROM;
     const featurePromo = newShape ? await buildFeaturePromo(fridayISO) : null;
+    const cheeredPromo = newShape ? await buildCheeredPromo(fridayISO).catch(err => {
+      console.error('Most-cheered line failed, omitting it:', err);
+      return null;
+    }) : null;
     const legacy = (fn) => newShape ? Promise.resolve(null) : fn();
 
     // Whenly cross-promo — teases the SEND day's live Whenly questions. Fully
@@ -263,7 +267,7 @@ exports.handler = async function() {
       console.error('Whenly promo failed, omitting block:', err);
       return null;
     });
-    const aiWhenlyNote = newShape ? `${week.lineupNote}; ${featurePromo.note}` : whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
+    const aiWhenlyNote = newShape ? `${week.lineupNote}; ${featurePromo.note}; ${cheeredPromo ? cheeredPromo.note : 'no most-cheered line this week'}` : whenlyPromo ? whenlyPromo.note : 'no Whenly promo this week';
 
     // What Word cross-promo — teases the SEND day's three words. Same
     // best-effort contract as Whenly: any failure just omits the block.
@@ -298,7 +302,7 @@ exports.handler = async function() {
     const cleanHtml = buildTeaserHtml({
       kicker: copy.kicker, headline: copy.headline, intro: copy.intro,
       hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo,
-      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo,
+      wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo, cheeredPromo,
       plan: week.plan, taster: copy.taster, tasterLabel: copy.tasterLabel, pqdOpener: week.pqdOpener,
     });
     const subject = subjectFor(fridayISO, subjectQ);
@@ -1187,7 +1191,40 @@ function buildPqdCard({ pqdOpener, taster, statText }) {
 // Module 3: all the games, on the hub. Night-sky navy and gold, the hub's own
 // colours. The picture is the hub itself (rendered from ~/code/guffhub in demo
 // mode on 16 Oct 2026, corners baked on this navy). Retake it if the hub changes.
-function buildAllGamesBlock() {
+// Most cheered score of the week (27 Oct 2026). Players cheer each other's scores on
+// the league; the score with the most people cheering it in the seven days before the
+// send gets one line in the All the Guff games module. Needs at least two people, so a
+// quiet week shows nothing. Best-effort: any failure returns null and the line is omitted.
+const LEAGUE_URL = 'https://league.carlosfandango.net/';
+const CHEER_GAME_NAMES = {
+  guffitaire: 'Guffitaire', pqd: 'Pub Quiz Daily', wagdaily: 'Words and Guff Daily', hexadec: 'Hexadec',
+  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', groupie: 'Groupie',
+  spellbound: 'Spellbound', whatword: 'What Word', guffinoes: 'Guffinoes',
+};
+async function buildCheeredPromo(fridayISO) {
+  const from = addDaysISO(fridayISO, -7), to = addDaysISO(fridayISO, -1);
+  const res = await fetch(`https://groupie.carlosfandango.net/api/league/cheered?from=${from}&to=${to}&n=1`, { signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(`cheered ${res.status}`);
+  const d = await res.json();
+  const top = d && d.top && d.top[0];
+  if (!top || !CHEER_GAME_NAMES[top.g] || (top.people || 0) < 2) return null;
+  return { ...top, name: CHEER_GAME_NAMES[top.g], note: `most cheered: ${top.ini} ${top.g} ${top.disp} (${top.people} people)` };
+}
+
+function cheeredLine(c) {
+  if (!c) return '';
+  const emoji = (c.emoji || []).filter(e => e !== 'guffbot').slice(0, 3).map(escapeAttr).join(' ');
+  const url = withRef(`${LEAGUE_URL}player/${encodeURIComponent(c.ini)}`, 'cheered');
+  return `
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin-top:26px;"><tr>
+        <td style="border-top:1px solid #2a3a63;padding-top:20px;font-family:Arial,Helvetica,sans-serif;font-size:15px;line-height:1.5;color:#d6cfc0;" align="center">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:#ffb347;padding-bottom:6px;">Most cheered this week ${emoji}</div>
+          <a href="${url}" style="color:#ffffff;text-decoration:none;"><strong style="letter-spacing:0.08em;">${escapeAttr(c.ini)}</strong>’s ${escapeAttr(c.name)}${c.disp ? ` <strong>${escapeAttr(c.disp)}</strong>` : ''}</a>, cheered by ${c.people} players
+        </td>
+      </tr></table>`;
+}
+
+function buildAllGamesBlock(cheered) {
   const url = withRef(HUB_URL, 'hub');
   const navy = '#0b1430', gold = '#ffb347';
   return `
@@ -1201,7 +1238,7 @@ function buildAllGamesBlock() {
         <td align="center" bgcolor="${gold}" style="background-color:${gold};border-radius:10px;">
           <a href="${url}" style="display:inline-block;padding:15px 34px;font-family:Arial,Helvetica,sans-serif;font-size:16px;font-weight:700;color:#1b2430;text-decoration:none;">See all the games &rarr;</a>
         </td>
-      </tr></table>
+      </tr></table>${cheeredLine(cheered)}
     </td></tr></table>
   </td></tr>`;
 }
@@ -1231,7 +1268,7 @@ function buildWordsAndGuffFeature() {
   </td></tr>`;
 }
 
-function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo, plan, taster, tasterLabel, pqdOpener }) {
+function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, whenlyPromo, whatwordPromo, groupiePromo, wagdailyPromo, spellboundPromo, guffinoesPromo, hexadecPromo, featurePromo, cheeredPromo, plan, taster, tasterLabel, pqdOpener }) {
   const newShape = fridayISO >= NEW_SHAPE_FROM;
   const heroBlock = hero ? `
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td>
@@ -1334,7 +1371,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
 
   // From 23 Oct 2026: the featured game above the quiz, then only the hub module below it.
   const familyBlocks = newShape
-    ? buildAllGamesBlock()
+    ? buildAllGamesBlock(cheeredPromo)
     : familyHeader + shownGames.map((g, i) => gameBlock(g, i === 0)).join('') + allGamesLink;
 
   // The feature block sits between the masthead and the quiz card.
@@ -1496,6 +1533,7 @@ module.exports.buildGuffitairePromo = buildGuffitairePromo;
 module.exports.buildHexadecPromo = buildHexadecPromo;
 module.exports.buildTeaserHtml = buildTeaserHtml;
 module.exports.buildFeaturePromo = buildFeaturePromo;
+module.exports.buildCheeredPromo = buildCheeredPromo;
 module.exports.featureFor = featureFor;
 module.exports.buildWeekParts = buildWeekParts;
 module.exports.PLAN_FROM = PLAN_FROM;
