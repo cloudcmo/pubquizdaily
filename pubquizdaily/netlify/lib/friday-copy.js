@@ -87,7 +87,7 @@ const OPENERS = {
   ],
   spellbound: [
     'Have you tried Spellbound? Letters fall, and a dozen words are hiding in the drop. Spell ten before the pile buries you.',
-    'Spellbound is word Tetris, daily: letters tumble in, and you clear them by spelling words.',
+    'Spellbound is a daily falling-letters game: letters tumble in, and you clear them by spelling words.',
     'A dozen words hide in each day\'s falling letters. Spellbound asks you to find ten before it is too late.',
     'Falling letters, hidden words, and a pile that keeps on growing. That is Spellbound.',
     'Spellbound rewards quick eyes: the words are all there, if you can see them in time.',
