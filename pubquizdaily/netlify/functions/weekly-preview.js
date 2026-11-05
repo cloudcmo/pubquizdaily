@@ -847,7 +847,7 @@ function peekWagDailyRack(day) {
 
 function buildSpellboundPromo() {
   return {
-    teaser: 'Letters fall, Tetris-style, and a dozen words are hiding in today\'s drop. Spell ten of them before the pile buries you.',
+    teaser: 'Letters tumble down, and a dozen words are hiding in today\'s drop. Spell ten of them before the pile buries you.',
     note: 'Spellbound teaser is template copy by design',
   };
 }
@@ -1035,7 +1035,7 @@ const FEATURES = {
   groupie: { name: 'Groupie', line: 'Your daily four play', bg: '#6c4288', url: GROUPIE_URL, cta: "Play today's grid",
     pitch: 'Sixteen words, four hidden groups of four. Some of them are there to trip you up.',
     peek: async d => peekGroupieGrid(await fetchGroupieGrid(d), d) },
-  spellbound: { name: 'Spellbound', line: 'Word Tetris, daily', bg: '#2563c9', url: SPELLBOUND_URL, cta: "Play today's letters",
+  spellbound: { name: 'Spellbound', line: 'Falling letters, daily', bg: '#2563c9', url: SPELLBOUND_URL, cta: "Play today's letters",
     pitch: "Letters fall and a dozen words are hiding in today's drop. Spell ten of them before the pile buries you." },
   whatword: { name: 'What Word', line: 'Three unusual words a day', bg: '#3d5588', url: WHATWORD_URL, cta: "Play today's three",
     pitch: 'Three words you have probably never used. Can you tell what they mean?',
@@ -1341,7 +1341,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
       teaser: groupiePromo.teaser, peek: groupiePromo.peek, url: GROUPIE_URL, cta: "Play today's grid →",
     },
     (spellboundPromo && spellboundPromo.teaser) && {
-      key: 'spellbound', accent: '#2563c9', title: 'Spellbound - Word Tetris, Daily',
+      key: 'spellbound', accent: '#2563c9', title: 'Spellbound - Falling Letters, Daily',
       teaser: spellboundPromo.teaser, url: SPELLBOUND_URL, cta: "Play today's letters →",
     },
     (whatwordPromo && whatwordPromo.teaser) && {
