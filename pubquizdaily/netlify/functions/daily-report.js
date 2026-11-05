@@ -253,7 +253,7 @@ const SOURCE_GAMES = [
   // Order is Carl's ranking (Sep 2026), the same in every list. Wordminer and
   // Guffitaire (25 Sept 2026) have no stats API of their own yet, so the
   // docket's visited/finished counts here are their only line in this report.
-  ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
+  ['wordraver', 'Word Raver'], ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
   ['hexadec', 'Hexadec'], ['wordminer', 'Wordminer'], ['whenly', 'Whenly'], ['helmet', 'Helmet'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
   ['whatword', 'What Word'], ['guffinoes', 'Guffinoes'],
 ];

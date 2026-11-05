@@ -1,0 +1,56 @@
+{
+  "game": "wordraver",
+  "source": "Word Raver (was Guff3000) daily boards for 1 to 5 Nov 2026 (days #1 to #5), rebuilt with public/engine.js; pink = right letter, right place; blue = in the word",
+  "items": [
+    {
+      "prompt": "Board 1 of the 1 November Word Raver. GuffBot's guesses were your clues. What was the hidden word?",
+      "detail": "REMIX (E in the word),  HATCH (A right place; T in the word),  QUERY (E in the word)",
+      "reveal": "TASTE. 3 rows to find it in."
+    },
+    {
+      "prompt": "The three hidden words on 1 November. Each answer became GuffBot's first guess on the next board:",
+      "detail": "T _ _ _ _,  O _ _ _ _,  B _ _ _ _",
+      "reveal": "TASTE, OUGHT, BRAVO"
+    },
+    {
+      "prompt": "Board 1 of the 2 November Word Raver. GuffBot's guesses were your clues. What was the hidden word?",
+      "detail": "BOOZE (O, E right place),  MONEY (O, N, E in the word)",
+      "reveal": "STONE. 4 rows to find it in."
+    },
+    {
+      "prompt": "The three hidden words on 2 November. Each answer became GuffBot's first guess on the next board:",
+      "detail": "S _ _ _ _,  R _ _ _ _,  N _ _ _ _",
+      "reveal": "STONE, ROACH, NOISY"
+    },
+    {
+      "prompt": "Board 1 of the 3 November Word Raver. GuffBot's guesses were your clues. What was the hidden word?",
+      "detail": "DIRTY (T in the word),  BASIN (none of these letters)",
+      "reveal": "OUGHT. 4 rows to find it in."
+    },
+    {
+      "prompt": "The three hidden words on 3 November. Each answer became GuffBot's first guess on the next board:",
+      "detail": "O _ _ _ _,  T _ _ _ _,  Q _ _ _ _",
+      "reveal": "OUGHT, TROOP, QUAIL"
+    },
+    {
+      "prompt": "Board 1 of the 4 November Word Raver. GuffBot's guesses were your clues. What was the hidden word?",
+      "detail": "LEVEL (none of these letters),  SHIFT (T right place; S in the word)",
+      "reveal": "BURST. 4 rows to find it in."
+    },
+    {
+      "prompt": "The three hidden words on 4 November. Each answer became GuffBot's first guess on the next board:",
+      "detail": "B _ _ _ _,  L _ _ _ _,  G _ _ _ _",
+      "reveal": "BURST, LOVER, GOOSE"
+    },
+    {
+      "prompt": "Board 1 of the 5 November Word Raver. GuffBot's guesses were your clues. What was the hidden word?",
+      "detail": "STORY (S, T in the word),  WOMEN (E in the word)",
+      "reveal": "THESE. 4 rows to find it in."
+    },
+    {
+      "prompt": "The three hidden words on 5 November. Each answer became GuffBot's first guess on the next board:",
+      "detail": "T _ _ _ _,  S _ _ _ _,  C _ _ _ _",
+      "reveal": "THESE, SLATE, CHICK"
+    }
+  ]
+}

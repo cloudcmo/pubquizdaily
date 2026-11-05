@@ -14,6 +14,12 @@
 const PLAN_FROM = '2026-10-30';
 const PQD_LEAD_EVERY = 3;   // PQD leads on weeks 2, 5, 8... (30 Oct and 6 Nov lead with games)
 const GAMES = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly', 'helmet', 'groupie', 'spellbound', 'whatword'];
+// Games that joined after PLAN_FROM, and the first Friday they are in the rotation.
+// Every week before that replays exactly as it did, so past line-ups never change.
+// Word Raver (5 Nov 2026) leads its launch Friday, 13 Nov, by edition (weekly-preview.js
+// EDITIONS), then joins the rotation the Friday after.
+const JOINS = { wordraver: '2026-11-20' };
+const gamesOn = iso => GAMES.concat(Object.keys(JOINS).filter(k => iso >= JOINS[k]));
 
 function seededShuffle(arr, seed) {
   const a = [...arr];
@@ -34,17 +40,17 @@ const weekIndex = fridayISO =>
 // The last three of a run are moved to the middle of the next, so where two
 // runs meet no game leads twice within four weeks. Helmet led on 23 Oct, so
 // it goes to the back of the first run.
-const leadDecks = {};
-function leadDeck(c) {
-  if (leadDecks[c]) return leadDecks[c];
-  let d = seededShuffle(GAMES, `lead-${c}`);
+// Each deck is made from the games in the rotation on the Friday it is first needed
+// (gamesOn), and its tail comes from the deck before it.
+function leadDeck(c, list, prevDeck) {
+  let d = seededShuffle(list, `lead-${c}`);
   if (c === 0) { d.splice(d.indexOf('helmet'), 1); d.push('helmet'); }
-  if (c > 0) {
-    const tail = leadDeck(c - 1).slice(-3);
+  if (prevDeck) {
+    const tail = prevDeck.slice(-3);
     const rest = d.filter(k => !tail.includes(k));
     d = [...rest.slice(0, 3), ...d.filter(k => tail.includes(k)), ...rest.slice(3)];
   }
-  return (leadDecks[c] = d);
+  return d;
 }
 
 // editionLead(fridayISO) may return a key to force the lead for a one-off
@@ -55,11 +61,11 @@ function planFor(fridayISO, editionLead = () => null) {
 
   const cardStream = [];
   let cardCycle = 0;
-  const refill = () => { cardStream.push(...seededShuffle(GAMES, `cards-${cardCycle++}`)); };
+  const refill = iso => { cardStream.push(...seededShuffle(gamesOn(iso), `cards-${cardCycle++}`)); };
 
   const seen = {};          // appearances so far per key (lead or card), drives openers and examples
   const leadStream = [];    // the lead decks run end to end
-  let leadCycle = 0;
+  let leadCycle = 0, lastDeck = null;
   let prev = new Set();
   let plan = null;
 
@@ -67,13 +73,13 @@ function planFor(fridayISO, editionLead = () => null) {
     const iso = addDaysISO(PLAN_FROM, 7 * w);
     const forced = editionLead(iso);
     let lead;
-    if (forced === 'pqd' || GAMES.includes(forced)) lead = forced;
+    if (forced === 'pqd' || GAMES.includes(forced) || JOINS[forced]) lead = forced;
     else if (w % PQD_LEAD_EVERY === PQD_LEAD_EVERY - 1) lead = 'pqd';
     else {
       // Next game in the lead decks that wasn't in last Friday's email.
       let j = 0;
       for (;;) {
-        if (j >= leadStream.length) leadStream.push(...leadDeck(leadCycle++));
+        if (j >= leadStream.length) { lastDeck = leadDeck(leadCycle++, gamesOn(iso), lastDeck); leadStream.push(...lastDeck); }
         if (!prev.has(leadStream[j])) break;
         j++;
       }
@@ -84,7 +90,7 @@ function planFor(fridayISO, editionLead = () => null) {
     const cards = [];
     let i = 0;
     while (cards.length < need) {
-      if (i >= cardStream.length) refill();
+      if (i >= cardStream.length) refill(iso);
       const g = cardStream[i];
       if (g !== lead && !prev.has(g) && !cards.includes(g)) { cards.push(g); cardStream.splice(i, 1); }
       else i++;
@@ -114,4 +120,4 @@ function addDaysISO(iso, n) {
   return d.toISOString().slice(0, 10);
 }
 
-module.exports = { PLAN_FROM, GAMES, planFor, nth, seededShuffle };
+module.exports = { PLAN_FROM, GAMES, JOINS, planFor, nth, seededShuffle };
