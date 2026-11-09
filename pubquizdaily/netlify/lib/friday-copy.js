@@ -117,6 +117,14 @@ const OPENERS = {
     'Helmet rewards thinking two moves ahead: what falls when this word goes?',
     'Girders, dynamite and a site that can always be cleared. Helmet, a word game with a bit of demolition.',
   ],
+  wordraver: [
+    'Have you tried Word Raver? Three hidden words a day, a light show and a chiptune soundtrack. Sound on!',
+    "Word Raver is the newest Guff game: GuffBot has had a guess at three hidden words, and you finish them off.",
+    'Hands in the air. Every right letter in Word Raver lights a beam and brings in another layer of the music.',
+    "GuffBot's guesses are your clues in Word Raver. Find each hidden word in the rows he left you.",
+    'Word Raver scores out of 3000. Solve a board in one row, inside twenty seconds, for the full 1,000.',
+    'Throw your words in the air: Word Raver is a quick, trippy daily word game. Best with the sound on.',
+  ],
 };
 
 module.exports = { QUIZ_INTROS, PQD_CARD_OPENERS, OPENERS };

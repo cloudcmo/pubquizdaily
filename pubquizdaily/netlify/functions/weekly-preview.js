@@ -38,6 +38,7 @@ const BANKS = {
   wordminer:  loadBank(() => require('../lib/email-banks/wordminer.json')),
   guffitaire: loadBank(() => require('../lib/email-banks/guffitaire.json')),
   helmet:     loadBank(() => require('../lib/email-banks/helmet.json')),
+  wordraver:  loadBank(() => require('../lib/email-banks/wordraver.json')),
 };
 
 const BASE = 'https://pubquizdaily.com';
@@ -102,13 +103,15 @@ const HEXADEC_URL = process.env.HEXADEC_URL || 'https://hexadec.carlosfandango.n
 const WORDMINER_URL = process.env.WORDMINER_URL || 'https://wordminer.carlosfandango.net';
 const GUFFITAIRE_URL = process.env.GUFFITAIRE_URL || 'https://guffitaire.carlosfandango.net';
 const HELMET_URL = process.env.HELMET_URL || 'https://wordhelmet.carlosfandango.net';
+const WORDRAVER_URL = process.env.WORDRAVER_URL || 'https://wordraver.carlosfandango.net';
 // A new game carries a prominent NEW flash on every send dated on or before its
 // date here (a month from launch: Wordminer and Guffitaire were Carl's call on
 // 25 Sept 2026, which is also when Hexadec and W&G Daily lost theirs). It
 // lapses on its own; nothing to switch off. Change a date to extend it; add a
 // key (and isNew on its familyGames entry) for the next new game.
 // Helmet joined on 16 Oct 2026 and took the flash off Wordminer and Guffitaire.
-const NEW_UNTIL = { helmet: '2026-11-16' };
+// Word Raver (was Guff3000) joined on 5 Nov 2026, at the top of every list, and took the flash off Helmet.
+const NEW_UNTIL = { wordraver: '2026-12-05' };
 
 // ── One-off editions, keyed by the send date (the Friday) ──
 // A week listed here changes the email's shape for that send only; every other
@@ -133,6 +136,12 @@ const EDITIONS = {
   '2026-10-23': {
     subject: 'NEW: Helmet. Can you clear the building site?',
     feature: 'helmet',
+  },
+  // Word Raver's launch week (Carl, 5 Nov 2026: "feature it next week"): NEW in the subject,
+  // Word Raver leads instead of Pub Quiz Daily (which would have led this week), quiz card second.
+  '2026-11-13': {
+    subject: 'NEW: Word Raver. Throw your words in the air',
+    lead: 'wordraver',
   },
 };
 
@@ -1032,6 +1041,10 @@ const FEATURES = {
     url: HELMET_URL, cta: "Clear today's site",
     pitch: 'Spell words through any touching tiles, even round corners, and everything above comes crashing down. Mind the dynamite.',
     image: `${BASE}/email/helmet-site.jpg`, imageW: 300, imageH: 504, imageAlt: 'A Helmet building site, with GuffBot bending a word round a corner' },
+  wordraver: { name: 'Word Raver', line: 'Throw your words in the air', bg: '#1a0030', ink: '#ffffff', sub: '#ffc4f4', btnBg: '#ff2fd6', btnInk: '#1a0030',
+    url: WORDRAVER_URL, cta: "Play today's three words",
+    pitch: "GuffBot has had a go at three hidden words, and his guesses are your clues. Finish each one in the rows he left you, to a light show and a chiptune soundtrack. A perfect day scores 3000. Sound on!",
+    image: `${BASE}/email/wordraver-board.jpg`, imageW: 300, imageH: 520, imageAlt: "A Word Raver board: GuffBot's guesses glow pink and blue, and you find the hidden word" },
   groupie: { name: 'Groupie', line: 'Your daily four play', bg: '#6c4288', url: GROUPIE_URL, cta: "Play today's grid",
     pitch: 'Sixteen words, four hidden groups of four. Some of them are there to trip you up.',
     peek: async d => peekGroupieGrid(await fetchGroupieGrid(d), d) },
@@ -1198,7 +1211,7 @@ function buildPqdCard({ pqdOpener, taster, statText }) {
 const LEAGUE_URL = 'https://league.carlosfandango.net/';
 const CHEER_GAME_NAMES = {
   guffitaire: 'Guffitaire', pqd: 'Pub Quiz Daily', wagdaily: 'Words and Guff Daily', hexadec: 'Hexadec',
-  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', groupie: 'Groupie',
+  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', groupie: 'Groupie',
   spellbound: 'Spellbound', whatword: 'What Word', guffinoes: 'Guffinoes',
 };
 async function buildCheeredPromo(fridayISO) {
@@ -1230,7 +1243,7 @@ function buildAllGamesBlock(cheered) {
   return `
   <tr><td style="padding:18px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${navy}" style="background-color:${navy};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Eleven free daily games</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Twelve free daily games</div>
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:8px;">All the Guff games</div>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#d6cfc0;padding-bottom:22px;">Pick the ones you like and play them in your own order.</div>
       <a href="${url}" style="text-decoration:none;"><img src="${HUB_IMG}" width="260" height="457" alt="The Guff Games hub: GuffBot with the games orbiting him" style="display:block;width:260px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
