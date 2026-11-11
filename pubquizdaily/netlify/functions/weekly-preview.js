@@ -1243,7 +1243,7 @@ function buildAllGamesBlock(cheered) {
   return `
   <tr><td style="padding:18px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${navy}" style="background-color:${navy};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Twelve free daily games</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Nine free daily games</div>
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:8px;">All the Guff games</div>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#d6cfc0;padding-bottom:22px;">Pick the ones you like and play them in your own order.</div>
       <a href="${url}" style="text-decoration:none;"><img src="${HUB_IMG}" width="260" height="457" alt="The Guff Games hub: GuffBot with the games orbiting him" style="display:block;width:260px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>

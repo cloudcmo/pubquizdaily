@@ -19,7 +19,12 @@ const GAMES = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly', 'helm
 // Word Raver (5 Nov 2026) leads its launch Friday, 13 Nov, by edition (weekly-preview.js
 // EDITIONS), then joins the rotation the Friday after.
 const JOINS = { wordraver: '2026-11-20' };
-const gamesOn = iso => GAMES.concat(Object.keys(JOINS).filter(k => iso >= JOINS[k]));
+// Games that left the rotation, and the first Friday they are gone. Carl, 11 Nov 2026:
+// Hexadec and Spellbound became classic games (out of the daily list) and are no longer
+// in the Friday email. (Guffinoes was never in it.) Weeks before that replay as they were.
+const LEAVES = { hexadec: '2026-11-13', spellbound: '2026-11-13' };
+const gamesOn = iso => GAMES.concat(Object.keys(JOINS).filter(k => iso >= JOINS[k]))
+  .filter(k => !(LEAVES[k] && iso >= LEAVES[k]));
 
 function seededShuffle(arr, seed) {
   const a = [...arr];
@@ -71,6 +76,11 @@ function planFor(fridayISO, editionLead = () => null) {
 
   for (let w = 0; w <= n; w++) {
     const iso = addDaysISO(PLAN_FROM, 7 * w);
+    // A game that has left drops out of whatever was already dealt for later weeks.
+    const on = gamesOn(iso);
+    for (const stream of [leadStream, cardStream]) {
+      for (let i = stream.length - 1; i >= 0; i--) if (!on.includes(stream[i])) stream.splice(i, 1);
+    }
     const forced = editionLead(iso);
     let lead;
     if (forced === 'pqd' || GAMES.includes(forced) || JOINS[forced]) lead = forced;
@@ -120,4 +130,4 @@ function addDaysISO(iso, n) {
   return d.toISOString().slice(0, 10);
 }
 
-module.exports = { PLAN_FROM, GAMES, JOINS, planFor, nth, seededShuffle };
+module.exports = { PLAN_FROM, GAMES, JOINS, LEAVES, planFor, nth, seededShuffle };
