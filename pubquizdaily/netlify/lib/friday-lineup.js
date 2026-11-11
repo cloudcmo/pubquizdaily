@@ -18,7 +18,9 @@ const GAMES = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly', 'helm
 // Every week before that replays exactly as it did, so past line-ups never change.
 // Word Raver (5 Nov 2026) leads its launch Friday, 13 Nov, by edition (weekly-preview.js
 // EDITIONS), then joins the rotation the Friday after.
-const JOINS = { wordraver: '2026-11-20' };
+// Guff Tumble (11 Nov 2026) leads its launch Friday, 13 Nov, by edition, with Word Raver
+// as the card beside the quiz, then joins the rotation the Friday after.
+const JOINS = { wordraver: '2026-11-20', gufftumble: '2026-11-20' };
 // Games that left the rotation, and the first Friday they are gone. Carl, 11 Nov 2026:
 // Hexadec and Spellbound became classic games (out of the daily list) and are no longer
 // in the Friday email. (Guffinoes was never in it.) Weeks before that replay as they were.
@@ -60,7 +62,9 @@ function leadDeck(c, list, prevDeck) {
 
 // editionLead(fridayISO) may return a key to force the lead for a one-off
 // edition ('pqd' or a game key); anything else is ignored.
-function planFor(fridayISO, editionLead = () => null) {
+// editionCards(fridayISO) may return game keys to fill that Friday's cards first
+// (11 Nov 2026: Word Raver beside the quiz on Guff Tumble's launch Friday).
+function planFor(fridayISO, editionLead = () => null, editionCards = () => null) {
   const n = weekIndex(fridayISO);
   if (n < 0) return null;
 
@@ -98,6 +102,13 @@ function planFor(fridayISO, editionLead = () => null) {
 
     const need = lead === 'pqd' ? 2 : 1;
     const cards = [];
+    for (const k of editionCards(iso) || []) {
+      if (cards.length >= need || k === lead || k === 'pqd' || cards.includes(k)) continue;
+      if (!on.includes(k) && !JOINS[k]) continue;   // a game that has left can't be forced back in
+      cards.push(k);
+      const at = cardStream.indexOf(k);
+      if (at >= 0) cardStream.splice(at, 1);
+    }
     let i = 0;
     while (cards.length < need) {
       if (i >= cardStream.length) refill(iso);

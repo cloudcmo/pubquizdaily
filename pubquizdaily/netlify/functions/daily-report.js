@@ -1,5 +1,5 @@
 // netlify/functions/daily-report.js
-// THE daily email: one report covering the Guff games — Word Raver, Pub Quiz Daily, Hexadec,
+// THE daily email: one report covering the Guff games — Guff Tumble, Word Raver, Pub Quiz Daily, Hexadec,
 // Whenly, What Word, Groupie, Words and Guff Daily, Spellbound and Guffinoes.
 // (Words and Guff Daily took Twentee's place on 20 Sept 2026.) Replaces the separate
 // PQD and Whenly reports (Whenly's own schedule is switched off in its
@@ -17,6 +17,8 @@
 //   Guffinoes — GET {GUFFINOES_URL}/api/stats?date= with GUFFINOES_ADMIN_TOKEN
 //   Hexadec   — GET {HEXADEC_URL}/api/stats?date= with HEXADEC_ADMIN_TOKEN
 //   Word Raver — GET {WORDRAVER_URL}/api/stats?days=3 (public aggregates, no token; joined 7 Nov 2026)
+//   Guff Tumble — GET {GROUPIE_URL}/api/daystats?game=gufftumble&date= (public aggregates from the
+//              league: it keeps no database of its own; joined 11 Nov 2026)
 //   Sources  — GET {GROUPIE_URL}/api/sources?date= (public aggregates from the
 //              guff-bar visit pings: visitors, finishers, and how many the
 //              Friday email brought, per game)
@@ -67,7 +69,7 @@ exports.handler = async function(event) {
     });
 
     // ── Gather all seven games in parallel, each best-effort ──
-    const [pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver] = await Promise.all([
+    const [pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble] = await Promise.all([
       fetchPqd(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('PQD stats failed:', e.message); return null; }),
       fetchWhenly(authHeader, yesterdayISO).catch(e => { console.error('Whenly stats failed:', e.message); return null; }),
       fetchWorkerStats(WHATWORD_URL, process.env.WHATWORD_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('What Word stats failed:', e.message); return null; }),
@@ -77,6 +79,7 @@ exports.handler = async function(event) {
       fetchWorkerStats(GUFFINOES_URL, process.env.GUFFINOES_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Guffinoes stats failed:', e.message); return null; }),
       fetchWorkerStats(HEXADEC_URL, process.env.HEXADEC_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Hexadec stats failed:', e.message); return null; }),
       fetchWordRaver(yesterdayISO).catch(e => { console.error('Word Raver stats failed:', e.message); return null; }),
+      fetchDayStats('gufftumble', yesterdayISO).catch(e => { console.error('Guff Tumble stats failed:', e.message); return null; }),
     ]);
 
     // Queue depth for the two games whose puzzles are written ahead by Claude
@@ -93,12 +96,12 @@ exports.handler = async function(event) {
       fetchWeeklyPlays(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('Weekly plays failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, sources, weekly, wwQueue, groupieQueue });
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, sources, weekly, wwQueue, groupieQueue });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
     const fromEmail = emailTotals(sources);
     const emailBit = fromEmail ? ` · Email ${fromEmail.visits}→${fromEmail.completed}` : '';
-    const subject = `Games — Word Raver ${n(wordraver)} · PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · W&G Daily ${n(wagdaily)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
+    const subject = `Games — Guff Tumble ${n(gufftumble)} · Word Raver ${n(wordraver)} · PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · W&G Daily ${n(wagdaily)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
 
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -230,6 +233,27 @@ async function fetchWordRaver(dayISO) {
   };
 }
 
+// ── Guff Tumble (joined the daily games 11 Nov 2026) ─────────────────────────
+// It keeps no database, so its day comes from the league (every finisher's score goes there
+// through the guff bar): public aggregates, no ids. Score = the length of the word that counts;
+// max = the day's longest word; ms = when it was folded.
+async function fetchDayStats(game, dayISO) {
+  const res = await fetch(`${GROUPIE_URL}/api/daystats?game=${game}&date=${dayISO}`);
+  if (!res.ok) throw new Error(`daystats API ${res.status}`);
+  const d = await res.json();
+  return {
+    players: d.finished || 0,
+    visitors: d.visitors || 0,
+    finishRate: d.visitors ? Math.round(100 * (d.finished || 0) / d.visitors) : null,
+    avgScore: d.avgScore,
+    avgSecs: d.avgMs == null ? null : Math.round(d.avgMs / 100) / 10,
+    max: d.max,
+    perfect: d.perfect || 0,
+    zero: d.zero || 0,
+    spread: d.spread || [],
+  };
+}
+
 // Public /api/health: { today, queued, through } = puzzles on file from today.
 async function fetchHealth(baseUrl) {
   const res = await fetch(`${baseUrl}/api/health`);
@@ -281,7 +305,7 @@ const SOURCE_GAMES = [
   // Order is Carl's ranking (Sep 2026), the same in every list. Wordminer and
   // Guffitaire (25 Sept 2026) have no stats API of their own yet, so the
   // docket's visited/finished counts here are their only line in this report.
-  ['wordraver', 'Word Raver'], ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
+  ['gufftumble', 'Guff Tumble'], ['wordraver', 'Word Raver'], ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
   ['hexadec', 'Hexadec'], ['wordminer', 'Wordminer'], ['whenly', 'Whenly'], ['helmet', 'Helmet'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
   ['whatword', 'What Word'], ['guffinoes', 'Guffinoes'],
 ];
@@ -331,14 +355,14 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, sources, weekly, wwQueue, groupieQueue }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, sources, weekly, wwQueue, groupieQueue }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
   // Summary strip: the six player counts side by side.
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['Word Raver', p(wordraver), '#ff2fd6'], ['PQD', p(pqd), '#4a7c59'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
+        ${[['Guff Tumble', p(gufftumble), '#3d8eb9'], ['Word Raver', p(wordraver), '#ff2fd6'], ['PQD', p(pqd), '#4a7c59'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -471,6 +495,14 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
         `<div style="margin-top:10px;font-size:12px;color:#8a857d;">Opened ${wordraver.visitors} · solved board 1/2/3: ${wordraver.solved.join(' / ')} · ${wordraver.hints} hint${wordraver.hints === 1 ? '' : 's'} · ${wordraver.bonus} bonus chance${wordraver.bonus === 1 ? '' : 's'}${wordraver.avgTime ? ` · typical day ${mmss(wordraver.avgTime)}` : ''}</div>`)
     : gameCard('Word Raver', '#c2187f', 'wordraver.carlosfandango.net', tile(null, 'unreachable', 'big'));
 
+  // Guff Tumble: one word a day, graded against the day's longest. Players = finishers on the league.
+  const gt = gufftumble;
+  const gufftumbleCard = gt
+    ? gameCard('Guff Tumble', '#3d8eb9', 'gufftumble.carlosfandango.net',
+        tile(gt.players, 'players', 'big') + tile(gt.avgScore === null ? null : gt.avgScore + (gt.max ? '/' + gt.max : ''), 'avg letters') + tile(gt.avgSecs === null ? null : gt.avgSecs + 's', 'avg fold') + tile(gt.perfect, '🧺 spotless'),
+        `<div style="margin-top:10px;font-size:12px;color:#8a857d;">Opened ${gt.visitors}${gt.finishRate === null ? '' : ` · ${gt.finishRate}% finished`} · ${gt.zero} lost a sock (no word)${gt.spread.length ? ` · lengths: ${gt.spread.map(x => `${x.score}×${x.n}`).join(', ')}` : ''}</div>`)
+    : gameCard('Guff Tumble', '#3d8eb9', 'gufftumble.carlosfandango.net', tile(null, 'unreachable', 'big'));
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
@@ -484,6 +516,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
 
     ${summary}
     ${sourcesCard}
+    ${gufftumbleCard}
     ${wordraverCard}
     ${pqdCard}
     ${wagdailyCard}
@@ -499,7 +532,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Word Raver · Pub Quiz Daily · Words and Guff Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Guffinoes — one report, sent via pubquizdaily.com
+      Guff Tumble · Word Raver · Pub Quiz Daily · Words and Guff Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Guffinoes — one report, sent via pubquizdaily.com
     </div>
 
   </div>

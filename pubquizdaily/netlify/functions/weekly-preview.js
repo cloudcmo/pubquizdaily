@@ -39,6 +39,7 @@ const BANKS = {
   guffitaire: loadBank(() => require('../lib/email-banks/guffitaire.json')),
   helmet:     loadBank(() => require('../lib/email-banks/helmet.json')),
   wordraver:  loadBank(() => require('../lib/email-banks/wordraver.json')),
+  gufftumble: loadBank(() => require('../lib/email-banks/gufftumble.json')),
 };
 
 const BASE = 'https://pubquizdaily.com';
@@ -104,6 +105,7 @@ const WORDMINER_URL = process.env.WORDMINER_URL || 'https://wordminer.carlosfand
 const GUFFITAIRE_URL = process.env.GUFFITAIRE_URL || 'https://guffitaire.carlosfandango.net';
 const HELMET_URL = process.env.HELMET_URL || 'https://wordhelmet.carlosfandango.net';
 const WORDRAVER_URL = process.env.WORDRAVER_URL || 'https://wordraver.carlosfandango.net';
+const GUFFTUMBLE_URL = process.env.GUFFTUMBLE_URL || 'https://gufftumble.carlosfandango.net';
 // A new game carries a prominent NEW flash on every send dated on or before its
 // date here (a month from launch: Wordminer and Guffitaire were Carl's call on
 // 25 Sept 2026, which is also when Hexadec and W&G Daily lost theirs). It
@@ -111,7 +113,8 @@ const WORDRAVER_URL = process.env.WORDRAVER_URL || 'https://wordraver.carlosfand
 // key (and isNew on its familyGames entry) for the next new game.
 // Helmet joined on 16 Oct 2026 and took the flash off Wordminer and Guffitaire.
 // Word Raver (was Guff3000) joined on 5 Nov 2026, at the top of every list, and took the flash off Helmet.
-const NEW_UNTIL = { wordraver: '2026-12-05' };
+// Guff Tumble joined on 11 Nov 2026, at the top of every list, and took the flash off Word Raver.
+const NEW_UNTIL = { gufftumble: '2026-12-11' };
 
 // ── One-off editions, keyed by the send date (the Friday) ──
 // A week listed here changes the email's shape for that send only; every other
@@ -139,9 +142,12 @@ const EDITIONS = {
   },
   // Word Raver's launch week (Carl, 5 Nov 2026: "feature it next week"): NEW in the subject,
   // Word Raver leads instead of Pub Quiz Daily (which would have led this week), quiz card second.
+  // 11 Nov 2026 (Carl): Guff Tumble joined the daily games and takes the lead this week instead,
+  // with NEW in the subject. Word Raver (which had this slot) gets the card beside the quiz.
   '2026-11-13': {
-    subject: 'NEW: Word Raver. Throw your words in the air',
-    lead: 'wordraver',
+    subject: 'NEW: Guff Tumble. Nine letters, 33 seconds',
+    lead: 'gufftumble',
+    cards: ['wordraver'],
   },
 };
 
@@ -167,7 +173,7 @@ const FEATURE_ORDER = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly
 const ROTATION_FROM = '2026-10-30';   // the first Friday the rotation chooses
 
 function featureFor(fridayISO) {
-  if (fridayISO >= PLAN_FROM) return planFor(fridayISO, editionLead).lead.key; // 'pqd' or a game
+  if (fridayISO >= PLAN_FROM) return planFor(fridayISO, editionLead, editionCards).lead.key; // 'pqd' or a game
   const ed = editionFor(fridayISO);
   if (ed && ed.feature && FEATURES[ed.feature]) return ed.feature;
   const len = FEATURE_ORDER.length;
@@ -196,6 +202,7 @@ const editionFor = fridayISO => EDITIONS[fridayISO] || null;
 // An edition can force the lead block with `lead: 'pqd'` or `lead: '<game>'`
 // (or the older `feature: '<game>'`).
 const editionLead = fridayISO => { const ed = editionFor(fridayISO); return ed ? (ed.lead || ed.feature || null) : null; };
+const editionCards = fridayISO => { const ed = editionFor(fridayISO); return ed && ed.cards ? ed.cards : null; };
 const ALL_GAMES_URL = 'https://carlosfandango.net/games/';
 const WWG_URL = 'https://carlosfandango.net/wwg/';
 const WWG_BOARD_IMG = `${BASE}/email/wordsandguff-board.jpg`;
@@ -1041,6 +1048,10 @@ const FEATURES = {
     url: HELMET_URL, cta: "Clear today's site",
     pitch: 'Spell words through any touching tiles, even round corners, and everything above comes crashing down. Mind the dynamite.',
     image: `${BASE}/email/helmet-site.jpg`, imageW: 300, imageH: 504, imageAlt: 'A Helmet building site, with GuffBot bending a word round a corner' },
+  gufftumble: { name: 'Guff Tumble', line: 'Nine letters, 33 seconds', bg: '#3d8eb9', ink: '#ffffff', sub: '#e3f1f8', btnBg: '#f2c14e', btnInk: '#23303a',
+    url: GUFFTUMBLE_URL, cta: "Open today's dryer",
+    pitch: "Nine letters tumble out of GuffBot's dryer onto the washing line. You have 33 seconds to fold the longest word you can, and the quicker you fold it, the better. Fold as often as you like: your last word is the one that counts.",
+    image: `${BASE}/email/gufftumble-board.jpg`, imageW: 300, imageH: 450, imageAlt: "A Guff Tumble game: nine letters pegged out on laundry, and the word BOIL in the basket" },
   wordraver: { name: 'Word Raver', line: 'Throw your words in the air', bg: '#1a0030', ink: '#ffffff', sub: '#ffc4f4', btnBg: '#ff2fd6', btnInk: '#1a0030',
     url: WORDRAVER_URL, cta: "Play today's three words",
     pitch: "GuffBot has had a go at three hidden words, and his guesses are your clues. Finish each one in the rows he left you, to a light show and a chiptune soundtrack. A perfect day scores 3000. Sound on!",
@@ -1062,7 +1073,7 @@ async function buildFeaturePromo(fridayISO) {
   if (key === 'pqd') return { key, peek: '', example: null, note: 'lead: Pub Quiz Daily' };
   const f = FEATURES[key];
   // From PLAN_FROM a lead game with no live peek shows a real past example instead.
-  const plan = fridayISO >= PLAN_FROM ? planFor(fridayISO, editionLead) : null;
+  const plan = fridayISO >= PLAN_FROM ? planFor(fridayISO, editionLead, editionCards) : null;
   const example = plan ? nth(BANKS[key], plan.lead.n, key) : null;
   let peek = '';
   if (f.peek) {
@@ -1110,7 +1121,7 @@ function buildFeatureBlock(featurePromo, fridayISO) {
 // copy (hand-written rotation, no AI) and Pub Quiz Daily's card opener.
 // Shared with weekly-rebuild.js so a rebuild matches the preview exactly.
 function buildWeekParts(fridayISO, questions, subjectQ) {
-  const plan = fridayISO >= PLAN_FROM ? planFor(fridayISO, editionLead) : null;
+  const plan = fridayISO >= PLAN_FROM ? planFor(fridayISO, editionLead, editionCards) : null;
   const pqdSlot = plan ? [plan.lead, ...plan.cards].find(s => s.key === 'pqd') : { n: weekOfYear(fridayISO) };
   const n = questions.length;
   const v = nth(QUIZ_INTROS, pqdSlot.n, 'quiz-intro');
@@ -1211,7 +1222,7 @@ function buildPqdCard({ pqdOpener, taster, statText }) {
 const LEAGUE_URL = 'https://league.carlosfandango.net/';
 const CHEER_GAME_NAMES = {
   guffitaire: 'Guffitaire', pqd: 'Pub Quiz Daily', wagdaily: 'Words and Guff Daily', hexadec: 'Hexadec',
-  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', groupie: 'Groupie',
+  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', gufftumble: 'Guff Tumble', groupie: 'Groupie',
   spellbound: 'Spellbound', whatword: 'What Word', guffinoes: 'Guffinoes',
 };
 async function buildCheeredPromo(fridayISO) {
@@ -1243,7 +1254,7 @@ function buildAllGamesBlock(cheered) {
   return `
   <tr><td style="padding:18px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${navy}" style="background-color:${navy};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Nine free daily games</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Ten free daily games</div>
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:8px;">All the Guff games</div>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#d6cfc0;padding-bottom:22px;">Pick the ones you like and play them in your own order.</div>
       <a href="${url}" style="text-decoration:none;"><img src="${HUB_IMG}" width="260" height="457" alt="The Guff Games hub: GuffBot with the games orbiting him" style="display:block;width:260px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
