@@ -127,4 +127,14 @@ const OPENERS = {
   ],
 };
 
+// Guff Tumble (11 Nov 2026). Never name the TV show or anyone else's word game.
+OPENERS.gufftumble = [
+  "Have you tried Guff Tumble? Nine letters, 33 seconds, and the longest word you can fold.",
+  "Guff Tumble is the newest Guff game: GuffBot's dryer tumbles out nine letters, and the clock is running.",
+  "In Guff Tumble only your last word counts. Fold a safe one, then go for a longer one if you dare.",
+  "Seven letters at ten seconds beats seven letters at twenty. Guff Tumble rewards a quick fold.",
+  "Spotless, Fluffy or Lost a sock? Guff Tumble grades you against the longest word in the drum.",
+  "A fresh load every midnight, the same nine letters for everyone. How long a word can you fold?",
+];
+
 module.exports = { QUIZ_INTROS, PQD_CARD_OPENERS, OPENERS };

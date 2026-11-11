@@ -1,0 +1,26 @@
+{
+  "game": "gufftumble",
+  "source": "Guff Tumble boards for 11 and 12 Nov 2026 (#1 and #2), worked out with src/index.js boardFor(); longest words and GuffBot's everyday pick from bestWords()",
+  "items": [
+    {
+      "prompt": "The nine letters from Guff Tumble #1 (11 November). How long a word can you fold in 33 seconds?",
+      "detail": "R  I  T  E  O  J  B  L  E",
+      "reveal": "Eight letters: BOERTJIE, the only one. GuffBot's everyday pick was TREBLE."
+    },
+    {
+      "prompt": "The nine letters from Guff Tumble #2 (12 November). How long a word can you fold in 33 seconds?",
+      "detail": "L  O  D  A  I  S  E  H  A",
+      "reveal": "Eight letters: HEADSAIL. GuffBot went for IDEALS, LADIES or SAILED."
+    },
+    {
+      "prompt": "GuffBot found an everyday six in Guff Tumble #1. Can you?",
+      "detail": "R  I  T  E  O  J  B  L  E",
+      "reveal": "TREBLE. The longest was BOERTJIE, eight letters."
+    },
+    {
+      "prompt": "GuffBot found three everyday sixes in Guff Tumble #2. How many can you find?",
+      "detail": "L  O  D  A  I  S  E  H  A",
+      "reveal": "IDEALS, LADIES and SAILED. The longest was HEADSAIL, eight letters."
+    }
+  ]
+}

@@ -501,9 +501,36 @@
     .bar-tab .t-total { font-weight: 700; font-size: 1.1rem; }
     .bar-tab .t-foot { text-align: center; font-size: .78rem; margin-top: 10px; }
     .final-panel.has-tab .final-score, .final-panel.has-tab .final-out-of { display: none; }
+
+    /* How you did against the pub, stamped on the tab, and last month's
+       champion on a brass plaque under it (12 Nov 2026) */
+    .bar-tab .t-stamp {
+      display: block; width: fit-content; max-width: 100%; margin: 12px auto 2px; padding: 4px 10px;
+      border: 2.5px solid #b3261e; border-radius: 4px; color: #b3261e; opacity: .9;
+      font-weight: 700; font-size: .76rem; letter-spacing: .06em; text-transform: uppercase; text-align: center;
+      transform: rotate(-4deg); animation: stampIn .45s cubic-bezier(.3,1.6,.5,1) both;
+    }
+    .bar-tab .t-stamp.still { animation: none; }
+    @keyframes stampIn { from { transform: scale(2.2) rotate(-12deg); opacity: 0; } to { transform: rotate(-4deg); opacity: .9; } }
+    .plaque {
+      position: relative; max-width: 230px; margin: 0 auto 22px; padding: 9px 16px 8px; text-align: center;
+      font-family: var(--font-serif); color: #3a2709;
+      background: linear-gradient(135deg, #f3d98b 0%, #d7a640 45%, #b8862a 60%, #efd07a 100%);
+      border: 2px solid #6b4a14; border-radius: 5px;
+      box-shadow: inset 0 0 0 3px rgba(255,240,190,.55), 0 3px 0 rgba(60,40,10,.25);
+      animation: tabIn .5s ease .15s both;
+    }
+    .plaque::before, .plaque::after {
+      content: ''; position: absolute; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, #fff4cf, #7a5516); box-shadow: 0 1px 0 rgba(0,0,0,.25);
+    }
+    .plaque::before { left: 6px; } .plaque::after { right: 6px; }
+    .plaque .p-k { font-size: .62rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+    .plaque .p-n { font-size: 1.55rem; font-weight: 700; letter-spacing: .1em; line-height: 1.15; }
+    .plaque .p-s { font-size: .72rem; font-style: italic; }
     @media (prefers-reduced-motion: reduce) {
       .mat-inner, .pint-beer, .pint-foam, .mat-bar i { transition: none; }
-      .pint.full .pint-spill, .pint.glug, .bar-tab { animation: none; }
+      .pint.full .pint-spill, .pint.glug, .bar-tab, .bar-tab .t-stamp, .plaque { animation: none; }
     }
   </style>
   <script type="application/ld+json">
@@ -941,6 +968,7 @@
       startCountdown();
       initSignup();
       showBonusRound();
+      if (!isArchiveMode) { loadPubScores(); loadChamp(); }
 
       // GUFFBOT: if this play was an assigned duty, stamp the papers (no-op otherwise)
       if (!isArchiveMode && window.GuffDuty) GuffDuty.discharge({ score: score, max: questions.length });
@@ -968,6 +996,7 @@
       const known = questions.map((_, i) => pubPct[i]).filter(v => v !== undefined);
       const avg = known.length === questions.length ? known.reduce((a, b) => a + b, 0) / 100 : null;
       const n = questions.length;
+      const brag = getBrag();
       const line = score === n ? 'Full pint. Drinks on you.'
         : score === 0 ? 'Dry night. Tomorrow is another round.'
         : avg !== null && score > avg ? 'Better than most of the pub.'
@@ -982,7 +1011,90 @@
         <div class="t-rule"></div>
         <div class="t-row t-total"><span>TOTAL</span><span>${score} / ${n}</span></div>
         ${avg !== null ? `<div class="t-row"><span>Pub average today</span><span>${avg.toFixed(1)} / ${n}</span></div>` : ''}
+        ${brag ? `<div class="t-stamp${brag === stampShown ? ' still' : ''}">${esc(brag)}</div>` : ''}
         <div class="t-foot">${line}<br>Thank you, come again tomorrow</div>`;
+      if (brag) stampShown = brag;
+      todayBrag = brag;
+      renderPlaque(tab);
+    }
+
+    // ── Against the pub (12 Nov 2026) ──
+    // One line, only ever a brag: "Beat 81% of the pub today" from the
+    // day's score spread (record-score), or "Got the one only 14% got" from the
+    // per-question stats. Nothing is said when neither is flattering.
+    let pubCounts = null, champ = null, stampShown = '', todayBrag = null;
+    function getBrag() {
+      if (isArchiveMode || !score) return null;
+      let pct = null;
+      if (pubCounts) {
+        const all = Object.entries(pubCounts).reduce((a, [, c]) => a + c, 0);
+        const below = Object.entries(pubCounts).reduce((a, [s, c]) => a + (+s < score ? c : 0), 0);
+        if (all >= 6) pct = Math.round(below / (all - 1) * 100);
+      }
+      const rare = questions.map((_, i) => answered[i] === 'correct' ? pubPct[i] : undefined)
+        .filter(v => v !== undefined).sort((a, b) => a - b)[0];
+      if (pct !== null && pct >= 75) return `Beat ${Math.min(pct, 99)}% of the pub today`;
+      if (rare !== undefined && rare <= 25) return `Got the one only ${Math.max(rare, 1)}% got`;
+      if (pct !== null && pct >= 50) return `Beat ${pct}% of the pub today`;
+      return null;
+    }
+
+    async function loadPubScores() {
+      try {
+        let res;
+        let sent = null;
+        try { sent = localStorage.getItem('pqd_final_sent'); } catch {}
+        if (sent !== todayISO) {
+          try { localStorage.setItem('pqd_final_sent', todayISO); } catch {}
+          res = await fetch('/.netlify/functions/record-score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ date: todayISO, score: score, n: questions.length }),
+          });
+        } else {
+          res = await fetch(`/.netlify/functions/record-score?date=${todayISO}`);
+        }
+        if (!res.ok) return;
+        pubCounts = (await res.json()).counts || {};
+        renderBarTab();
+      } catch {}
+    }
+
+    // Last month's Pub Quiz champion, from the league's month table. Cached for
+    // the calendar month, so it is one small fetch per player per month.
+    async function loadChamp() {
+      const m = todayISO.slice(0, 7);
+      try {
+        const c = JSON.parse(localStorage.getItem('pqd_champ') || 'null');
+        if (c && c.m === m) { champ = c; renderBarTab(); return; }
+      } catch {}
+      try {
+        const r = await fetch('https://groupie.fun/api/league?mode=month');
+        if (!r.ok) return;
+        const j = await r.json();
+        const top = j.champs && j.champs.pqd && j.champs.pqd[0];
+        if (!top || !top.initials || !j.prev || !j.prev.from) return;
+        champ = {
+          m, ini: top.initials, avg: top.avg, of: top.of, days: top.days,
+          month: new Date(j.prev.from + 'T12:00:00').toLocaleDateString('en-GB', { month: 'long' }),
+        };
+        try { localStorage.setItem('pqd_champ', JSON.stringify(champ)); } catch {}
+        renderBarTab();
+      } catch {}
+    }
+
+    function renderPlaque(tab) {
+      let pl = document.getElementById('pubPlaque');
+      if (!champ) { if (pl) pl.remove(); return; }
+      if (!pl) {
+        pl = document.createElement('div');
+        pl.id = 'pubPlaque'; pl.className = 'plaque';
+        tab.insertAdjacentElement('afterend', pl);
+      }
+      const ini = String(champ.ini).replace(/[^A-Za-z0-9]/g, '').slice(0, 4).toUpperCase();
+      const avg = champ.of ? `${champ.avg}/${champ.of} a night` : `${champ.avg} a night`;
+      pl.innerHTML = `<div class="p-k">${champ.month} champion</div><div class="p-n">${ini}</div><div class="p-s">${avg} &middot; ${champ.days} visits</div>`;
+      pl.setAttribute('aria-label', `The Guff Arms ${champ.month} champion: ${ini}`);
     }
 
     function restoreProgress() {
@@ -1124,7 +1236,8 @@
 
       const ms = isArchiveMode ? null : clockMs(todayISO);
       const timeStr = ms !== null ? ` in ${clockText(ms)}` : '';
-      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}${timeStr}${streakStr}\n\n${taunt}\npubquizdaily.com`;
+      const bragStr = todayBrag ? `\n🍺 ${todayBrag}` : '';
+      const text = `Pub Quiz Daily — ${formatDate(todayISO)}\n${emojiRow}${timeStr}${streakStr}${bragStr}\n\n${taunt}\npubquizdaily.com`;
       if (navigator.share) {
         navigator.share({ title: 'Pub Quiz Daily', text }).catch(() => {});
       } else {
