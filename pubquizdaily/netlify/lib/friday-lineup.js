@@ -20,13 +20,16 @@ const GAMES = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly', 'helm
 // EDITIONS), then joins the rotation the Friday after.
 // Guff Tumble (11 Nov 2026) leads its launch Friday, 13 Nov, by edition, with Word Raver
 // as the card beside the quiz, then joins the rotation the Friday after.
-const JOINS = { wordraver: '2026-11-20', gufftumble: '2026-11-20' };
+// Whenly Football (15 Nov 2026, Carl: joins the daily games) leads 20 Nov by edition as its
+// launch, then joins the rotation the Friday after.
+const JOINS = { wordraver: '2026-11-20', gufftumble: '2026-11-20', whenlyfootball: '2026-11-27' };
 // Games that left the rotation, and the first Friday they are gone. Carl, 11 Nov 2026:
 // Hexadec and Spellbound became classic games (out of the daily list) and are no longer
 // in the Friday email. (Guffinoes was never in it.) Weeks before that replay as they were.
 const LEAVES = { hexadec: '2026-11-13', spellbound: '2026-11-13' };
 // One-off guests (Carl, 14 Nov 2026): games an edition can put in the email (as the lead or a card) without
 // them joining the weekly rotation. Whenly Football leads 20 Nov, with Guffhead as the card beside the quiz.
+// 15 Nov 2026: Whenly Football moved to JOINS (it joined the daily games); Guffhead stays a guest.
 const ONE_OFF = ['whenlyfootball', 'guffhead'];
 const gamesOn = iso => GAMES.concat(Object.keys(JOINS).filter(k => iso >= JOINS[k]))
   .filter(k => !(LEAVES[k] && iso >= LEAVES[k]));

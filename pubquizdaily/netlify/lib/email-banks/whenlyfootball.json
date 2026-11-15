@@ -1,0 +1,30 @@
+{
+ "game": "whenlyfootball",
+ "source": "Whenly Football questions already played (14 and 15 Nov 2026) from public/days.json; never a future day",
+ "items": [
+  {
+   "prompt": "What year? Gareth Bale scored an overhead kick in the Champions League final as Real Madrid beat Liverpool.",
+   "reveal": "Answer: 2018. He came off the bench in Kiev and scored twice."
+  },
+  {
+   "prompt": "What year? Eric Cantona launched a kung-fu kick at a fan in the crowd at Selhurst Park.",
+   "reveal": "Answer: 1995. Banned for eight months, then came back and won the Double. Seagulls, trawlers, sardines."
+  },
+  {
+   "prompt": "What year? Alan Sunderland slid in a last-minute winner for Arsenal against Manchester United in the FA Cup final.",
+   "reveal": "Answer: 1979. United had come back from 2-0 down to level it. They got about a minute to enjoy it."
+  },
+  {
+   "prompt": "What year? Sergio Aguero scored in stoppage time against QPR to win Manchester City the title on goal difference.",
+   "reveal": "Answer: 2012. 93 minutes 20 seconds. \"Aguerooooo!\" City's first top-flight title for 44 years."
+  },
+  {
+   "prompt": "What year? Jimmy Glass, an on-loan goalkeeper, scored in stoppage time to keep Carlisle United in the Football League.",
+   "reveal": "Answer: 1999. Carlisle's keeper went up for a corner, smashed in the rebound, and Scarborough went down instead."
+  },
+  {
+   "prompt": "What year? Everton beat Rapid Vienna in Rotterdam to win the European Cup Winners' Cup.",
+   "reveal": "Answer: 1985. They were league champions too. The European ban that followed stopped a tilt at the big one."
+  }
+ ]
+}

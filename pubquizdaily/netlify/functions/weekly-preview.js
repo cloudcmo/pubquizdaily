@@ -40,6 +40,7 @@ const BANKS = {
   helmet:     loadBank(() => require('../lib/email-banks/helmet.json')),
   wordraver:  loadBank(() => require('../lib/email-banks/wordraver.json')),
   gufftumble: loadBank(() => require('../lib/email-banks/gufftumble.json')),
+  whenlyfootball: loadBank(() => require('../lib/email-banks/whenlyfootball.json')),
 };
 
 const BASE = 'https://pubquizdaily.com';
@@ -117,7 +118,8 @@ const GUFFHEAD_URL = 'https://guffhead.carlosfandango.net';
 // Word Raver (was Guff3000) joined on 5 Nov 2026, at the top of every list, and took the flash off Helmet.
 // Guff Tumble joined on 11 Nov 2026, at the top of every list, and took the flash off Word Raver.
 // Whenly Football and Guffhead (14 Nov 2026) carry it too; they're one-off guests, not in the rotation.
-const NEW_UNTIL = { gufftumble: '2026-12-11', whenlyfootball: '2026-12-14', guffhead: '2026-12-14' };
+// 15 Nov 2026: NEW came off Guff Tumble when Whenly Football joined the daily games.
+const NEW_UNTIL = { whenlyfootball: '2026-12-14', guffhead: '2026-12-14' };
 
 // ── One-off editions, keyed by the send date (the Friday) ──
 // A week listed here changes the email's shape for that send only; every other
@@ -1241,7 +1243,7 @@ function buildPqdCard({ pqdOpener, taster, statText }) {
 const LEAGUE_URL = 'https://league.carlosfandango.net/';
 const CHEER_GAME_NAMES = {
   guffitaire: 'Guffitaire', pqd: 'Pub Quiz Daily', wagdaily: 'Words and Guff Daily', hexadec: 'Hexadec',
-  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', gufftumble: 'Guff Tumble', groupie: 'Groupie',
+  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', gufftumble: 'Guff Tumble', whenlyfootball: 'Whenly Football', groupie: 'Groupie',
   spellbound: 'Spellbound', whatword: 'What Word', guffinoes: 'Guffinoes',
 };
 async function buildCheeredPromo(fridayISO) {
@@ -1273,7 +1275,7 @@ function buildAllGamesBlock(cheered) {
   return `
   <tr><td style="padding:18px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${navy}" style="background-color:${navy};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Ten free daily games</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Eleven free daily games</div>
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:8px;">All the Guff games</div>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#d6cfc0;padding-bottom:22px;">Pick the ones you like and play them in your own order.</div>
       <a href="${url}" style="text-decoration:none;"><img src="${HUB_IMG}" width="260" height="457" alt="The Guff Games hub: GuffBot with the games orbiting him" style="display:block;width:260px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
@@ -1404,7 +1406,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
 
   const familyHeader = shownGames.length ? `
   <tr><td style="padding:26px 8px 2px;" align="center">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">${edition && edition.games ? 'More free daily Guff games' : 'The Guff games · ten free daily games · the quiz above is one'}</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">${edition && edition.games ? 'More free daily Guff games' : 'The Guff games · eleven free daily games · the quiz above is one'}</div>
   </td></tr>` : '';
 
   const allGamesLink = (edition && edition.allGames) ? `
