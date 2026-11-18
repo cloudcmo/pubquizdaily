@@ -137,4 +137,12 @@ OPENERS.gufftumble = [
   "A fresh load every midnight, the same nine letters for everyone. How long a word can you fold?",
 ];
 
+// 14 Nov 2026: one-off guests. Guffhead in email is "the card game with the rude name", never the name itself.
+OPENERS.whenlyfootball = [
+  "Whenly Football is the newest Guff game: three football moments a day, and all you have to do is say when.",
+];
+OPENERS.guffhead = [
+  "Know the card game with the rude name? Guffhead is it, on your phone. Play GuffBot and Ms GuffBot straight away, then send a friend a link and take them on at your own pace. Last one holding cards wears the 💩.",
+];
+
 module.exports = { QUIZ_INTROS, PQD_CARD_OPENERS, OPENERS };

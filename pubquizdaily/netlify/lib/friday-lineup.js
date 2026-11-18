@@ -20,11 +20,17 @@ const GAMES = ['guffitaire', 'wagdaily', 'hexadec', 'wordminer', 'whenly', 'helm
 // EDITIONS), then joins the rotation the Friday after.
 // Guff Tumble (11 Nov 2026) leads its launch Friday, 13 Nov, by edition, with Word Raver
 // as the card beside the quiz, then joins the rotation the Friday after.
-const JOINS = { wordraver: '2026-11-20', gufftumble: '2026-11-20' };
+// Whenly Football (15 Nov 2026, Carl: joins the daily games) leads 20 Nov by edition as its
+// launch, then joins the rotation the Friday after.
+const JOINS = { wordraver: '2026-11-20', gufftumble: '2026-11-20', whenlyfootball: '2026-11-27' };
 // Games that left the rotation, and the first Friday they are gone. Carl, 11 Nov 2026:
 // Hexadec and Spellbound became classic games (out of the daily list) and are no longer
 // in the Friday email. (Guffinoes was never in it.) Weeks before that replay as they were.
 const LEAVES = { hexadec: '2026-11-13', spellbound: '2026-11-13' };
+// One-off guests (Carl, 14 Nov 2026): games an edition can put in the email (as the lead or a card) without
+// them joining the weekly rotation. Whenly Football leads 20 Nov, with Guffhead as the card beside the quiz.
+// 15 Nov 2026: Whenly Football moved to JOINS (it joined the daily games); Guffhead stays a guest.
+const ONE_OFF = ['whenlyfootball', 'guffhead'];
 const gamesOn = iso => GAMES.concat(Object.keys(JOINS).filter(k => iso >= JOINS[k]))
   .filter(k => !(LEAVES[k] && iso >= LEAVES[k]));
 
@@ -87,7 +93,7 @@ function planFor(fridayISO, editionLead = () => null, editionCards = () => null)
     }
     const forced = editionLead(iso);
     let lead;
-    if (forced === 'pqd' || GAMES.includes(forced) || JOINS[forced]) lead = forced;
+    if (forced === 'pqd' || GAMES.includes(forced) || JOINS[forced] || ONE_OFF.includes(forced)) lead = forced;
     else if (w % PQD_LEAD_EVERY === PQD_LEAD_EVERY - 1) lead = 'pqd';
     else {
       // Next game in the lead decks that wasn't in last Friday's email.
@@ -104,7 +110,7 @@ function planFor(fridayISO, editionLead = () => null, editionCards = () => null)
     const cards = [];
     for (const k of editionCards(iso) || []) {
       if (cards.length >= need || k === lead || k === 'pqd' || cards.includes(k)) continue;
-      if (!on.includes(k) && !JOINS[k]) continue;   // a game that has left can't be forced back in
+      if (!on.includes(k) && !JOINS[k] && !ONE_OFF.includes(k)) continue;   // a game that has left can't be forced back in
       cards.push(k);
       const at = cardStream.indexOf(k);
       if (at >= 0) cardStream.splice(at, 1);
@@ -141,4 +147,4 @@ function addDaysISO(iso, n) {
   return d.toISOString().slice(0, 10);
 }
 
-module.exports = { PLAN_FROM, GAMES, JOINS, LEAVES, planFor, nth, seededShuffle };
+module.exports = { PLAN_FROM, GAMES, JOINS, LEAVES, ONE_OFF, planFor, nth, seededShuffle };

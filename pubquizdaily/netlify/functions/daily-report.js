@@ -1,5 +1,5 @@
 // netlify/functions/daily-report.js
-// THE daily email: one report covering the Guff games — Guff Tumble, Word Raver, Pub Quiz Daily, Hexadec,
+// THE daily email: one report covering the Guff games — Guff Tumble, Word Raver, Pub Quiz Daily, Hexadec, Whenly Football,
 // Whenly, What Word, Groupie, Words and Guff Daily, Spellbound and Guffinoes.
 // (Words and Guff Daily took Twentee's place on 20 Sept 2026.) Replaces the separate
 // PQD and Whenly reports (Whenly's own schedule is switched off in its
@@ -69,7 +69,7 @@ exports.handler = async function(event) {
     });
 
     // ── Gather all seven games in parallel, each best-effort ──
-    const [pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble] = await Promise.all([
+    const [pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, whenlyfootball] = await Promise.all([
       fetchPqd(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('PQD stats failed:', e.message); return null; }),
       fetchWhenly(authHeader, yesterdayISO).catch(e => { console.error('Whenly stats failed:', e.message); return null; }),
       fetchWorkerStats(WHATWORD_URL, process.env.WHATWORD_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('What Word stats failed:', e.message); return null; }),
@@ -80,6 +80,8 @@ exports.handler = async function(event) {
       fetchWorkerStats(HEXADEC_URL, process.env.HEXADEC_ADMIN_TOKEN, yesterdayISO).catch(e => { console.error('Hexadec stats failed:', e.message); return null; }),
       fetchWordRaver(yesterdayISO).catch(e => { console.error('Word Raver stats failed:', e.message); return null; }),
       fetchDayStats('gufftumble', yesterdayISO).catch(e => { console.error('Guff Tumble stats failed:', e.message); return null; }),
+      // Whenly Football (14 Nov 2026): no database of its own either; the league has its day
+      fetchDayStats('whenlyfootball', yesterdayISO).catch(e => { console.error('Whenly Football stats failed:', e.message); return null; }),
     ]);
 
     // Queue depth for the two games whose puzzles are written ahead by Claude
@@ -96,12 +98,12 @@ exports.handler = async function(event) {
       fetchWeeklyPlays(SITE_ID, authHeader, yesterdayISO).catch(e => { console.error('Weekly plays failed:', e.message); return null; }),
     ]);
 
-    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, sources, weekly, wwQueue, groupieQueue });
+    const html = buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, whenlyfootball, sources, weekly, wwQueue, groupieQueue });
 
     const n = v => (v && typeof v.players === 'number') ? v.players : '—';
     const fromEmail = emailTotals(sources);
     const emailBit = fromEmail ? ` · Email ${fromEmail.visits}→${fromEmail.completed}` : '';
-    const subject = `Games — Guff Tumble ${n(gufftumble)} · Word Raver ${n(wordraver)} · PQD ${n(pqd)} · Whenly ${n(whenly)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · W&G Daily ${n(wagdaily)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
+    const subject = `Games — Guff Tumble ${n(gufftumble)} · Word Raver ${n(wordraver)} · PQD ${n(pqd)} · Whenly ${n(whenly)} · Whenly Football ${n(whenlyfootball)} · WhatWord ${n(whatword)} · Groupie ${n(groupie)} · W&G Daily ${n(wagdaily)} · Spellbound ${n(spellbound)} · Guffinoes ${n(guffinoes)} · Hexadec ${n(hexadec)}${emailBit} · ${yesterdayLabel}`;
 
     const sendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
@@ -305,7 +307,7 @@ const SOURCE_GAMES = [
   // Order is Carl's ranking (Sep 2026), the same in every list. Wordminer and
   // Guffitaire (25 Sept 2026) have no stats API of their own yet, so the
   // docket's visited/finished counts here are their only line in this report.
-  ['gufftumble', 'Guff Tumble'], ['wordraver', 'Word Raver'], ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
+  ['whenlyfootball', 'Whenly Football'], ['gufftumble', 'Guff Tumble'], ['wordraver', 'Word Raver'], ['guffitaire', 'Guffitaire'], ['pqd', 'Pub Quiz'], ['wagdaily', 'W&G Daily'],
   ['hexadec', 'Hexadec'], ['wordminer', 'Wordminer'], ['whenly', 'Whenly'], ['helmet', 'Helmet'], ['groupie', 'Groupie'], ['spellbound', 'Spellbound'],
   ['whatword', 'What Word'], ['guffinoes', 'Guffinoes'],
 ];
@@ -355,14 +357,14 @@ function gameCard(name, accent, url, tiles, extraHtml) {
     </div>`;
 }
 
-function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, sources, weekly, wwQueue, groupieQueue }) {
+function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, spellbound, guffinoes, hexadec, wordraver, gufftumble, whenlyfootball, sources, weekly, wwQueue, groupieQueue }) {
   const p = v => (v && typeof v.players === 'number') ? v.players : null;
 
   // Summary strip: the six player counts side by side.
   const summary = `
     <div style="background:#1a1a1a;border-radius:12px;padding:20px 12px;margin-bottom:18px;">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-        ${[['Guff Tumble', p(gufftumble), '#3d8eb9'], ['Word Raver', p(wordraver), '#ff2fd6'], ['PQD', p(pqd), '#4a7c59'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
+        ${[['Guff Tumble', p(gufftumble), '#3d8eb9'], ['Word Raver', p(wordraver), '#ff2fd6'], ['PQD', p(pqd), '#4a7c59'], ['W&amp;G Daily', p(wagdaily), '#2ee6c9'], ['Hexadec', p(hexadec), '#c8763a'], ['Whenly', p(whenly), '#c9772f'], ['Whenly ⚽', p(whenlyfootball), '#2e9e57'], ['Groupie', p(groupie), '#00c2cc'], ['Spellbound', p(spellbound), '#7f9dff'], ['What Word', p(whatword), '#ff48b0'], ['Guffinoes', p(guffinoes), '#b8912f']].map(([label, val, colour]) => `
           <td align="center" style="padding:0 6px;">
             <div style="font-size:26px;font-weight:700;color:#ffffff;line-height:1.1;">${val === null ? '—' : val}</div>
             <div style="font-size:10px;color:${colour};text-transform:uppercase;letter-spacing:0.08em;margin-top:5px;font-weight:700;">${label}</div>
@@ -503,6 +505,15 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
         `<div style="margin-top:10px;font-size:12px;color:#8a857d;">Opened ${gt.visitors}${gt.finishRate === null ? '' : ` · ${gt.finishRate}% finished`} · ${gt.zero} lost a sock (no word)${gt.spread.length ? ` · lengths: ${gt.spread.map(x => `${x.score}×${x.n}`).join(', ')}` : ''}</div>`)
     : gameCard('Guff Tumble', '#3d8eb9', 'gufftumble.carlosfandango.net', tile(null, 'unreachable', 'big'));
 
+  // Whenly Football: three football moments a day, start on 50, a point off per year out.
+  const wf = whenlyfootball;
+  const wfSecs = s => s == null ? null : Math.floor(s / 60) + ':' + String(Math.round(s % 60)).padStart(2, '0');
+  const whenlyfootballCard = wf
+    ? gameCard('Whenly Football', '#1d6537', 'football.carlosfandango.net',
+        tile(wf.players, 'players', 'big') + tile(wf.avgScore === null ? null : wf.avgScore + '/50', 'avg score') + tile(wf.avgSecs === null ? null : wfSecs(wf.avgSecs), 'avg time') + tile(wf.perfect, '⚽ perfect 50s'),
+        `<div style="margin-top:10px;font-size:12px;color:#8a857d;">Opened ${wf.visitors}${wf.finishRate === null ? '' : ` · ${wf.finishRate}% finished`}${wf.spread.length ? ` · best ${wf.spread[0].score}, lowest ${wf.spread[wf.spread.length - 1].score}` : ''}</div>`)
+    : gameCard('Whenly Football', '#1d6537', 'football.carlosfandango.net', tile(null, 'unreachable', 'big'));
+
   return `<!DOCTYPE html>
 <html>
 <head><meta charset="UTF-8"></head>
@@ -522,6 +533,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
     ${wagdailyCard}
     ${hexadecCard}
     ${whenlyCard}
+    ${whenlyfootballCard}
     ${groupieCard}
     ${spellboundCard}
     ${wwCard}
@@ -532,7 +544,7 @@ function buildHtml({ yesterdayLabel, pqd, whenly, whatword, groupie, wagdaily, s
     </div>
 
     <div style="margin-top:28px;font-size:11px;color:#c8c8c8;text-align:center;">
-      Guff Tumble · Word Raver · Pub Quiz Daily · Words and Guff Daily · Hexadec · Whenly · Groupie · Spellbound · What Word · Guffinoes — one report, sent via pubquizdaily.com
+      Guff Tumble · Word Raver · Pub Quiz Daily · Words and Guff Daily · Hexadec · Whenly · Whenly Football · Groupie · Spellbound · What Word · Guffinoes — one report, sent via pubquizdaily.com
     </div>
 
   </div>

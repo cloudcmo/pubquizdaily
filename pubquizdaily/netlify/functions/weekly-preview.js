@@ -40,6 +40,7 @@ const BANKS = {
   helmet:     loadBank(() => require('../lib/email-banks/helmet.json')),
   wordraver:  loadBank(() => require('../lib/email-banks/wordraver.json')),
   gufftumble: loadBank(() => require('../lib/email-banks/gufftumble.json')),
+  whenlyfootball: loadBank(() => require('../lib/email-banks/whenlyfootball.json')),
 };
 
 const BASE = 'https://pubquizdaily.com';
@@ -106,6 +107,8 @@ const GUFFITAIRE_URL = process.env.GUFFITAIRE_URL || 'https://guffitaire.carlosf
 const HELMET_URL = process.env.HELMET_URL || 'https://wordhelmet.carlosfandango.net';
 const WORDRAVER_URL = process.env.WORDRAVER_URL || 'https://wordraver.carlosfandango.net';
 const GUFFTUMBLE_URL = process.env.GUFFTUMBLE_URL || 'https://gufftumble.carlosfandango.net';
+const WHENLYFOOTBALL_URL = 'https://football.carlosfandango.net';
+const GUFFHEAD_URL = 'https://guffhead.carlosfandango.net';
 // A new game carries a prominent NEW flash on every send dated on or before its
 // date here (a month from launch: Wordminer and Guffitaire were Carl's call on
 // 25 Sept 2026, which is also when Hexadec and W&G Daily lost theirs). It
@@ -114,7 +117,9 @@ const GUFFTUMBLE_URL = process.env.GUFFTUMBLE_URL || 'https://gufftumble.carlosf
 // Helmet joined on 16 Oct 2026 and took the flash off Wordminer and Guffitaire.
 // Word Raver (was Guff3000) joined on 5 Nov 2026, at the top of every list, and took the flash off Helmet.
 // Guff Tumble joined on 11 Nov 2026, at the top of every list, and took the flash off Word Raver.
-const NEW_UNTIL = { gufftumble: '2026-12-11' };
+// Whenly Football and Guffhead (14 Nov 2026) carry it too; they're one-off guests, not in the rotation.
+// 15 Nov 2026: NEW came off Guff Tumble when Whenly Football joined the daily games.
+const NEW_UNTIL = { whenlyfootball: '2026-12-14', guffhead: '2026-12-14' };
 
 // ── One-off editions, keyed by the send date (the Friday) ──
 // A week listed here changes the email's shape for that send only; every other
@@ -148,6 +153,14 @@ const EDITIONS = {
     subject: 'NEW: Guff Tumble. Nine letters, 33 seconds',
     lead: 'gufftumble',
     cards: ['wordraver'],
+  },
+  // 14 Nov 2026 (Carl): Whenly Football is the headline (the lead block, NEW in the subject), Guffhead is the
+  // featured card beside Pub Quiz Daily. Both are one-off guests (friday-lineup.js ONE_OFF), not the rotation.
+  // House rule for Guffhead in email: say "the card game with the rude name", never the rude name itself.
+  '2026-11-20': {
+    subject: 'NEW: Whenly Football. Daily guess the year',
+    lead: 'whenlyfootball',
+    cards: ['guffhead'],
   },
 };
 
@@ -1056,6 +1069,14 @@ const FEATURES = {
     url: WORDRAVER_URL, cta: "Play today's three words",
     pitch: "GuffBot has had a go at three hidden words, and his guesses are your clues. Finish each one in the rows he left you, to a light show and a chiptune soundtrack. A perfect day scores 3000. Sound on!",
     image: `${BASE}/email/wordraver-board.jpg`, imageW: 300, imageH: 520, imageAlt: "A Word Raver board: GuffBot's guesses glow pink and blue, and you find the hidden word" },
+  // 14 Nov 2026: one-off guests (see EDITIONS 2026-11-20). Whenly Football copy: no "men's football" or
+  // "English fan" lines (Carl), and nothing about any living person.
+  whenlyfootball: { name: 'Whenly Football', line: 'Daily guess the year', bg: '#1f7a3a', ink: '#ffffff', sub: '#d8f0dd', btnBg: '#f2c14e', btnInk: '#14361f',
+    url: WHENLYFOOTBALL_URL, cta: "Take today's three",
+    pitch: "Three football moments a day, from cup final winners to last-gasp escapes. Spin the dial, guess the year, and get it spot on for a goal. Then see where you finish in the league, and pick your club for the club table.",
+    image: `${BASE}/email/whenlyfootball-game.jpg`, imageW: 300, imageH: 520, imageAlt: "A Whenly Football question: the scoreboard, and GuffBot on the dial waiting for your year" },
+  guffhead: { name: 'Guffhead', line: 'The card game with the rude name', bg: '#4f46e5', ink: '#ffffff', url: GUFFHEAD_URL, cta: 'Deal me in',
+    pitch: "The card game with the rude name, on your phone. Play GuffBot and Ms GuffBot straight away, then send a friend a link and take them on at your own pace. Last one holding cards wears the 💩." },
   groupie: { name: 'Groupie', line: 'Your daily four play', bg: '#6c4288', url: GROUPIE_URL, cta: "Play today's grid",
     pitch: 'Sixteen words, four hidden groups of four. Some of them are there to trip you up.',
     peek: async d => peekGroupieGrid(await fetchGroupieGrid(d), d) },
@@ -1222,7 +1243,7 @@ function buildPqdCard({ pqdOpener, taster, statText }) {
 const LEAGUE_URL = 'https://league.carlosfandango.net/';
 const CHEER_GAME_NAMES = {
   guffitaire: 'Guffitaire', pqd: 'Pub Quiz Daily', wagdaily: 'Words and Guff Daily', hexadec: 'Hexadec',
-  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', gufftumble: 'Guff Tumble', groupie: 'Groupie',
+  wordminer: 'Wordminer', whenly: 'Whenly', helmet: 'Helmet', wordraver: 'Word Raver', gufftumble: 'Guff Tumble', whenlyfootball: 'Whenly Football', groupie: 'Groupie',
   spellbound: 'Spellbound', whatword: 'What Word', guffinoes: 'Guffinoes',
 };
 async function buildCheeredPromo(fridayISO) {
@@ -1254,7 +1275,7 @@ function buildAllGamesBlock(cheered) {
   return `
   <tr><td style="padding:18px 0 0;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="${navy}" style="background-color:${navy};border-radius:16px;"><tr><td align="center" style="padding:30px 28px 32px;">
-      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Ten free daily games</div>
+      <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:${gold};padding-bottom:10px;">Eleven free daily games</div>
       <div style="font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;color:#ffffff;font-weight:700;padding-bottom:8px;">All the Guff games</div>
       <div style="font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.5;color:#d6cfc0;padding-bottom:22px;">Pick the ones you like and play them in your own order.</div>
       <a href="${url}" style="text-decoration:none;"><img src="${HUB_IMG}" width="260" height="457" alt="The Guff Games hub: GuffBot with the games orbiting him" style="display:block;width:260px;max-width:100%;height:auto;border:0;margin:0 auto;"></a>
@@ -1385,7 +1406,7 @@ function buildTeaserHtml({ kicker, headline, intro, hero, statText, fridayISO, w
 
   const familyHeader = shownGames.length ? `
   <tr><td style="padding:26px 8px 2px;" align="center">
-    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">${edition && edition.games ? 'More free daily Guff games' : 'The Guff games · ten free daily games · the quiz above is one'}</div>
+    <div style="font-family:Arial,Helvetica,sans-serif;font-size:12px;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:#8a857d;">${edition && edition.games ? 'More free daily Guff games' : 'The Guff games · eleven free daily games · the quiz above is one'}</div>
   </td></tr>` : '';
 
   const allGamesLink = (edition && edition.allGames) ? `
